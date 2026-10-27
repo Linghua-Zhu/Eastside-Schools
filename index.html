@@ -44,10 +44,11 @@ body {
   padding-block: 20px 40px;
 }
 body::before { content: ""; position: fixed; inset: 0 0 auto; height: env(safe-area-inset-top, 0px); z-index: 10; background: var(--bg); }
-.wrap { max-width: 1060px; margin: 0 auto; display: grid; gap: 22px; }
+.wrap { max-width: 1480px; margin: 0 auto; display: grid; gap: 22px; }
+@media (min-width: 1400px) { body { font-size: 15px; } th, td { padding: 7px 11px; } }
 header { display: grid; gap: 8px; }
 h1 { font-family: var(--font-display); font-size: clamp(22px, 4.6vw, 30px); line-height: 1.25; margin: 0; text-wrap: balance; letter-spacing: 0.01em; }
-.lede { margin: 0; color: var(--muted); max-width: 68ch; }
+.lede { margin: 0; color: var(--muted); max-width: 90ch; }
 .legend { display: flex; flex-wrap: wrap; gap: 6px 16px; font-size: 13px; color: var(--muted); }
 .legend span { display: inline-flex; align-items: center; gap: 6px; }
 .sw { width: 12px; height: 12px; border-radius: 3px; display: inline-block; }
