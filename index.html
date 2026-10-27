@@ -1,0 +1,2450 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>NSD · LWSD · BSD 学校对照</title>
+<meta name="description" content="Northshore、Lake Washington、Bellevue 三个学区全部学校的排名、成绩、GreatSchools 评分和所在 zip 的 4 房房价对照，可两两比较。">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans:wght@400;500;600&family=Noto+Sans+SC:wght@400;500;700&family=Noto+Serif+SC:wght@700&display=swap">
+<style>
+/* Layout: sticky toolbar, a compare card, then three ranked tables; the district lives in each row's edge stripe and tint */
+:root {
+  --bg: #f4f6f5;
+  --surface: #ffffff;
+  --fg: #17201b;
+  --muted: #5b6862;
+  --line: #dde4e0;
+  --head: #eef2f0;
+  --accent: #23566c;
+  --nsd: #2c7a4b;
+  --lwsd: #cf6d12;
+  --bsd: #c03636;
+  --tint: 7%;
+  --font-display: "Noto Serif SC", "Songti SC", "STSong", serif;
+  --font-body: "IBM Plex Sans", "Noto Sans SC", "PingFang SC", "Microsoft YaHei", system-ui, sans-serif;
+}
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) {
+    --bg: #0f1412; --surface: #161c19; --fg: #e5ebe7; --muted: #98a59e; --line: #29322d; --head: #1c2420;
+    --accent: #84bcd4; --nsd: #55b77d; --lwsd: #ef9440; --bsd: #ea6a62; --tint: 15%; color-scheme: dark;
+  }
+}
+:root[data-theme="dark"] {
+  --bg: #0f1412; --surface: #161c19; --fg: #e5ebe7; --muted: #98a59e; --line: #29322d; --head: #1c2420;
+  --accent: #84bcd4; --nsd: #55b77d; --lwsd: #ef9440; --bsd: #ea6a62; --tint: 15%; color-scheme: dark;
+}
+* { box-sizing: border-box; }
+html { scroll-behavior: smooth; }
+@media (prefers-reduced-motion: reduce) { html { scroll-behavior: auto; } }
+body {
+  margin: 0; background: var(--bg); color: var(--fg); font-family: var(--font-body); font-size: 14px; line-height: 1.5;
+  padding-left: max(16px, env(safe-area-inset-left, 0px)); padding-right: max(16px, env(safe-area-inset-right, 0px));
+  padding-block: 20px 40px;
+}
+body::before { content: ""; position: fixed; inset: 0 0 auto; height: env(safe-area-inset-top, 0px); z-index: 10; background: var(--bg); }
+.wrap { max-width: 1060px; margin: 0 auto; display: grid; gap: 22px; }
+header { display: grid; gap: 8px; }
+h1 { font-family: var(--font-display); font-size: clamp(22px, 4.6vw, 30px); line-height: 1.25; margin: 0; text-wrap: balance; letter-spacing: 0.01em; }
+.lede { margin: 0; color: var(--muted); max-width: 68ch; }
+.legend { display: flex; flex-wrap: wrap; gap: 6px 16px; font-size: 13px; color: var(--muted); }
+.legend span { display: inline-flex; align-items: center; gap: 6px; }
+.sw { width: 12px; height: 12px; border-radius: 3px; display: inline-block; }
+.sw.NSD { background: var(--nsd); } .sw.LWSD { background: var(--lwsd); } .sw.BSD { background: var(--bsd); }
+
+.toolbar {
+  position: sticky; top: env(safe-area-inset-top, 0px); z-index: 5; background: var(--bg);
+  display: flex; flex-wrap: wrap; align-items: center; gap: 8px 10px; padding-block: 10px; border-bottom: 1px solid var(--line);
+}
+.chip, .btn {
+  font: inherit; font-size: 13px; display: inline-flex; align-items: center; gap: 6px; cursor: pointer;
+  padding: 5px 11px; border-radius: 999px; border: 1px solid var(--line); background: var(--surface); color: var(--fg);
+}
+.chip[aria-pressed="false"] { opacity: 0.45; }
+.chip[aria-pressed="false"] .sw { background: transparent; outline: 1.5px solid var(--muted); outline-offset: -1.5px; }
+:is(.chip, .btn, th button, .jump a, select, input, .pick):focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
+#q, select {
+  font: inherit; font-size: 13px; padding: 5px 10px; border-radius: 8px; border: 1px solid var(--line);
+  background: var(--surface); color: var(--fg); min-width: 0;
+}
+#q { width: 150px; }
+.jump { margin-left: auto; display: flex; gap: 12px; font-size: 13px; }
+.jump a { color: var(--accent); text-decoration: none; }
+
+section { display: grid; gap: 8px; scroll-margin-top: 64px; }
+.sec-head { display: flex; flex-wrap: wrap; align-items: baseline; gap: 4px 12px; }
+h2 { font-family: var(--font-display); font-size: 20px; margin: 0; }
+.count, .sub { color: var(--muted); font-size: 13px; }
+.scroller { overflow-x: auto; border: 1px solid var(--line); border-radius: 10px; background: var(--surface); }
+table { border-collapse: separate; border-spacing: 0; width: 100%; min-width: 800px; font-variant-numeric: tabular-nums; }
+th, td { padding: 6px 9px; text-align: left; white-space: nowrap; border-bottom: 1px solid var(--line); }
+tbody tr:last-child td { border-bottom: 0; }
+thead th { background: var(--head); font-weight: 600; font-size: 12.5px; color: var(--muted); position: sticky; top: 0; }
+th button { font: inherit; color: inherit; background: none; border: 0; padding: 0; cursor: pointer; display: inline-flex; gap: 3px; align-items: center; }
+th button .arr { font-size: 10px; opacity: 0.35; }
+th[aria-sort] button { color: var(--fg); }
+th[aria-sort] button .arr { opacity: 1; color: var(--accent); }
+.num { text-align: right; }
+td.idx { color: var(--muted); font-size: 12px; width: 34px; box-shadow: inset 4px 0 0 var(--row); padding-left: 12px; }
+td.name { font-weight: 500; position: sticky; left: 0; z-index: 1; }
+tbody td { background: color-mix(in srgb, var(--row) var(--tint), var(--surface)); }
+tr.NSD { --row: var(--nsd); } tr.LWSD { --row: var(--lwsd); } tr.BSD { --row: var(--bsd); }
+tr.picked td { box-shadow: inset 0 -2px 0 var(--accent), inset 0 2px 0 var(--accent); }
+tr.picked td.idx { box-shadow: inset 4px 0 0 var(--row), inset 0 -2px 0 var(--accent), inset 0 2px 0 var(--accent); }
+.dist { font-size: 11px; font-weight: 600; letter-spacing: 0.04em; color: var(--row); margin-left: 6px; }
+.rank { font-weight: 600; }
+.rank.top { color: var(--accent); }
+.na { color: var(--muted); }
+.gs10 { font-weight: 600; }
+td.note { white-space: normal; min-width: 170px; color: var(--muted); font-size: 12.5px; }
+.pick { font: inherit; font-size: 11.5px; padding: 2px 8px; border-radius: 999px; border: 1px solid var(--line); background: var(--surface); color: var(--accent); cursor: pointer; }
+.pick[aria-pressed="true"] { background: var(--accent); color: var(--surface); border-color: var(--accent); }
+.empty td { text-align: center; color: var(--muted); padding: 18px; background: var(--surface); }
+
+/* compare card */
+.compare { border: 1px solid var(--line); border-radius: 12px; background: var(--surface); padding: 14px 16px; display: grid; gap: 12px; scroll-margin-top: 64px; }
+.compare h2 { font-size: 18px; }
+.ctrl { display: flex; flex-wrap: wrap; gap: 8px; align-items: center; }
+.ctrl label { display: inline-flex; gap: 6px; align-items: center; font-size: 13px; color: var(--muted); }
+.ctrl select { max-width: 220px; }
+.hint { color: var(--muted); font-size: 12.5px; margin: 0; }
+.cmp-grid { display: grid; grid-template-columns: 1fr auto 1fr; gap: 0 10px; align-items: stretch; }
+.cmp-grid .h { padding: 6px 0 8px; border-bottom: 1px solid var(--line); margin-bottom: 4px; }
+.cmp-grid .h .nm { font-weight: 600; font-size: 16px; }
+.cmp-grid .h .tag { font-size: 11px; font-weight: 600; letter-spacing: 0.04em; margin-left: 6px; }
+.cmp-grid .h .zp { color: var(--muted); font-size: 12.5px; }
+.tag.NSD { color: var(--nsd); } .tag.LWSD { color: var(--lwsd); } .tag.BSD { color: var(--bsd); }
+.cmp-grid .lbl { color: var(--muted); font-size: 12px; text-align: center; align-self: center; padding: 5px 6px; white-space: nowrap; }
+.cmp-grid .v { padding: 5px 0; font-variant-numeric: tabular-nums; border-bottom: 1px dashed var(--line); display: flex; align-items: baseline; gap: 8px; flex-wrap: wrap; }
+.cmp-grid .v.r { justify-content: flex-start; }
+.cmp-grid .v.l { justify-content: flex-end; text-align: right; }
+.cmp-grid .v .big { font-size: 17px; font-weight: 600; }
+.cmp-grid .v .plain { font-size: 13px; white-space: normal; }
+.cmp-grid .v .sm { color: var(--muted); font-size: 12px; }
+.lead { color: var(--accent); font-weight: 600; }
+.bar { height: 8px; border-radius: 4px; opacity: 0.85; }
+.bar.NSD { background: var(--nsd); } .bar.LWSD { background: var(--lwsd); } .bar.BSD { background: var(--bsd); }
+.barrow { display: grid; grid-template-columns: 1fr auto 1fr; gap: 0 10px; align-items: center; }
+.barrow .l { display: flex; justify-content: flex-end; } .barrow .r { display: flex; }
+.diff { display: flex; flex-wrap: wrap; gap: 6px; }
+.diff span { font-size: 12.5px; padding: 3px 9px; border-radius: 999px; background: var(--head); border: 1px solid var(--line); }
+.facts { display: grid; grid-template-columns: 1fr 1fr; gap: 10px 18px; }
+.facts ul { margin: 0; padding-left: 18px; font-size: 13px; }
+.facts li { margin: 2px 0; }
+.facts h3 { margin: 0 0 4px; font-size: 13px; color: var(--muted); font-weight: 600; }
+.cmp-foot { color: var(--muted); font-size: 12px; margin: 0; }
+
+footer { color: var(--muted); font-size: 12.5px; display: grid; gap: 6px; max-width: 80ch; border-top: 1px solid var(--line); padding-top: 14px; }
+footer p { margin: 0; }
+footer a { color: var(--accent); }
+.zi { display: none; }
+@media (max-width: 560px) {
+  .jump { margin-left: 0; width: 100%; }
+  #q { flex: 1 1 120px; }
+  .zip { display: none; }
+  .zi { display: block; font-size: 11px; font-weight: 400; color: var(--muted); line-height: 1.2; }
+  th, td { padding: 6px 7px; }
+  td.idx { padding-left: 10px; width: 28px; }
+  table { min-width: 640px; }
+  .facts { grid-template-columns: 1fr; }
+  .cmp-grid .lbl { font-size: 11px; }
+}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <header>
+    <h1>NSD · LWSD · BSD 学校对照</h1>
+    <p class="lede">Northshore、Lake Washington、Bellevue 三个学区的全部小学、初中和高中，默认按 SchoolDigger 2026 全州排名排序。点表头可以按成绩、GreatSchools 评分或房价重新排序；选两所学校可以并排比较。</p>
+    <div class="legend" aria-label="颜色说明">
+      <span><i class="sw NSD"></i>Northshore（NSD）</span>
+      <span><i class="sw LWSD"></i>Lake Washington（LWSD）</span>
+      <span><i class="sw BSD"></i>Bellevue（BSD）</span>
+    </div>
+  </header>
+
+  <div class="toolbar" role="toolbar" aria-label="筛选">
+    <button class="chip" id="f-NSD" data-d="NSD" aria-pressed="true"><i class="sw NSD"></i>NSD</button>
+    <button class="chip" id="f-LWSD" data-d="LWSD" aria-pressed="true"><i class="sw LWSD"></i>LWSD</button>
+    <button class="chip" id="f-BSD" data-d="BSD" aria-pressed="true"><i class="sw BSD"></i>BSD</button>
+    <input id="q" type="search" placeholder="找学校" aria-label="按校名查找">
+    <nav class="jump" aria-label="跳到"><a href="#compare">对比</a><a href="#elem">小学</a><a href="#middle">初中</a><a href="#high">高中</a></nav>
+  </div>
+
+  <section class="compare" id="compare" aria-labelledby="cmp-title">
+    <h2 id="cmp-title">对比两所学校</h2>
+    <div class="ctrl">
+      <label>学段
+        <select id="c-level" aria-label="学段">
+          <option value="E">小学</option><option value="M">初中</option><option value="H">高中</option>
+        </select>
+      </label>
+      <label>A <select id="c-a" aria-label="学校 A"></select></label>
+      <label>B <select id="c-b" aria-label="学校 B"></select></label>
+      <button class="btn" id="c-swap" type="button">交换</button>
+      <button class="btn" id="c-clear" type="button">清除</button>
+    </div>
+    <p class="hint">也可以直接点表格里的「对比」按钮。房价是学校所在 zip 近期成交的 4 房以上住宅中位数，不是学校学区内的房价。</p>
+    <div id="c-out"></div>
+  </section>
+
+  <section id="elem">
+    <div class="sec-head"><h2>小学</h2><span class="count" data-count="E"></span><span class="sub">州排名为全州 1,138 所公立小学中的名次</span></div>
+    <div class="scroller"><table data-level="E"></table></div>
+  </section>
+
+  <section id="middle">
+    <div class="sec-head"><h2>初中</h2><span class="count" data-count="M"></span><span class="sub">州排名为全州 514 所公立初中中的名次 · NSD 六所初中都有 AAP 加速班 · LWSD 部分初中有 Quest（MSQ）</span></div>
+    <div class="scroller"><table data-level="M"></table></div>
+  </section>
+
+  <section id="high">
+    <div class="sec-head"><h2>高中</h2><span class="count" data-count="H"></span><span class="sub">州排名为全州 396 所公立高中中的名次 · 阅读/数学为 10 年级达标率</span></div>
+    <div class="scroller"><table data-level="H"></table></div>
+  </section>
+
+  <footer>
+    <p><b>州排名、阅读、数学：</b>SchoolDigger 2026 排名，依据 2025-26 学年州考（SBAC）。阅读和数学是达标率（%），小学和初中为全年级合计。“—”表示该校当年没有排名或数据。选择校、线上和替代校没有学区内排名，排在各表最后。排名变化对比的是 2025 排名（分母 1,160 / 534 / 438）。</p>
+    <p><b>GS：</b>GreatSchools 评分（1-10），包含成绩、进步和公平性，比排名更粗。</p>
+    <p><b>房价：</b>Redfin 近期成交记录（2026 年 6 月到 10 月）。每个 zip 取列表页最近的成交中，4 房以上、1,800 平方英尺以上的住宅（含联排，不含公寓）的成交价中位数。列表页没有建造年份，用面积下限代替“排除老破小”，所以老一些的大房子仍在样本里。样本量 n 在对比卡里显示，n 小于 15 的 zip 和只有部分街区样本的 zip 标 ≈。zip 是学校地址的邮编，不等于学区边界。</p>
+    <p><b>备注：</b>NSD 天才项目按 2026-27 学年安排；Moorlands 关闭和 Shelton View 重建来自 2026 年 10 月 EDAC 建议，董事会 2027 年 3 月投票。BSD 天才班（AL）设在 Cherry Crest、Medina、Somerset、Woodridge、Odle、Tyee、Interlake。LWSD 全日制 Quest（2-5 年级）只确认了 Ben Franklin 和 Blackwell 两个点。</p>
+    <p><b>没有列入：</b>学前班、技能中心、复学项目等很小的特殊项目。数据整理日期 2026-10-27。</p>
+  </footer>
+</div>
+
+<script>
+const DATA = {
+ "E": [
+  {
+   "d": "NSD",
+   "n": "Fernwood",
+   "z": "98012",
+   "r": 14,
+   "r25": 21,
+   "e": 85.8,
+   "m": 87.4,
+   "g": 9,
+   "enr": 714,
+   "note": "",
+   "p": 930000,
+   "pn": 17,
+   "pq1": 860000,
+   "pq3": 1140000,
+   "pa": ""
+  },
+  {
+   "d": "NSD",
+   "n": "East Ridge",
+   "z": "98077",
+   "r": 25,
+   "r25": 59,
+   "e": 84.7,
+   "m": 83.0,
+   "g": 9,
+   "enr": 427,
+   "note": "",
+   "p": 1522000.0,
+   "pn": 14,
+   "pq1": 1400000,
+   "pq3": 1600000,
+   "pa": ""
+  },
+  {
+   "d": "NSD",
+   "n": "Kokanee",
+   "z": "98072",
+   "r": 33,
+   "r25": 44,
+   "e": 80.6,
+   "m": 78.9,
+   "g": 8,
+   "enr": 651,
+   "note": "",
+   "p": 1562500.0,
+   "pn": 22,
+   "pq1": 1230000,
+   "pq3": 2400000,
+   "pa": ""
+  },
+  {
+   "d": "NSD",
+   "n": "Canyon Creek",
+   "z": "98021",
+   "r": 35,
+   "r25": 50,
+   "e": 79.4,
+   "m": 82.5,
+   "g": 9,
+   "enr": 866,
+   "note": "4-5年级 HiCap 片区点",
+   "p": 950000,
+   "pn": 13,
+   "pq1": 859100,
+   "pq3": 1155000,
+   "pa": ""
+  },
+  {
+   "d": "NSD",
+   "n": "Hollywood Hill",
+   "z": "98072",
+   "r": 48,
+   "r25": 87,
+   "e": 77.0,
+   "m": 81.0,
+   "g": 9,
+   "enr": 331,
+   "note": "5年级天才班",
+   "p": 1562500.0,
+   "pn": 22,
+   "pq1": 1230000,
+   "pq3": 2400000,
+   "pa": ""
+  },
+  {
+   "d": "NSD",
+   "n": "Moorlands",
+   "z": "98028",
+   "r": 83,
+   "r25": 74,
+   "e": 79.4,
+   "m": 68.8,
+   "g": 8,
+   "enr": 579,
+   "note": "5年级天才班，拟2028关闭",
+   "p": 1300000,
+   "pn": 15,
+   "pq1": 947875,
+   "pq3": 1400000,
+   "pa": ""
+  },
+  {
+   "d": "NSD",
+   "n": "Lockwood",
+   "z": "98021",
+   "r": 100,
+   "r25": 85,
+   "e": 72.6,
+   "m": 71.9,
+   "g": 10,
+   "enr": 525,
+   "note": "",
+   "p": 950000,
+   "pn": 13,
+   "pq1": 859100,
+   "pq3": 1155000,
+   "pa": ""
+  },
+  {
+   "d": "NSD",
+   "n": "Wellington",
+   "z": "98072",
+   "r": 106,
+   "r25": 113,
+   "e": 75.7,
+   "m": 69.4,
+   "g": 8,
+   "enr": 380,
+   "note": "HiCap 去 Hollywood Hill",
+   "p": 1562500.0,
+   "pn": 22,
+   "pq1": 1230000,
+   "pq3": 2400000,
+   "pa": ""
+  },
+  {
+   "d": "NSD",
+   "n": "Ruby Bridges",
+   "z": "98072",
+   "r": 135,
+   "r25": 195,
+   "e": 67.9,
+   "m": 69.5,
+   "g": 8,
+   "enr": 503,
+   "note": "",
+   "p": 1562500.0,
+   "pn": 22,
+   "pq1": 1230000,
+   "pq3": 2400000,
+   "pa": ""
+  },
+  {
+   "d": "NSD",
+   "n": "Cottage Lake",
+   "z": "98077",
+   "r": 142,
+   "r25": 249,
+   "e": 74.6,
+   "m": 78.0,
+   "g": 8,
+   "enr": 258,
+   "note": "HiCap 去 Sunrise",
+   "p": 1522000.0,
+   "pn": 14,
+   "pq1": 1400000,
+   "pq3": 1600000,
+   "pa": ""
+  },
+  {
+   "d": "NSD",
+   "n": "Westhill",
+   "z": "98011",
+   "r": 147,
+   "r25": 283,
+   "e": 70.0,
+   "m": 65.6,
+   "g": 8,
+   "enr": 419,
+   "note": "",
+   "p": 1282500,
+   "pn": 19,
+   "pq1": 1100000,
+   "pq3": 1400000,
+   "pa": ""
+  },
+  {
+   "d": "NSD",
+   "n": "Arrowhead",
+   "z": "98028",
+   "r": 148,
+   "r25": 114,
+   "e": 76.7,
+   "m": 65.4,
+   "g": 8,
+   "enr": 332,
+   "note": "",
+   "p": 1300000,
+   "pn": 15,
+   "pq1": 947875,
+   "pq3": 1400000,
+   "pa": ""
+  },
+  {
+   "d": "NSD",
+   "n": "Frank Love",
+   "z": "98021",
+   "r": 194,
+   "r25": 256,
+   "e": 67.6,
+   "m": 64.9,
+   "g": 7,
+   "enr": 492,
+   "note": "",
+   "p": 950000,
+   "pn": 13,
+   "pq1": 859100,
+   "pq3": 1155000,
+   "pa": ""
+  },
+  {
+   "d": "NSD",
+   "n": "Shelton View",
+   "z": "98021",
+   "r": 212,
+   "r25": 80,
+   "e": 78.2,
+   "m": 67.2,
+   "g": 9,
+   "enr": 513,
+   "note": "5年级天才班，将重建",
+   "p": 950000,
+   "pn": 13,
+   "pq1": 859100,
+   "pq3": 1155000,
+   "pa": ""
+  },
+  {
+   "d": "NSD",
+   "n": "Kenmore",
+   "z": "98028",
+   "r": 243,
+   "r25": 278,
+   "e": 67.2,
+   "m": 57.7,
+   "g": 8,
+   "enr": 396,
+   "note": "",
+   "p": 1300000,
+   "pn": 15,
+   "pq1": 947875,
+   "pq3": 1400000,
+   "pa": ""
+  },
+  {
+   "d": "NSD",
+   "n": "Crystal Springs",
+   "z": "98021",
+   "r": 261,
+   "r25": 216,
+   "e": 59.8,
+   "m": 59.6,
+   "g": 9,
+   "enr": 500,
+   "note": "4-5年级 HiCap 去 Canyon Creek",
+   "p": 950000,
+   "pn": 13,
+   "pq1": 859100,
+   "pq3": 1155000,
+   "pa": ""
+  },
+  {
+   "d": "NSD",
+   "n": "Maywood Hills",
+   "z": "98011",
+   "r": 262,
+   "r25": 384,
+   "e": 66.2,
+   "m": 60.8,
+   "g": 5,
+   "enr": 467,
+   "note": "4-5年级 HiCap 去 Canyon Creek",
+   "p": 1282500,
+   "pn": 19,
+   "pq1": 1100000,
+   "pq3": 1400000,
+   "pa": ""
+  },
+  {
+   "d": "NSD",
+   "n": "Woodmoor",
+   "z": "98011",
+   "r": 382,
+   "r25": 420,
+   "e": 52.2,
+   "m": 58.0,
+   "g": 5,
+   "enr": 643,
+   "note": "4-5年级 HiCap 去 Moorlands",
+   "p": 1282500,
+   "pn": 19,
+   "pq1": 1100000,
+   "pq3": 1400000,
+   "pa": ""
+  },
+  {
+   "d": "NSD",
+   "n": "Woodin",
+   "z": "98011",
+   "r": 491,
+   "r25": 522,
+   "e": 50.2,
+   "m": 50.0,
+   "g": 5,
+   "enr": 469,
+   "note": "HiCap 去 Hollywood Hill",
+   "p": 1282500,
+   "pn": 19,
+   "pq1": 1100000,
+   "pq3": 1400000,
+   "pa": ""
+  },
+  {
+   "d": "NSD",
+   "n": "Sunrise",
+   "z": "98052",
+   "r": null,
+   "r25": 6,
+   "e": 88.2,
+   "m": 91.7,
+   "g": 8,
+   "enr": 322,
+   "note": "5年级天才班；2026 无排名数据",
+   "p": 1499750.0,
+   "pn": 20,
+   "pq1": 1365000,
+   "pq3": 1795000,
+   "pa": ""
+  },
+  {
+   "d": "LWSD",
+   "n": "Alcott",
+   "z": "98053",
+   "r": 6,
+   "r25": 13,
+   "e": 86.8,
+   "m": 87.7,
+   "g": 8,
+   "enr": 615,
+   "note": "",
+   "p": 1590000,
+   "pn": 23,
+   "pq1": 1380000,
+   "pq3": 1990000,
+   "pa": ""
+  },
+  {
+   "d": "LWSD",
+   "n": "Samantha Smith",
+   "z": "98074",
+   "r": 10,
+   "r25": 8,
+   "e": 87.9,
+   "m": 87.9,
+   "g": 9,
+   "enr": 545,
+   "note": "",
+   "p": 1515000,
+   "pn": 17,
+   "pq1": 1275000,
+   "pq3": 1895000,
+   "pa": ""
+  },
+  {
+   "d": "LWSD",
+   "n": "Ben Franklin",
+   "z": "98033",
+   "r": 13,
+   "r25": 30,
+   "e": 86.6,
+   "m": 86.9,
+   "g": 9,
+   "enr": 452,
+   "note": "全日制 Quest 天才班点",
+   "p": 2477500,
+   "pn": 49,
+   "pq1": 1750000,
+   "pq3": 2880828,
+   "pa": "样本来自 Rose Hill、Houghton、Bridle Trails 街区页"
+  },
+  {
+   "d": "LWSD",
+   "n": "Lakeview",
+   "z": "98033",
+   "r": 15,
+   "r25": 22,
+   "e": 86.4,
+   "m": 83.8,
+   "g": 10,
+   "enr": 602,
+   "note": "",
+   "p": 2477500,
+   "pn": 49,
+   "pq1": 1750000,
+   "pq3": 2880828,
+   "pa": "样本来自 Rose Hill、Houghton、Bridle Trails 街区页"
+  },
+  {
+   "d": "LWSD",
+   "n": "Wilder",
+   "z": "98077",
+   "r": 16,
+   "r25": 62,
+   "e": 84.6,
+   "m": 78.7,
+   "g": 10,
+   "enr": 315,
+   "note": "",
+   "p": 1522000.0,
+   "pn": 14,
+   "pq1": 1400000,
+   "pq3": 1600000,
+   "pa": ""
+  },
+  {
+   "d": "LWSD",
+   "n": "Horace Mann",
+   "z": "98052",
+   "r": 22,
+   "r25": 12,
+   "e": 92.5,
+   "m": 88.9,
+   "g": 10,
+   "enr": 387,
+   "note": "",
+   "p": 1499750.0,
+   "pn": 20,
+   "pq1": 1365000,
+   "pq3": 1795000,
+   "pa": ""
+  },
+  {
+   "d": "LWSD",
+   "n": "Rachel Carson",
+   "z": "98074",
+   "r": 28,
+   "r25": 48,
+   "e": 84.5,
+   "m": 79.6,
+   "g": 9,
+   "enr": 486,
+   "note": "",
+   "p": 1515000,
+   "pn": 17,
+   "pq1": 1275000,
+   "pq3": 1895000,
+   "pa": ""
+  },
+  {
+   "d": "LWSD",
+   "n": "Blackwell",
+   "z": "98074",
+   "r": 30,
+   "r25": 38,
+   "e": 81.4,
+   "m": 79.4,
+   "g": 8,
+   "enr": 478,
+   "note": "全日制 Quest 天才班点",
+   "p": 1515000,
+   "pn": 17,
+   "pq1": 1275000,
+   "pq3": 1895000,
+   "pa": ""
+  },
+  {
+   "d": "LWSD",
+   "n": "Peter Kirk",
+   "z": "98033",
+   "r": 36,
+   "r25": 89,
+   "e": 82.0,
+   "m": 79.6,
+   "g": 8,
+   "enr": 592,
+   "note": "",
+   "p": 2477500,
+   "pn": 49,
+   "pq1": 1750000,
+   "pq3": 2880828,
+   "pa": "样本来自 Rose Hill、Houghton、Bridle Trails 街区页"
+  },
+  {
+   "d": "LWSD",
+   "n": "Rosa Parks",
+   "z": "98053",
+   "r": 38,
+   "r25": 40,
+   "e": 80.6,
+   "m": 83.2,
+   "g": 10,
+   "enr": 450,
+   "note": "",
+   "p": 1590000,
+   "pn": 23,
+   "pq1": 1380000,
+   "pq3": 1990000,
+   "pa": ""
+  },
+  {
+   "d": "LWSD",
+   "n": "Rose Hill",
+   "z": "98033",
+   "r": 40,
+   "r25": 76,
+   "e": 78.6,
+   "m": 84.3,
+   "g": 10,
+   "enr": 570,
+   "note": "",
+   "p": 2477500,
+   "pn": 49,
+   "pq1": 1750000,
+   "pq3": 2880828,
+   "pa": "样本来自 Rose Hill、Houghton、Bridle Trails 街区页"
+  },
+  {
+   "d": "LWSD",
+   "n": "Rockwell",
+   "z": "98052",
+   "r": 41,
+   "r25": 73,
+   "e": 80.1,
+   "m": 79.0,
+   "g": 9,
+   "enr": 423,
+   "note": "",
+   "p": 1499750.0,
+   "pn": 20,
+   "pq1": 1365000,
+   "pq3": 1795000,
+   "pa": ""
+  },
+  {
+   "d": "LWSD",
+   "n": "Audubon",
+   "z": "98052",
+   "r": 46,
+   "r25": 45,
+   "e": 81.7,
+   "m": 78.9,
+   "g": 10,
+   "enr": 431,
+   "note": "",
+   "p": 1499750.0,
+   "pn": 20,
+   "pq1": 1365000,
+   "pq3": 1795000,
+   "pa": ""
+  },
+  {
+   "d": "LWSD",
+   "n": "Ben Rush",
+   "z": "98052",
+   "r": 47,
+   "r25": 64,
+   "e": 79.0,
+   "m": 80.2,
+   "g": 10,
+   "enr": 631,
+   "note": "",
+   "p": 1499750.0,
+   "pn": 20,
+   "pq1": 1365000,
+   "pq3": 1795000,
+   "pa": ""
+  },
+  {
+   "d": "LWSD",
+   "n": "Margaret Mead",
+   "z": "98074",
+   "r": 50,
+   "r25": 58,
+   "e": 81.2,
+   "m": 78.2,
+   "g": 8,
+   "enr": 580,
+   "note": "",
+   "p": 1515000,
+   "pn": 17,
+   "pq1": 1275000,
+   "pq3": 1895000,
+   "pa": ""
+  },
+  {
+   "d": "LWSD",
+   "n": "Clara Barton",
+   "z": "98052",
+   "r": 57,
+   "r25": 56,
+   "e": 79.8,
+   "m": 77.4,
+   "g": 9,
+   "enr": 452,
+   "note": "",
+   "p": 1499750.0,
+   "pn": 20,
+   "pq1": 1365000,
+   "pq3": 1795000,
+   "pa": ""
+  },
+  {
+   "d": "LWSD",
+   "n": "Mark Twain",
+   "z": "98033",
+   "r": 61,
+   "r25": 124,
+   "e": 75.1,
+   "m": 78.8,
+   "g": 9,
+   "enr": 550,
+   "note": "",
+   "p": 2477500,
+   "pn": 49,
+   "pq1": 1750000,
+   "pq3": 2880828,
+   "pa": "样本来自 Rose Hill、Houghton、Bridle Trails 街区页"
+  },
+  {
+   "d": "LWSD",
+   "n": "Ella Baker",
+   "z": "98053",
+   "r": 71,
+   "r25": 55,
+   "e": 77.1,
+   "m": 75.5,
+   "g": 10,
+   "enr": 401,
+   "note": "",
+   "p": 1590000,
+   "pn": 23,
+   "pq1": 1380000,
+   "pq3": 1990000,
+   "pa": ""
+  },
+  {
+   "d": "LWSD",
+   "n": "Dickinson",
+   "z": "98053",
+   "r": 90,
+   "r25": 131,
+   "e": 74.8,
+   "m": 74.2,
+   "g": 9,
+   "enr": 294,
+   "note": "",
+   "p": 1590000,
+   "pn": 23,
+   "pq1": 1380000,
+   "pq3": 1990000,
+   "pa": ""
+  },
+  {
+   "d": "LWSD",
+   "n": "Sandburg",
+   "z": "98034",
+   "r": 102,
+   "r25": 99,
+   "e": 77.6,
+   "m": 70.4,
+   "g": 7,
+   "enr": 391,
+   "note": "",
+   "p": 1250000,
+   "pn": 41,
+   "pq1": 1000000,
+   "pq3": 1479000,
+   "pa": ""
+  },
+  {
+   "d": "LWSD",
+   "n": "Thoreau",
+   "z": "98034",
+   "r": 103,
+   "r25": 140,
+   "e": 72.9,
+   "m": 69.8,
+   "g": 8,
+   "enr": 404,
+   "note": "",
+   "p": 1250000,
+   "pn": 41,
+   "pq1": 1000000,
+   "pq3": 1479000,
+   "pa": ""
+  },
+  {
+   "d": "LWSD",
+   "n": "Einstein",
+   "z": "98052",
+   "r": 165,
+   "r25": 162,
+   "e": 72.0,
+   "m": 65.7,
+   "g": 7,
+   "enr": 448,
+   "note": "",
+   "p": 1499750.0,
+   "pn": 20,
+   "pq1": 1365000,
+   "pq3": 1795000,
+   "pa": ""
+  },
+  {
+   "d": "LWSD",
+   "n": "Redmond",
+   "z": "98052",
+   "r": 181,
+   "r25": 201,
+   "e": 68.9,
+   "m": 63.8,
+   "g": 9,
+   "enr": 543,
+   "note": "",
+   "p": 1499750.0,
+   "pn": 20,
+   "pq1": 1365000,
+   "pq3": 1795000,
+   "pa": ""
+  },
+  {
+   "d": "LWSD",
+   "n": "John Muir",
+   "z": "98034",
+   "r": 344,
+   "r25": 375,
+   "e": 55.8,
+   "m": 55.9,
+   "g": 7,
+   "enr": 321,
+   "note": "",
+   "p": 1250000,
+   "pn": 41,
+   "pq1": 1000000,
+   "pq3": 1479000,
+   "pa": ""
+  },
+  {
+   "d": "LWSD",
+   "n": "Robert Frost",
+   "z": "98034",
+   "r": 352,
+   "r25": 382,
+   "e": 59.3,
+   "m": 53.9,
+   "g": 7,
+   "enr": 424,
+   "note": "",
+   "p": 1250000,
+   "pn": 41,
+   "pq1": 1000000,
+   "pq3": 1479000,
+   "pa": ""
+  },
+  {
+   "d": "LWSD",
+   "n": "Bell",
+   "z": "98033",
+   "r": 360,
+   "r25": 361,
+   "e": 58.9,
+   "m": 51.5,
+   "g": 6,
+   "enr": 503,
+   "note": "",
+   "p": 2477500,
+   "pn": 49,
+   "pq1": 1750000,
+   "pq3": 2880828,
+   "pa": "样本来自 Rose Hill、Houghton、Bridle Trails 街区页"
+  },
+  {
+   "d": "LWSD",
+   "n": "Juanita",
+   "z": "98034",
+   "r": 362,
+   "r25": 262,
+   "e": 56.7,
+   "m": 56.4,
+   "g": 7,
+   "enr": 394,
+   "note": "",
+   "p": 1250000,
+   "pn": 41,
+   "pq1": 1000000,
+   "pq3": 1479000,
+   "pa": ""
+  },
+  {
+   "d": "LWSD",
+   "n": "Helen Keller",
+   "z": "98034",
+   "r": 405,
+   "r25": 437,
+   "e": 58.4,
+   "m": 50.9,
+   "g": 5,
+   "enr": 300,
+   "note": "",
+   "p": 1250000,
+   "pn": 41,
+   "pq1": 1000000,
+   "pq3": 1479000,
+   "pa": ""
+  },
+  {
+   "d": "LWSD",
+   "n": "McAuliffe",
+   "z": "98074",
+   "r": null,
+   "r25": null,
+   "e": null,
+   "m": null,
+   "g": 9,
+   "enr": 472,
+   "note": "2026 无排名数据（2023年全州第4）",
+   "p": 1515000,
+   "pn": 17,
+   "pq1": 1275000,
+   "pq3": 1895000,
+   "pa": ""
+  },
+  {
+   "d": "LWSD",
+   "n": "Explorer Community",
+   "z": "98052",
+   "r": null,
+   "r25": null,
+   "e": null,
+   "m": null,
+   "g": 10,
+   "enr": 60,
+   "note": "选择校（1-5年级）",
+   "p": 1499750.0,
+   "pn": 20,
+   "pq1": 1365000,
+   "pq3": 1795000,
+   "pa": ""
+  },
+  {
+   "d": "LWSD",
+   "n": "Community School",
+   "z": "98033",
+   "r": null,
+   "r25": null,
+   "e": null,
+   "m": null,
+   "g": 9,
+   "enr": 67,
+   "note": "选择校（1-5年级）",
+   "p": 2477500,
+   "pn": 49,
+   "pq1": 1750000,
+   "pq3": 2880828,
+   "pa": "样本来自 Rose Hill、Houghton、Bridle Trails 街区页"
+  },
+  {
+   "d": "LWSD",
+   "n": "Discovery Community",
+   "z": "98034",
+   "r": null,
+   "r25": null,
+   "e": null,
+   "m": null,
+   "g": 7,
+   "enr": 71,
+   "note": "选择校",
+   "p": 1250000,
+   "pn": 41,
+   "pq1": 1000000,
+   "pq3": 1479000,
+   "pa": ""
+  },
+  {
+   "d": "BSD",
+   "n": "Medina",
+   "z": "98039",
+   "r": 1,
+   "r25": 4,
+   "e": 95.1,
+   "m": 96.9,
+   "g": 9,
+   "enr": 591,
+   "note": "天才班 (AL)",
+   "p": 3872500.0,
+   "pn": 4,
+   "pq1": 3100000,
+   "pq3": 4250000,
+   "pa": "只有 4 条成交"
+  },
+  {
+   "d": "BSD",
+   "n": "Cherry Crest",
+   "z": "98005",
+   "r": 2,
+   "r25": 15,
+   "e": 90.2,
+   "m": 91.1,
+   "g": 10,
+   "enr": 553,
+   "note": "天才班 (AL)",
+   "p": 2000000,
+   "pn": 21,
+   "pq1": 1725000,
+   "pq3": 2575000,
+   "pa": ""
+  },
+  {
+   "d": "BSD",
+   "n": "Somerset",
+   "z": "98006",
+   "r": 3,
+   "r25": 5,
+   "e": 89.7,
+   "m": 93.3,
+   "g": 10,
+   "enr": 741,
+   "note": "天才班 (AL)",
+   "p": 1888000,
+   "pn": 29,
+   "pq1": 1650000,
+   "pq3": 2380000,
+   "pa": ""
+  },
+  {
+   "d": "BSD",
+   "n": "Woodridge",
+   "z": "98005",
+   "r": 65,
+   "r25": 47,
+   "e": 78.7,
+   "m": 78.5,
+   "g": 9,
+   "enr": 554,
+   "note": "天才班 (AL)",
+   "p": 2000000,
+   "pn": 21,
+   "pq1": 1725000,
+   "pq3": 2575000,
+   "pa": ""
+  },
+  {
+   "d": "BSD",
+   "n": "Newport Heights",
+   "z": "98006",
+   "r": 74,
+   "r25": 91,
+   "e": 73.8,
+   "m": 75.6,
+   "g": 9,
+   "enr": 549,
+   "note": "",
+   "p": 1888000,
+   "pn": 29,
+   "pq1": 1650000,
+   "pq3": 2380000,
+   "pa": ""
+  },
+  {
+   "d": "BSD",
+   "n": "Bennett",
+   "z": "98008",
+   "r": 110,
+   "r25": 97,
+   "e": 74.9,
+   "m": 76.2,
+   "g": 8,
+   "enr": 513,
+   "note": "",
+   "p": 2360500.0,
+   "pn": 26,
+   "pq1": 1445721,
+   "pq3": 2875000,
+   "pa": ""
+  },
+  {
+   "d": "BSD",
+   "n": "Spiritridge",
+   "z": "98008",
+   "r": 115,
+   "r25": 179,
+   "e": 70.5,
+   "m": 73.0,
+   "g": 8,
+   "enr": 546,
+   "note": "",
+   "p": 2360500.0,
+   "pn": 26,
+   "pq1": 1445721,
+   "pq3": 2875000,
+   "pa": ""
+  },
+  {
+   "d": "BSD",
+   "n": "Clyde Hill",
+   "z": "98004",
+   "r": 137,
+   "r25": 166,
+   "e": 72.5,
+   "m": 69.1,
+   "g": 9,
+   "enr": 594,
+   "note": "",
+   "p": 3800000,
+   "pn": 25,
+   "pq1": 3200000,
+   "pq3": 6500000,
+   "pa": ""
+  },
+  {
+   "d": "BSD",
+   "n": "Enatai",
+   "z": "98004",
+   "r": 153,
+   "r25": 250,
+   "e": 69.4,
+   "m": 68.1,
+   "g": 8,
+   "enr": 518,
+   "note": "",
+   "p": 3800000,
+   "pn": 25,
+   "pq1": 3200000,
+   "pq3": 6500000,
+   "pa": ""
+  },
+  {
+   "d": "BSD",
+   "n": "Phantom Lake",
+   "z": "98008",
+   "r": 314,
+   "r25": 234,
+   "e": 56.3,
+   "m": 57.0,
+   "g": 8,
+   "enr": 430,
+   "note": "",
+   "p": 2360500.0,
+   "pn": 26,
+   "pq1": 1445721,
+   "pq3": 2875000,
+   "pa": ""
+  },
+  {
+   "d": "BSD",
+   "n": "Puesta del Sol",
+   "z": "98007",
+   "r": 326,
+   "r25": 221,
+   "e": 59.9,
+   "m": 53.7,
+   "g": 7,
+   "enr": 494,
+   "note": "西语沉浸选择校",
+   "p": 1600000,
+   "pn": 15,
+   "pq1": 1215000,
+   "pq3": 1750000,
+   "pa": ""
+  },
+  {
+   "d": "BSD",
+   "n": "Sherwood Forest",
+   "z": "98008",
+   "r": 688,
+   "r25": 776,
+   "e": 48.4,
+   "m": 39.1,
+   "g": 5,
+   "enr": 415,
+   "note": "",
+   "p": 2360500.0,
+   "pn": 26,
+   "pq1": 1445721,
+   "pq3": 2875000,
+   "pa": ""
+  },
+  {
+   "d": "BSD",
+   "n": "Stevenson",
+   "z": "98007",
+   "r": 832,
+   "r25": 1030,
+   "e": 27.1,
+   "m": 38.5,
+   "g": 4,
+   "enr": 581,
+   "note": "",
+   "p": 1600000,
+   "pn": 15,
+   "pq1": 1215000,
+   "pq3": 1750000,
+   "pa": ""
+  },
+  {
+   "d": "BSD",
+   "n": "Ardmore",
+   "z": "98008",
+   "r": 842,
+   "r25": 719,
+   "e": 37.5,
+   "m": 36.1,
+   "g": 7,
+   "enr": 415,
+   "note": "",
+   "p": 2360500.0,
+   "pn": 26,
+   "pq1": 1445721,
+   "pq3": 2875000,
+   "pa": ""
+  },
+  {
+   "d": "BSD",
+   "n": "Lake Hills",
+   "z": "98007",
+   "r": 906,
+   "r25": 854,
+   "e": 31.9,
+   "m": 34.5,
+   "g": 5,
+   "enr": 498,
+   "note": "",
+   "p": 1600000,
+   "pn": 15,
+   "pq1": 1215000,
+   "pq3": 1750000,
+   "pa": ""
+  },
+  {
+   "d": "BSD",
+   "n": "Jing Mei",
+   "z": "98005",
+   "r": null,
+   "r25": null,
+   "e": 89.9,
+   "m": null,
+   "g": 10,
+   "enr": 577,
+   "note": "中文沉浸选择校",
+   "p": 2000000,
+   "pn": 21,
+   "pq1": 1725000,
+   "pq3": 2575000,
+   "pa": ""
+  }
+ ],
+ "M": [
+  {
+   "d": "NSD",
+   "n": "Timbercrest",
+   "z": "98077",
+   "r": 15,
+   "r25": 23,
+   "e": 79.2,
+   "m": 73.2,
+   "g": 9,
+   "enr": 665,
+   "note": "",
+   "p": 1522000.0,
+   "pn": 14,
+   "pq1": 1400000,
+   "pq3": 1600000,
+   "pa": ""
+  },
+  {
+   "d": "NSD",
+   "n": "Skyview",
+   "z": "98021",
+   "r": 33,
+   "r25": 39,
+   "e": 70.6,
+   "m": 66.5,
+   "g": 8,
+   "enr": 1215,
+   "note": "排名三年连升",
+   "p": 950000,
+   "pn": 13,
+   "pq1": 859100,
+   "pq3": 1155000,
+   "pa": ""
+  },
+  {
+   "d": "NSD",
+   "n": "Leota",
+   "z": "98072",
+   "r": 35,
+   "r25": 52,
+   "e": 73.0,
+   "m": 64.0,
+   "g": 7,
+   "enr": 858,
+   "note": "",
+   "p": 1562500.0,
+   "pn": 22,
+   "pq1": 1230000,
+   "pq3": 2400000,
+   "pa": ""
+  },
+  {
+   "d": "NSD",
+   "n": "Northshore",
+   "z": "98011",
+   "r": 60,
+   "r25": 74,
+   "e": 69.2,
+   "m": 56.8,
+   "g": 8,
+   "enr": 753,
+   "note": "",
+   "p": 1282500,
+   "pn": 19,
+   "pq1": 1100000,
+   "pq3": 1400000,
+   "pa": ""
+  },
+  {
+   "d": "NSD",
+   "n": "Canyon Park",
+   "z": "98021",
+   "r": 80,
+   "r25": 82,
+   "e": 64.6,
+   "m": 52.8,
+   "g": 6,
+   "enr": 907,
+   "note": "",
+   "p": 950000,
+   "pn": 13,
+   "pq1": 859100,
+   "pq3": 1155000,
+   "pa": ""
+  },
+  {
+   "d": "NSD",
+   "n": "Kenmore",
+   "z": "98028",
+   "r": 84,
+   "r25": null,
+   "e": null,
+   "m": null,
+   "g": 6,
+   "enr": 734,
+   "note": "",
+   "p": 1300000,
+   "pn": 15,
+   "pq1": 947875,
+   "pq3": 1400000,
+   "pa": ""
+  },
+  {
+   "d": "LWSD",
+   "n": "Evergreen",
+   "z": "98053",
+   "r": 1,
+   "r25": 7,
+   "e": 86.9,
+   "m": 84.9,
+   "g": 10,
+   "enr": 761,
+   "note": "",
+   "p": 1590000,
+   "pn": 23,
+   "pq1": 1380000,
+   "pq3": 1990000,
+   "pa": ""
+  },
+  {
+   "d": "LWSD",
+   "n": "Timberline",
+   "z": "98053",
+   "r": 3,
+   "r25": 10,
+   "e": 86.2,
+   "m": 82.3,
+   "g": 8,
+   "enr": 788,
+   "note": "",
+   "p": 1590000,
+   "pn": 23,
+   "pq1": 1380000,
+   "pq3": 1990000,
+   "pa": ""
+  },
+  {
+   "d": "LWSD",
+   "n": "Inglewood",
+   "z": "98074",
+   "r": 6,
+   "r25": 11,
+   "e": 84.5,
+   "m": 78.7,
+   "g": 9,
+   "enr": 1229,
+   "note": "",
+   "p": 1515000,
+   "pn": 17,
+   "pq1": 1275000,
+   "pq3": 1895000,
+   "pa": ""
+  },
+  {
+   "d": "LWSD",
+   "n": "Rose Hill",
+   "z": "98052",
+   "r": 11,
+   "r25": 22,
+   "e": 80.2,
+   "m": 77.4,
+   "g": 10,
+   "enr": 901,
+   "note": "",
+   "p": 1499750.0,
+   "pn": 20,
+   "pq1": 1365000,
+   "pq3": 1795000,
+   "pa": ""
+  },
+  {
+   "d": "LWSD",
+   "n": "Kirkland",
+   "z": "98033",
+   "r": 17,
+   "r25": 38,
+   "e": 79.8,
+   "m": 71.4,
+   "g": 8,
+   "enr": 746,
+   "note": "",
+   "p": 2477500,
+   "pn": 49,
+   "pq1": 1750000,
+   "pq3": 2880828,
+   "pa": "样本来自 Rose Hill、Houghton、Bridle Trails 街区页"
+  },
+  {
+   "d": "LWSD",
+   "n": "Redmond",
+   "z": "98052",
+   "r": 24,
+   "r25": 29,
+   "e": 76.2,
+   "m": 71.3,
+   "g": 9,
+   "enr": 1009,
+   "note": "",
+   "p": 1499750.0,
+   "pn": 20,
+   "pq1": 1365000,
+   "pq3": 1795000,
+   "pa": ""
+  },
+  {
+   "d": "LWSD",
+   "n": "Finn Hill",
+   "z": "98034",
+   "r": 71,
+   "r25": 122,
+   "e": 68.4,
+   "m": 55.1,
+   "g": 6,
+   "enr": 664,
+   "note": "",
+   "p": 1250000,
+   "pn": 41,
+   "pq1": 1000000,
+   "pq3": 1479000,
+   "pa": ""
+  },
+  {
+   "d": "LWSD",
+   "n": "Kamiakin",
+   "z": "98034",
+   "r": 79,
+   "r25": 71,
+   "e": 65.6,
+   "m": 55.5,
+   "g": 7,
+   "enr": 573,
+   "note": "",
+   "p": 1250000,
+   "pn": 41,
+   "pq1": 1000000,
+   "pq3": 1479000,
+   "pa": ""
+  },
+  {
+   "d": "LWSD",
+   "n": "Stella Schola",
+   "z": "98052",
+   "r": null,
+   "r25": null,
+   "e": 92.1,
+   "m": 87.5,
+   "g": 9,
+   "enr": 90,
+   "note": "选择校",
+   "p": 1499750.0,
+   "pn": 20,
+   "pq1": 1365000,
+   "pq3": 1795000,
+   "pa": ""
+  },
+  {
+   "d": "LWSD",
+   "n": "Northstar",
+   "z": "98033",
+   "r": null,
+   "r25": null,
+   "e": null,
+   "m": 88.8,
+   "g": 10,
+   "enr": 85,
+   "note": "选择校",
+   "p": 2477500,
+   "pn": 49,
+   "pq1": 1750000,
+   "pq3": 2880828,
+   "pa": "样本来自 Rose Hill、Houghton、Bridle Trails 街区页"
+  },
+  {
+   "d": "LWSD",
+   "n": "Renaissance",
+   "z": "98074",
+   "r": null,
+   "r25": null,
+   "e": 87.0,
+   "m": 73.9,
+   "g": 8,
+   "enr": 80,
+   "note": "选择校",
+   "p": 1515000,
+   "pn": 17,
+   "pq1": 1275000,
+   "pq3": 1895000,
+   "pa": ""
+  },
+  {
+   "d": "LWSD",
+   "n": "Environmental & Adventure",
+   "z": "98034",
+   "r": null,
+   "r25": null,
+   "e": null,
+   "m": null,
+   "g": 8,
+   "enr": 138,
+   "note": "选择校",
+   "p": 1250000,
+   "pn": 41,
+   "pq1": 1000000,
+   "pq3": 1479000,
+   "pa": ""
+  },
+  {
+   "d": "BSD",
+   "n": "Tyee",
+   "z": "98006",
+   "r": 7,
+   "r25": 9,
+   "e": 83.1,
+   "m": 83.9,
+   "g": 10,
+   "enr": 1007,
+   "note": "天才班 (AL)",
+   "p": 1888000,
+   "pn": 29,
+   "pq1": 1650000,
+   "pq3": 2380000,
+   "pa": ""
+  },
+  {
+   "d": "BSD",
+   "n": "Odle",
+   "z": "98007",
+   "r": 14,
+   "r25": 19,
+   "e": 79.1,
+   "m": 75.0,
+   "g": 9,
+   "enr": 974,
+   "note": "天才班 (AL)",
+   "p": 1600000,
+   "pn": 15,
+   "pq1": 1215000,
+   "pq3": 1750000,
+   "pa": ""
+  },
+  {
+   "d": "BSD",
+   "n": "Tillicum",
+   "z": "98008",
+   "r": 30,
+   "r25": 54,
+   "e": 72.0,
+   "m": 67.7,
+   "g": 8,
+   "enr": 676,
+   "note": "西语沉浸",
+   "p": 2360500.0,
+   "pn": 26,
+   "pq1": 1445721,
+   "pq3": 2875000,
+   "pa": ""
+  },
+  {
+   "d": "BSD",
+   "n": "Chinook",
+   "z": "98004",
+   "r": 57,
+   "r25": 64,
+   "e": 67.6,
+   "m": 59.8,
+   "g": 8,
+   "enr": 752,
+   "note": "",
+   "p": 3800000,
+   "pn": 25,
+   "pq1": 3200000,
+   "pq3": 6500000,
+   "pa": ""
+  },
+  {
+   "d": "BSD",
+   "n": "Highland",
+   "z": "98007",
+   "r": 358,
+   "r25": 443,
+   "e": 38.7,
+   "m": 28.6,
+   "g": 4,
+   "enr": 589,
+   "note": "",
+   "p": 1600000,
+   "pn": 15,
+   "pq1": 1215000,
+   "pq3": 1750000,
+   "pa": ""
+  }
+ ],
+ "H": [
+  {
+   "d": "NSD",
+   "n": "Inglemoor",
+   "z": "98028",
+   "r": 10,
+   "r25": null,
+   "e": 91.3,
+   "m": null,
+   "g": 10,
+   "enr": 1475,
+   "note": "IB",
+   "p": 1300000,
+   "pn": 15,
+   "pq1": 947875,
+   "pq3": 1400000,
+   "pa": ""
+  },
+  {
+   "d": "NSD",
+   "n": "North Creek",
+   "z": "98012",
+   "r": 19,
+   "r25": 25,
+   "e": 84.8,
+   "m": 70.9,
+   "g": 9,
+   "enr": 1910,
+   "note": "",
+   "p": 930000,
+   "pn": 17,
+   "pq1": 860000,
+   "pq3": 1140000,
+   "pa": ""
+  },
+  {
+   "d": "NSD",
+   "n": "Woodinville",
+   "z": "98072",
+   "r": 22,
+   "r25": 36,
+   "e": 85.5,
+   "m": 64.4,
+   "g": 10,
+   "enr": 1662,
+   "note": "",
+   "p": 1562500.0,
+   "pn": 22,
+   "pq1": 1230000,
+   "pq3": 2400000,
+   "pa": ""
+  },
+  {
+   "d": "NSD",
+   "n": "Bothell",
+   "z": "98011",
+   "r": 83,
+   "r25": 101,
+   "e": 83.1,
+   "m": 58.0,
+   "g": 9,
+   "enr": 1740,
+   "note": "",
+   "p": 1282500,
+   "pn": 19,
+   "pq1": 1100000,
+   "pq3": 1400000,
+   "pa": ""
+  },
+  {
+   "d": "NSD",
+   "n": "Innovation Lab",
+   "z": "98021",
+   "r": null,
+   "r25": null,
+   "e": null,
+   "m": 51.9,
+   "g": 8,
+   "enr": 252,
+   "note": "选择校",
+   "p": 950000,
+   "pn": 13,
+   "pq1": 859100,
+   "pq3": 1155000,
+   "pa": ""
+  },
+  {
+   "d": "NSD",
+   "n": "Northshore Learning Options",
+   "z": "98077",
+   "r": null,
+   "r25": null,
+   "e": null,
+   "m": null,
+   "g": 7,
+   "enr": 428,
+   "note": "线上 / 家校合作",
+   "p": 1522000.0,
+   "pn": 14,
+   "pq1": 1400000,
+   "pq3": 1600000,
+   "pa": ""
+  },
+  {
+   "d": "NSD",
+   "n": "Secondary Academy",
+   "z": "98021",
+   "r": null,
+   "r25": null,
+   "e": 33.3,
+   "m": null,
+   "g": 2,
+   "enr": 76,
+   "note": "替代校",
+   "p": 950000,
+   "pn": 13,
+   "pq1": 859100,
+   "pq3": 1155000,
+   "pa": ""
+  },
+  {
+   "d": "LWSD",
+   "n": "Eastlake",
+   "z": "98074",
+   "r": 6,
+   "r25": 6,
+   "e": 91.3,
+   "m": 79.5,
+   "g": 10,
+   "enr": 2481,
+   "note": "",
+   "p": 1515000,
+   "pn": 17,
+   "pq1": 1275000,
+   "pq3": 1895000,
+   "pa": ""
+  },
+  {
+   "d": "LWSD",
+   "n": "Redmond",
+   "z": "98052",
+   "r": 13,
+   "r25": 9,
+   "e": 86.4,
+   "m": 72.3,
+   "g": 10,
+   "enr": 2304,
+   "note": "",
+   "p": 1499750.0,
+   "pn": 20,
+   "pq1": 1365000,
+   "pq3": 1795000,
+   "pa": ""
+  },
+  {
+   "d": "LWSD",
+   "n": "Lake Washington",
+   "z": "98033",
+   "r": 15,
+   "r25": 22,
+   "e": 83.7,
+   "m": 67.3,
+   "g": 10,
+   "enr": 2081,
+   "note": "",
+   "p": 2477500,
+   "pn": 49,
+   "pq1": 1750000,
+   "pq3": 2880828,
+   "pa": "样本来自 Rose Hill、Houghton、Bridle Trails 街区页"
+  },
+  {
+   "d": "LWSD",
+   "n": "Juanita",
+   "z": "98034",
+   "r": 32,
+   "r25": 28,
+   "e": 76.3,
+   "m": 53.8,
+   "g": 10,
+   "enr": 1778,
+   "note": "",
+   "p": 1250000,
+   "pn": 41,
+   "pq1": 1000000,
+   "pq3": 1479000,
+   "pa": ""
+  },
+  {
+   "d": "LWSD",
+   "n": "Emerson",
+   "z": "98033",
+   "r": 176,
+   "r25": 243,
+   "e": 63.2,
+   "m": null,
+   "g": null,
+   "enr": 67,
+   "note": "替代校",
+   "p": 2477500,
+   "pn": 49,
+   "pq1": 1750000,
+   "pq3": 2880828,
+   "pa": "样本来自 Rose Hill、Houghton、Bridle Trails 街区页"
+  },
+  {
+   "d": "LWSD",
+   "n": "Tesla STEM",
+   "z": "98053",
+   "r": null,
+   "r25": null,
+   "e": null,
+   "m": null,
+   "g": 10,
+   "enr": 605,
+   "note": "选择校（抽签），未排名",
+   "p": 1590000,
+   "pn": 23,
+   "pq1": 1380000,
+   "pq3": 1990000,
+   "pa": ""
+  },
+  {
+   "d": "LWSD",
+   "n": "International Community School",
+   "z": "98033",
+   "r": null,
+   "r25": null,
+   "e": 93.3,
+   "m": 90.8,
+   "g": 9,
+   "enr": 421,
+   "note": "6-12 选择校（抽签），成绩为全年级",
+   "p": 2477500,
+   "pn": 49,
+   "pq1": 1750000,
+   "pq3": 2880828,
+   "pa": "样本来自 Rose Hill、Houghton、Bridle Trails 街区页"
+  },
+  {
+   "d": "BSD",
+   "n": "Newport",
+   "z": "98006",
+   "r": 5,
+   "r25": 7,
+   "e": 91.0,
+   "m": 82.9,
+   "g": 10,
+   "enr": 1850,
+   "note": "",
+   "p": 1888000,
+   "pn": 29,
+   "pq1": 1650000,
+   "pq3": 2380000,
+   "pa": ""
+  },
+  {
+   "d": "BSD",
+   "n": "Interlake",
+   "z": "98008",
+   "r": 20,
+   "r25": 23,
+   "e": 85.2,
+   "m": 67.9,
+   "g": 9,
+   "enr": 1611,
+   "note": "天才班 (AL) + IB",
+   "p": 2360500.0,
+   "pn": 26,
+   "pq1": 1445721,
+   "pq3": 2875000,
+   "pa": ""
+  },
+  {
+   "d": "BSD",
+   "n": "Bellevue",
+   "z": "98004",
+   "r": 27,
+   "r25": 26,
+   "e": 86.1,
+   "m": 70.8,
+   "g": 9,
+   "enr": 1683,
+   "note": "",
+   "p": 3800000,
+   "pn": 25,
+   "pq1": 3200000,
+   "pq3": 6500000,
+   "pa": ""
+  },
+  {
+   "d": "BSD",
+   "n": "Big Picture",
+   "z": "98007",
+   "r": 79,
+   "r25": 88,
+   "e": 58.6,
+   "m": 45.9,
+   "g": 7,
+   "enr": 346,
+   "note": "6-12 选择校，成绩为全年级",
+   "p": 1600000,
+   "pn": 15,
+   "pq1": 1215000,
+   "pq3": 1750000,
+   "pa": ""
+  },
+  {
+   "d": "BSD",
+   "n": "Sammamish",
+   "z": "98005",
+   "r": 117,
+   "r25": 107,
+   "e": 64.8,
+   "m": 40.7,
+   "g": 9,
+   "enr": 1363,
+   "note": "",
+   "p": 2000000,
+   "pn": 21,
+   "pq1": 1725000,
+   "pq3": 2575000,
+   "pa": ""
+  },
+  {
+   "d": "BSD",
+   "n": "International School",
+   "z": "98005",
+   "r": null,
+   "r25": null,
+   "e": 88.3,
+   "m": 83.1,
+   "g": 9,
+   "enr": 600,
+   "note": "6-12 选择校，成绩为全年级",
+   "p": 2000000,
+   "pn": 21,
+   "pq1": 1725000,
+   "pq3": 2575000,
+   "pa": ""
+  },
+  {
+   "d": "BSD",
+   "n": "Bellevue Digital Discovery",
+   "z": "98005",
+   "r": null,
+   "r25": null,
+   "e": 67.8,
+   "m": 42.5,
+   "g": 8,
+   "enr": 229,
+   "note": "线上 K-12",
+   "p": 2000000,
+   "pn": 21,
+   "pq1": 1725000,
+   "pq3": 2575000,
+   "pa": ""
+  }
+ ],
+ "denom": {
+  "E": 1138,
+  "M": 514,
+  "H": 396
+ },
+ "updated": "2026-10-27"
+};
+const LEVEL_NAME = { E: "小学", M: "初中", H: "高中" };
+const COLS = [
+  { k: "idx", t: "#" },
+  { k: "n", t: "学校" },
+  { k: "z", t: "Zip" },
+  { k: "r", t: "州排名", num: true, sort: "asc" },
+  { k: "e", t: "阅读 %", num: true, sort: "desc" },
+  { k: "m", t: "数学 %", num: true, sort: "desc" },
+  { k: "g", t: "GS", num: true, sort: "desc" },
+  { k: "p", t: "房价(4房)", num: true, sort: "asc" },
+  { k: "note", t: "备注" },
+  { k: "pick", t: "" }
+];
+const state = {
+  on: { NSD: true, LWSD: true, BSD: true }, q: "",
+  sort: { E: ["r", "asc"], M: ["r", "asc"], H: ["r", "asc"] },
+  cmp: { level: "E", a: "", b: "" }
+};
+try {
+  const saved = JSON.parse(localStorage.getItem("school-compare-v2") || "null");
+  if (saved && typeof saved === "object") {
+    if (saved.on) Object.assign(state.on, saved.on);
+    if (saved.cmp) Object.assign(state.cmp, saved.cmp);
+  }
+} catch (e) {}
+function persist() { try { localStorage.setItem("school-compare-v2", JSON.stringify({ on: state.on, cmp: state.cmp })); } catch (e) {} }
+
+const fmtM = v => "$" + (v / 1e6).toFixed(2) + "M";
+const fmtShort = v => v >= 1e6 ? "$" + (v / 1e6).toFixed(v >= 1e7 ? 0 : 2).replace(/\.?0+$/, "") + "M" : "$" + Math.round(v / 1e3) + "K";
+const fmtPrice = r => (r.pa ? "≈" : "") + fmtM(r.p);
+const pct = (r, level) => r.r === null ? null : Math.max(1, Math.round(100 * r.r / DATA.denom[level]));
+const byId = (level, n) => DATA[level].find(x => x.n + "|" + x.d === n);
+
+function cmp(level) {
+  const [k, dir] = state.sort[level];
+  return (a, b) => {
+    const va = a[k], vb = b[k];
+    const na = va === null || va === undefined, nb = vb === null || vb === undefined;
+    if (na && nb) return (b.g || 0) - (a.g || 0) || a.n.localeCompare(b.n);
+    if (na) return 1;
+    if (nb) return -1;
+    const d = dir === "asc" ? va - vb : vb - va;
+    if (d !== 0) return d;
+    if (a.r !== null && b.r !== null && a.r !== b.r) return a.r - b.r;
+    return a.n.localeCompare(b.n);
+  };
+}
+function cell(tag, text, cls) {
+  const el = document.createElement(tag);
+  if (cls) el.className = cls;
+  if (text !== undefined && text !== null) el.textContent = text;
+  return el;
+}
+function render(level) {
+  const table = document.querySelector('table[data-level="' + level + '"]');
+  table.textContent = "";
+  const thead = document.createElement("thead");
+  const hr = document.createElement("tr");
+  const [sk, sd] = state.sort[level];
+  COLS.forEach(c => {
+    const th = cell("th", undefined, [c.num ? "num" : "", c.k === "z" ? "zip" : ""].join(" ").trim());
+    if (c.sort) {
+      const b = document.createElement("button");
+      b.type = "button";
+      b.append(c.t);
+      b.append(cell("span", sk === c.k ? (sd === "asc" ? "▲" : "▼") : "↕", "arr"));
+      b.addEventListener("click", () => {
+        const cur = state.sort[level];
+        state.sort[level] = cur[0] === c.k ? [c.k, cur[1] === "asc" ? "desc" : "asc"] : [c.k, c.sort];
+        render(level);
+      });
+      th.append(b);
+      if (sk === c.k) th.setAttribute("aria-sort", sd === "asc" ? "ascending" : "descending");
+    } else {
+      th.textContent = c.t;
+    }
+    hr.append(th);
+  });
+  thead.append(hr);
+  table.append(thead);
+
+  const q = state.q.trim().toLowerCase();
+  const list = DATA[level].filter(r => state.on[r.d] && (!q || r.n.toLowerCase().includes(q))).sort(cmp(level));
+  const tbody = document.createElement("tbody");
+  if (!list.length) {
+    const tr = cell("tr", undefined, "empty");
+    const td = cell("td", "没有符合条件的学校");
+    td.colSpan = COLS.length;
+    tr.append(td);
+    tbody.append(tr);
+  }
+  const top = level === "E" ? 50 : level === "M" ? 20 : 15;
+  list.forEach((r, i) => {
+    const id = r.n + "|" + r.d;
+    const picked = state.cmp.level === level && (state.cmp.a === id || state.cmp.b === id);
+    const tr = cell("tr", undefined, r.d + (picked ? " picked" : ""));
+    tr.append(cell("td", String(i + 1), "idx"));
+    const nm = cell("td", r.n, "name");
+    nm.append(cell("span", r.d, "dist"));
+    nm.append(cell("span", r.z, "zi"));
+    tr.append(nm);
+    tr.append(cell("td", r.z, "zip"));
+    tr.append(r.r === null ? cell("td", "—", "num na") : cell("td", String(r.r), "num rank" + (r.r <= top ? " top" : "")));
+    tr.append(r.e === null ? cell("td", "—", "num na") : cell("td", String(Math.round(r.e)), "num"));
+    tr.append(r.m === null ? cell("td", "—", "num na") : cell("td", String(Math.round(r.m)), "num"));
+    tr.append(r.g === null ? cell("td", "—", "num na") : cell("td", String(r.g), "num" + (r.g === 10 ? " gs10" : "")));
+    const ptd = cell("td", fmtPrice(r), "num");
+    ptd.title = "4房以上、1,800 sqft 以上近期成交中位数，n=" + r.pn + (r.pa ? "；" + r.pa : "");
+    tr.append(ptd);
+    tr.append(cell("td", r.note || "", "note"));
+    const ptk = cell("td");
+    const pb = cell("button", picked ? "已选" : "对比", "pick");
+    pb.type = "button";
+    pb.setAttribute("aria-pressed", String(picked));
+    pb.setAttribute("aria-label", (picked ? "取消对比 " : "加入对比 ") + r.n);
+    pb.addEventListener("click", () => togglePick(level, id));
+    ptk.append(pb);
+    tr.append(ptk);
+    tbody.append(tr);
+  });
+  table.append(tbody);
+
+  const counts = { NSD: 0, LWSD: 0, BSD: 0 };
+  DATA[level].forEach(r => counts[r.d]++);
+  document.querySelector('[data-count="' + level + '"]').textContent =
+    "共 " + DATA[level].length + " 所（NSD " + counts.NSD + " · LWSD " + counts.LWSD + " · BSD " + counts.BSD + "）";
+}
+function renderAll() { ["E", "M", "H"].forEach(render); }
+
+function togglePick(level, id) {
+  const c = state.cmp;
+  if (c.level !== level) { c.level = level; c.a = ""; c.b = ""; }
+  if (c.a === id) c.a = "";
+  else if (c.b === id) c.b = "";
+  else if (!c.a) c.a = id;
+  else if (!c.b) c.b = id;
+  else { c.a = c.b; c.b = id; }
+  persist();
+  fillSelects();
+  renderCompare();
+  renderAll();
+  if (c.a && c.b) document.getElementById("compare").scrollIntoView({ block: "start" });
+}
+
+function fillSelects() {
+  const lv = state.cmp.level;
+  document.getElementById("c-level").value = lv;
+  ["a", "b"].forEach(slot => {
+    const sel = document.getElementById("c-" + slot);
+    sel.textContent = "";
+    sel.append(new Option("选择" + LEVEL_NAME[lv] + "…", ""));
+    ["NSD", "LWSD", "BSD"].forEach(d => {
+      const grp = document.createElement("optgroup");
+      grp.label = d;
+      DATA[lv].filter(r => r.d === d).slice().sort(cmp(lv) && ((x, y) => (x.r ?? 9999) - (y.r ?? 9999) || x.n.localeCompare(y.n)))
+        .forEach(r => grp.append(new Option(r.n + (r.r !== null ? "（#" + r.r + "）" : ""), r.n + "|" + r.d)));
+      sel.append(grp);
+    });
+    sel.value = state.cmp[slot] || "";
+  });
+}
+
+function trend(r) {
+  if (r.r === null || r.r25 === null || r.r25 === undefined) return null;
+  return r.r25 - r.r;
+}
+function facts(r, o, level) {
+  const out = [];
+  const p = pct(r, level);
+  if (p !== null) out.push("全州第 " + r.r + "，前 " + p + "%");
+  const t = trend(r);
+  if (t !== null) out.push(t > 0 ? "比 2025 年上升 " + t + " 名" : t < 0 ? "比 2025 年下降 " + (-t) + " 名" : "排名与 2025 年持平");
+  if (r.e !== null && o.e !== null) {
+    const d = Math.round(r.e - o.e);
+    if (d >= 3) out.push("阅读达标率高 " + d + " 个百分点");
+  }
+  if (r.m !== null && o.m !== null) {
+    const d = Math.round(r.m - o.m);
+    if (d >= 3) out.push("数学达标率高 " + d + " 个百分点");
+  }
+  if (r.e !== null && r.m !== null) {
+    const gap = Math.round(r.m - r.e);
+    if (gap >= 5) out.push("数学强于阅读（+" + gap + "）");
+    if (gap <= -5) out.push("阅读强于数学（+" + (-gap) + "）");
+  }
+  if (r.g !== null && o.g !== null && r.g > o.g) out.push("GreatSchools 高 " + (r.g - o.g) + " 分");
+  if (r.enr && o.enr) {
+    const ratio = r.enr / o.enr;
+    if (ratio >= 1.3) out.push("学校更大（" + r.enr + " 人，约为对方 " + ratio.toFixed(1) + " 倍）");
+    if (ratio <= 1 / 1.3) out.push("学校更小（" + r.enr + " 人）");
+  }
+  if (r.note) out.push(r.note);
+  if (r.p < o.p) out.push("所在 zip 的 4 房房价低 " + Math.round(100 * (o.p - r.p) / o.p) + "%");
+  return out;
+}
+function bar(width, cls) {
+  const b = cell("div", undefined, "bar " + cls);
+  b.style.width = Math.max(4, Math.round(width)) + "%";
+  return b;
+}
+function renderCompare() {
+  const out = document.getElementById("c-out");
+  out.textContent = "";
+  const lv = state.cmp.level;
+  const A = byId(lv, state.cmp.a), B = byId(lv, state.cmp.b);
+  if (!A || !B) {
+    out.append(cell("p", A || B ? "再选一所同学段的学校。" : "选两所同学段的学校，这里会并排显示排名、成绩、项目和所在 zip 的房价。", "hint"));
+    return;
+  }
+  const grid = cell("div", undefined, "cmp-grid");
+  const head = (r, side) => {
+    const h = cell("div", undefined, "h " + side);
+    if (side === "l") h.style.textAlign = "right";
+    h.append(cell("span", r.n, "nm"));
+    h.append(cell("span", r.d, "tag " + r.d));
+    h.append(cell("div", LEVEL_NAME[lv] + " · zip " + r.z, "zp"));
+    return h;
+  };
+  grid.append(head(A, "l"), cell("div", "", "lbl"), head(B, "r"));
+
+  const row = (label, va, vb, opts = {}) => {
+    const l = cell("div", undefined, "v l"), r = cell("div", undefined, "v r");
+    const put = (box, v, lead) => {
+      if (v === null || v === undefined) { box.append(cell("span", "—", "na")); return; }
+      const big = cell("span", v.big, (v.plain ? "plain" : "big") + (lead ? " lead" : ""));
+      box.append(big);
+      if (v.sm) box.append(cell("span", v.sm, "sm"));
+    };
+    const leadA = opts.better && va && vb && va.raw !== null && vb.raw !== null && va.raw !== vb.raw ? opts.better(va.raw, vb.raw) : null;
+    put(l, va, leadA === true); put(r, vb, leadA === false);
+    grid.append(l, cell("div", label, "lbl"), r);
+  };
+  const rankV = r => r.r === null ? null : { raw: r.r, big: "#" + r.r, sm: "前 " + pct(r, lv) + "%" };
+  const trendV = r => { const t = trend(r); return t === null ? null : { raw: t, big: (t > 0 ? "▲ " : t < 0 ? "▼ " : "") + Math.abs(t), sm: "2025 #" + r.r25 }; };
+  const numV = (v, unit) => v === null ? null : { raw: v, big: String(Math.round(v)) + (unit || "") };
+  const priceV = r => ({ raw: r.p, big: fmtPrice(r), sm: "中间一半 " + fmtShort(r.pq1) + "–" + fmtShort(r.pq3) + " · n=" + r.pn });
+  row("州排名 2026", rankV(A), rankV(B), { better: (a, b) => a < b });
+  row("较 2025 变化", trendV(A), trendV(B), { better: (a, b) => a > b });
+  row("阅读达标率", numV(A.e, "%"), numV(B.e, "%"), { better: (a, b) => a > b });
+  row("数学达标率", numV(A.m, "%"), numV(B.m, "%"), { better: (a, b) => a > b });
+  row("GreatSchools", numV(A.g), numV(B.g), { better: (a, b) => a > b });
+  row("学生人数", A.enr ? { raw: A.enr, big: String(A.enr) } : null, B.enr ? { raw: B.enr, big: String(B.enr) } : null);
+  row("项目 / 备注", { raw: 0, big: A.note || "—", plain: true }, { raw: 0, big: B.note || "—", plain: true });
+  row("4 房房价中位数", priceV(A), priceV(B), { better: (a, b) => a < b });
+  out.append(grid);
+
+  const bars = cell("div");
+  bars.style.display = "grid"; bars.style.gap = "6px";
+  const mk = (label, wa, wb) => {
+    const br = cell("div", undefined, "barrow");
+    const l = cell("div", undefined, "l"); l.append(bar(wa, A.d));
+    const r = cell("div", undefined, "r"); r.append(bar(wb, B.d));
+    br.append(l, cell("div", label, "lbl"), r);
+    return br;
+  };
+  const pa = pct(A, lv), pb = pct(B, lv);
+  if (pa !== null && pb !== null) bars.append(mk("全州百分位（越长越靠前）", 100 - pa, 100 - pb));
+  const pmax = Math.max(A.p, B.p);
+  bars.append(mk("房价（相对）", 100 * A.p / pmax, 100 * B.p / pmax));
+  out.append(bars);
+
+  const chips = cell("div", undefined, "diff");
+  const chip = t => chips.append(cell("span", t));
+  if (A.r !== null && B.r !== null) chip("B 比 A 州排名" + (B.r < A.r ? "靠前 " : B.r > A.r ? "靠后 " : "相同 ") + (B.r === A.r ? "" : Math.abs(A.r - B.r) + " 名（前 " + pb + "% vs 前 " + pa + "%）"));
+  if (A.e !== null && B.e !== null) chip("阅读 " + (B.e - A.e >= 0 ? "+" : "") + Math.round(B.e - A.e) + " 个百分点");
+  if (A.m !== null && B.m !== null) chip("数学 " + (B.m - A.m >= 0 ? "+" : "") + Math.round(B.m - A.m) + " 个百分点");
+  if (A.g !== null && B.g !== null) chip("GS " + (B.g - A.g >= 0 ? "+" : "") + (B.g - A.g));
+  const dp = B.p - A.p, dpp = Math.round(100 * dp / A.p);
+  chip("房价 " + (dpp >= 0 ? "+" : "") + dpp + "%（" + (dp >= 0 ? "+" : "−") + fmtShort(Math.abs(dp)) + "）");
+  if (A.z === B.z) chip("两校在同一个 zip，房价列相同");
+  out.append(chips);
+
+  const f = cell("div", undefined, "facts");
+  [[A, B], [B, A]].forEach(([r, o]) => {
+    const box = cell("div");
+    box.append(cell("h3", r.n + " 的特点"));
+    const ul = cell("ul");
+    const fs = facts(r, o, lv);
+    (fs.length ? fs : ["两校各项数据接近"]).forEach(t => ul.append(cell("li", t)));
+    box.append(ul);
+    f.append(box);
+  });
+  out.append(f);
+  out.append(cell("p", "差值都是 B 减 A。房价是两校所在 zip 的近期成交，不是学区内的房价；同一个 zip 里不同片区差别很大。这里只列数据，不下结论。", "cmp-foot"));
+}
+
+document.querySelectorAll(".chip").forEach(b => {
+  b.setAttribute("aria-pressed", String(state.on[b.dataset.d]));
+  b.addEventListener("click", () => {
+    state.on[b.dataset.d] = !state.on[b.dataset.d];
+    b.setAttribute("aria-pressed", String(state.on[b.dataset.d]));
+    persist();
+    renderAll();
+  });
+});
+document.getElementById("q").addEventListener("input", e => { state.q = e.target.value; renderAll(); });
+document.getElementById("c-level").addEventListener("change", e => {
+  state.cmp.level = e.target.value; state.cmp.a = ""; state.cmp.b = "";
+  persist(); fillSelects(); renderCompare(); renderAll();
+});
+["a", "b"].forEach(slot => document.getElementById("c-" + slot).addEventListener("change", e => {
+  state.cmp[slot] = e.target.value; persist(); renderCompare(); renderAll();
+}));
+document.getElementById("c-swap").addEventListener("click", () => {
+  const t = state.cmp.a; state.cmp.a = state.cmp.b; state.cmp.b = t;
+  persist(); fillSelects(); renderCompare(); renderAll();
+});
+document.getElementById("c-clear").addEventListener("click", () => {
+  state.cmp.a = ""; state.cmp.b = ""; persist(); fillSelects(); renderCompare(); renderAll();
+});
+fillSelects();
+renderCompare();
+renderAll();
+</script>
+</body>
+</html>
