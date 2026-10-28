@@ -9,6 +9,666 @@
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans:wght@400;500;600&family=Noto+Sans+SC:wght@400;500;700&family=Noto+Serif+SC:wght@700&display=swap">
 <style>
+/* Leaflet 1.9.4, BSD-2-Clause, (c) 2010-2023 Vladimir Agafonkin, (c) 2010-2011 CloudMade; marker/layers icon rules removed */
+/* required styles */
+
+.leaflet-pane,
+.leaflet-tile,
+.leaflet-marker-icon,
+.leaflet-marker-shadow,
+.leaflet-tile-container,
+.leaflet-pane > svg,
+.leaflet-pane > canvas,
+.leaflet-zoom-box,
+.leaflet-image-layer,
+.leaflet-layer {
+	position: absolute;
+	left: 0;
+	top: 0;
+	}
+.leaflet-container {
+	overflow: hidden;
+	}
+.leaflet-tile,
+.leaflet-marker-icon,
+.leaflet-marker-shadow {
+	-webkit-user-select: none;
+	   -moz-user-select: none;
+	        user-select: none;
+	  -webkit-user-drag: none;
+	}
+/* Prevents IE11 from highlighting tiles in blue */
+.leaflet-tile::selection {
+	background: transparent;
+}
+/* Safari renders non-retina tile on retina better with this, but Chrome is worse */
+.leaflet-safari .leaflet-tile {
+	image-rendering: -webkit-optimize-contrast;
+	}
+/* hack that prevents hw layers "stretching" when loading new tiles */
+.leaflet-safari .leaflet-tile-container {
+	width: 1600px;
+	height: 1600px;
+	-webkit-transform-origin: 0 0;
+	}
+.leaflet-marker-icon,
+.leaflet-marker-shadow {
+	display: block;
+	}
+/* .leaflet-container svg: reset svg max-width decleration shipped in Joomla! (joomla.org) 3.x */
+/* .leaflet-container img: map is broken in FF if you have max-width: 100% on tiles */
+.leaflet-container .leaflet-overlay-pane svg {
+	max-width: none !important;
+	max-height: none !important;
+	}
+.leaflet-container .leaflet-marker-pane img,
+.leaflet-container .leaflet-shadow-pane img,
+.leaflet-container .leaflet-tile-pane img,
+.leaflet-container img.leaflet-image-layer,
+.leaflet-container .leaflet-tile {
+	max-width: none !important;
+	max-height: none !important;
+	width: auto;
+	padding: 0;
+	}
+
+.leaflet-container img.leaflet-tile {
+	/* See: https://bugs.chromium.org/p/chromium/issues/detail?id=600120 */
+	mix-blend-mode: plus-lighter;
+}
+
+.leaflet-container.leaflet-touch-zoom {
+	-ms-touch-action: pan-x pan-y;
+	touch-action: pan-x pan-y;
+	}
+.leaflet-container.leaflet-touch-drag {
+	-ms-touch-action: pinch-zoom;
+	/* Fallback for FF which doesn't support pinch-zoom */
+	touch-action: none;
+	touch-action: pinch-zoom;
+}
+.leaflet-container.leaflet-touch-drag.leaflet-touch-zoom {
+	-ms-touch-action: none;
+	touch-action: none;
+}
+.leaflet-container {
+	-webkit-tap-highlight-color: transparent;
+}
+.leaflet-container a {
+	-webkit-tap-highlight-color: rgba(51, 181, 229, 0.4);
+}
+.leaflet-tile {
+	filter: inherit;
+	visibility: hidden;
+	}
+.leaflet-tile-loaded {
+	visibility: inherit;
+	}
+.leaflet-zoom-box {
+	width: 0;
+	height: 0;
+	-moz-box-sizing: border-box;
+	     box-sizing: border-box;
+	z-index: 800;
+	}
+/* workaround for https://bugzilla.mozilla.org/show_bug.cgi?id=888319 */
+.leaflet-overlay-pane svg {
+	-moz-user-select: none;
+	}
+
+.leaflet-pane         { z-index: 400; }
+
+.leaflet-tile-pane    { z-index: 200; }
+.leaflet-overlay-pane { z-index: 400; }
+.leaflet-shadow-pane  { z-index: 500; }
+.leaflet-marker-pane  { z-index: 600; }
+.leaflet-tooltip-pane   { z-index: 650; }
+.leaflet-popup-pane   { z-index: 700; }
+
+.leaflet-map-pane canvas { z-index: 100; }
+.leaflet-map-pane svg    { z-index: 200; }
+
+.leaflet-vml-shape {
+	width: 1px;
+	height: 1px;
+	}
+.lvml {
+	behavior: url(#default#VML);
+	display: inline-block;
+	position: absolute;
+	}
+
+
+/* control positioning */
+
+.leaflet-control {
+	position: relative;
+	z-index: 800;
+	pointer-events: visiblePainted; /* IE 9-10 doesn't have auto */
+	pointer-events: auto;
+	}
+.leaflet-top,
+.leaflet-bottom {
+	position: absolute;
+	z-index: 1000;
+	pointer-events: none;
+	}
+.leaflet-top {
+	top: 0;
+	}
+.leaflet-right {
+	right: 0;
+	}
+.leaflet-bottom {
+	bottom: 0;
+	}
+.leaflet-left {
+	left: 0;
+	}
+.leaflet-control {
+	float: left;
+	clear: both;
+	}
+.leaflet-right .leaflet-control {
+	float: right;
+	}
+.leaflet-top .leaflet-control {
+	margin-top: 10px;
+	}
+.leaflet-bottom .leaflet-control {
+	margin-bottom: 10px;
+	}
+.leaflet-left .leaflet-control {
+	margin-left: 10px;
+	}
+.leaflet-right .leaflet-control {
+	margin-right: 10px;
+	}
+
+
+/* zoom and fade animations */
+
+.leaflet-fade-anim .leaflet-popup {
+	opacity: 0;
+	-webkit-transition: opacity 0.2s linear;
+	   -moz-transition: opacity 0.2s linear;
+	        transition: opacity 0.2s linear;
+	}
+.leaflet-fade-anim .leaflet-map-pane .leaflet-popup {
+	opacity: 1;
+	}
+.leaflet-zoom-animated {
+	-webkit-transform-origin: 0 0;
+	    -ms-transform-origin: 0 0;
+	        transform-origin: 0 0;
+	}
+svg.leaflet-zoom-animated {
+	will-change: transform;
+}
+
+.leaflet-zoom-anim .leaflet-zoom-animated {
+	-webkit-transition: -webkit-transform 0.25s cubic-bezier(0,0,0.25,1);
+	   -moz-transition:    -moz-transform 0.25s cubic-bezier(0,0,0.25,1);
+	        transition:         transform 0.25s cubic-bezier(0,0,0.25,1);
+	}
+.leaflet-zoom-anim .leaflet-tile,
+.leaflet-pan-anim .leaflet-tile {
+	-webkit-transition: none;
+	   -moz-transition: none;
+	        transition: none;
+	}
+
+.leaflet-zoom-anim .leaflet-zoom-hide {
+	visibility: hidden;
+	}
+
+
+/* cursors */
+
+.leaflet-interactive {
+	cursor: pointer;
+	}
+.leaflet-grab {
+	cursor: -webkit-grab;
+	cursor:    -moz-grab;
+	cursor:         grab;
+	}
+.leaflet-crosshair,
+.leaflet-crosshair .leaflet-interactive {
+	cursor: crosshair;
+	}
+.leaflet-popup-pane,
+.leaflet-control {
+	cursor: auto;
+	}
+.leaflet-dragging .leaflet-grab,
+.leaflet-dragging .leaflet-grab .leaflet-interactive,
+.leaflet-dragging .leaflet-marker-draggable {
+	cursor: move;
+	cursor: -webkit-grabbing;
+	cursor:    -moz-grabbing;
+	cursor:         grabbing;
+	}
+
+/* marker & overlays interactivity */
+.leaflet-marker-icon,
+.leaflet-marker-shadow,
+.leaflet-image-layer,
+.leaflet-pane > svg path,
+.leaflet-tile-container {
+	pointer-events: none;
+	}
+
+.leaflet-marker-icon.leaflet-interactive,
+.leaflet-image-layer.leaflet-interactive,
+.leaflet-pane > svg path.leaflet-interactive,
+svg.leaflet-image-layer.leaflet-interactive path {
+	pointer-events: visiblePainted; /* IE 9-10 doesn't have auto */
+	pointer-events: auto;
+	}
+
+/* visual tweaks */
+
+.leaflet-container {
+	background: #ddd;
+	outline-offset: 1px;
+	}
+.leaflet-container a {
+	color: #0078A8;
+	}
+.leaflet-zoom-box {
+	border: 2px dotted #38f;
+	background: rgba(255,255,255,0.5);
+	}
+
+
+/* general typography */
+.leaflet-container {
+	font-family: "Helvetica Neue", Arial, Helvetica, sans-serif;
+	font-size: 12px;
+	font-size: 0.75rem;
+	line-height: 1.5;
+	}
+
+
+/* general toolbar styles */
+
+.leaflet-bar {
+	box-shadow: 0 1px 5px rgba(0,0,0,0.65);
+	border-radius: 4px;
+	}
+.leaflet-bar a {
+	background-color: #fff;
+	border-bottom: 1px solid #ccc;
+	width: 26px;
+	height: 26px;
+	line-height: 26px;
+	display: block;
+	text-align: center;
+	text-decoration: none;
+	color: black;
+	}
+.leaflet-bar a,
+.leaflet-control-layers-toggle {
+	background-position: 50% 50%;
+	background-repeat: no-repeat;
+	display: block;
+	}
+.leaflet-bar a:hover,
+.leaflet-bar a:focus {
+	background-color: #f4f4f4;
+	}
+.leaflet-bar a:first-child {
+	border-top-left-radius: 4px;
+	border-top-right-radius: 4px;
+	}
+.leaflet-bar a:last-child {
+	border-bottom-left-radius: 4px;
+	border-bottom-right-radius: 4px;
+	border-bottom: none;
+	}
+.leaflet-bar a.leaflet-disabled {
+	cursor: default;
+	background-color: #f4f4f4;
+	color: #bbb;
+	}
+
+.leaflet-touch .leaflet-bar a {
+	width: 30px;
+	height: 30px;
+	line-height: 30px;
+	}
+.leaflet-touch .leaflet-bar a:first-child {
+	border-top-left-radius: 2px;
+	border-top-right-radius: 2px;
+	}
+.leaflet-touch .leaflet-bar a:last-child {
+	border-bottom-left-radius: 2px;
+	border-bottom-right-radius: 2px;
+	}
+
+/* zoom control */
+
+.leaflet-control-zoom-in,
+.leaflet-control-zoom-out {
+	font: bold 18px 'Lucida Console', Monaco, monospace;
+	text-indent: 1px;
+	}
+
+.leaflet-touch .leaflet-control-zoom-in, .leaflet-touch .leaflet-control-zoom-out  {
+	font-size: 22px;
+	}
+
+
+/* layers control */
+
+.leaflet-control-layers {
+	box-shadow: 0 1px 5px rgba(0,0,0,0.4);
+	background: #fff;
+	border-radius: 5px;
+	}
+.leaflet-control-layers-toggle {
+	width: 36px;
+	height: 36px;
+	}
+.leaflet-retina .leaflet-control-layers-toggle {
+	background-size: 26px 26px;
+	}
+.leaflet-touch .leaflet-control-layers-toggle {
+	width: 44px;
+	height: 44px;
+	}
+.leaflet-control-layers .leaflet-control-layers-list,
+.leaflet-control-layers-expanded .leaflet-control-layers-toggle {
+	display: none;
+	}
+.leaflet-control-layers-expanded .leaflet-control-layers-list {
+	display: block;
+	position: relative;
+	}
+.leaflet-control-layers-expanded {
+	padding: 6px 10px 6px 6px;
+	color: #333;
+	background: #fff;
+	}
+.leaflet-control-layers-scrollbar {
+	overflow-y: scroll;
+	overflow-x: hidden;
+	padding-right: 5px;
+	}
+.leaflet-control-layers-selector {
+	margin-top: 2px;
+	position: relative;
+	top: 1px;
+	}
+.leaflet-control-layers label {
+	display: block;
+	font-size: 13px;
+	font-size: 1.08333em;
+	}
+.leaflet-control-layers-separator {
+	height: 0;
+	border-top: 1px solid #ddd;
+	margin: 5px -10px 5px -6px;
+	}
+
+/* Default icon URLs */
+.leaflet-default-icon-path { /* used only in path-guessing heuristic, see L.Icon.Default */
+	}
+
+
+/* attribution and scale controls */
+
+.leaflet-container .leaflet-control-attribution {
+	background: #fff;
+	background: rgba(255, 255, 255, 0.8);
+	margin: 0;
+	}
+.leaflet-control-attribution,
+.leaflet-control-scale-line {
+	padding: 0 5px;
+	color: #333;
+	line-height: 1.4;
+	}
+.leaflet-control-attribution a {
+	text-decoration: none;
+	}
+.leaflet-control-attribution a:hover,
+.leaflet-control-attribution a:focus {
+	text-decoration: underline;
+	}
+.leaflet-attribution-flag {
+	display: inline !important;
+	vertical-align: baseline !important;
+	width: 1em;
+	height: 0.6669em;
+	}
+.leaflet-left .leaflet-control-scale {
+	margin-left: 5px;
+	}
+.leaflet-bottom .leaflet-control-scale {
+	margin-bottom: 5px;
+	}
+.leaflet-control-scale-line {
+	border: 2px solid #777;
+	border-top: none;
+	line-height: 1.1;
+	padding: 2px 5px 1px;
+	white-space: nowrap;
+	-moz-box-sizing: border-box;
+	     box-sizing: border-box;
+	background: rgba(255, 255, 255, 0.8);
+	text-shadow: 1px 1px #fff;
+	}
+.leaflet-control-scale-line:not(:first-child) {
+	border-top: 2px solid #777;
+	border-bottom: none;
+	margin-top: -2px;
+	}
+.leaflet-control-scale-line:not(:first-child):not(:last-child) {
+	border-bottom: 2px solid #777;
+	}
+
+.leaflet-touch .leaflet-control-attribution,
+.leaflet-touch .leaflet-control-layers,
+.leaflet-touch .leaflet-bar {
+	box-shadow: none;
+	}
+.leaflet-touch .leaflet-control-layers,
+.leaflet-touch .leaflet-bar {
+	border: 2px solid rgba(0,0,0,0.2);
+	background-clip: padding-box;
+	}
+
+
+/* popup */
+
+.leaflet-popup {
+	position: absolute;
+	text-align: center;
+	margin-bottom: 20px;
+	}
+.leaflet-popup-content-wrapper {
+	padding: 1px;
+	text-align: left;
+	border-radius: 12px;
+	}
+.leaflet-popup-content {
+	margin: 13px 24px 13px 20px;
+	line-height: 1.3;
+	font-size: 13px;
+	font-size: 1.08333em;
+	min-height: 1px;
+	}
+.leaflet-popup-content p {
+	margin: 17px 0;
+	margin: 1.3em 0;
+	}
+.leaflet-popup-tip-container {
+	width: 40px;
+	height: 20px;
+	position: absolute;
+	left: 50%;
+	margin-top: -1px;
+	margin-left: -20px;
+	overflow: hidden;
+	pointer-events: none;
+	}
+.leaflet-popup-tip {
+	width: 17px;
+	height: 17px;
+	padding: 1px;
+
+	margin: -10px auto 0;
+	pointer-events: auto;
+
+	-webkit-transform: rotate(45deg);
+	   -moz-transform: rotate(45deg);
+	    -ms-transform: rotate(45deg);
+	        transform: rotate(45deg);
+	}
+.leaflet-popup-content-wrapper,
+.leaflet-popup-tip {
+	background: white;
+	color: #333;
+	box-shadow: 0 3px 14px rgba(0,0,0,0.4);
+	}
+.leaflet-container a.leaflet-popup-close-button {
+	position: absolute;
+	top: 0;
+	right: 0;
+	border: none;
+	text-align: center;
+	width: 24px;
+	height: 24px;
+	font: 16px/24px Tahoma, Verdana, sans-serif;
+	color: #757575;
+	text-decoration: none;
+	background: transparent;
+	}
+.leaflet-container a.leaflet-popup-close-button:hover,
+.leaflet-container a.leaflet-popup-close-button:focus {
+	color: #585858;
+	}
+.leaflet-popup-scrolled {
+	overflow: auto;
+	}
+
+.leaflet-oldie .leaflet-popup-content-wrapper {
+	-ms-zoom: 1;
+	}
+.leaflet-oldie .leaflet-popup-tip {
+	width: 24px;
+	margin: 0 auto;
+
+	-ms-filter: "progid:DXImageTransform.Microsoft.Matrix(M11=0.70710678, M12=0.70710678, M21=-0.70710678, M22=0.70710678)";
+	filter: progid:DXImageTransform.Microsoft.Matrix(M11=0.70710678, M12=0.70710678, M21=-0.70710678, M22=0.70710678);
+	}
+
+.leaflet-oldie .leaflet-control-zoom,
+.leaflet-oldie .leaflet-control-layers,
+.leaflet-oldie .leaflet-popup-content-wrapper,
+.leaflet-oldie .leaflet-popup-tip {
+	border: 1px solid #999;
+	}
+
+
+/* div icon */
+
+.leaflet-div-icon {
+	background: #fff;
+	border: 1px solid #666;
+	}
+
+
+/* Tooltip */
+/* Base styles for the element that has a tooltip */
+.leaflet-tooltip {
+	position: absolute;
+	padding: 6px;
+	background-color: #fff;
+	border: 1px solid #fff;
+	border-radius: 3px;
+	color: #222;
+	white-space: nowrap;
+	-webkit-user-select: none;
+	-moz-user-select: none;
+	-ms-user-select: none;
+	user-select: none;
+	pointer-events: none;
+	box-shadow: 0 1px 3px rgba(0,0,0,0.4);
+	}
+.leaflet-tooltip.leaflet-interactive {
+	cursor: pointer;
+	pointer-events: auto;
+	}
+.leaflet-tooltip-top:before,
+.leaflet-tooltip-bottom:before,
+.leaflet-tooltip-left:before,
+.leaflet-tooltip-right:before {
+	position: absolute;
+	pointer-events: none;
+	border: 6px solid transparent;
+	background: transparent;
+	content: "";
+	}
+
+/* Directions */
+
+.leaflet-tooltip-bottom {
+	margin-top: 6px;
+}
+.leaflet-tooltip-top {
+	margin-top: -6px;
+}
+.leaflet-tooltip-bottom:before,
+.leaflet-tooltip-top:before {
+	left: 50%;
+	margin-left: -6px;
+	}
+.leaflet-tooltip-top:before {
+	bottom: 0;
+	margin-bottom: -12px;
+	border-top-color: #fff;
+	}
+.leaflet-tooltip-bottom:before {
+	top: 0;
+	margin-top: -12px;
+	margin-left: -6px;
+	border-bottom-color: #fff;
+	}
+.leaflet-tooltip-left {
+	margin-left: -6px;
+}
+.leaflet-tooltip-right {
+	margin-left: 6px;
+}
+.leaflet-tooltip-left:before,
+.leaflet-tooltip-right:before {
+	top: 50%;
+	margin-top: -6px;
+	}
+.leaflet-tooltip-left:before {
+	right: 0;
+	margin-right: -12px;
+	border-left-color: #fff;
+	}
+.leaflet-tooltip-right:before {
+	left: 0;
+	margin-left: -12px;
+	border-right-color: #fff;
+	}
+
+/* Printing */
+
+@media print {
+	/* Prevent printers from removing background-images of controls. */
+	.leaflet-control {
+		-webkit-print-color-adjust: exact;
+		print-color-adjust: exact;
+		}
+	}
+
 /* Layout: sticky toolbar, a compare card, then three ranked tables; the district lives in each row's edge stripe and tint */
 :root {
   --bg: #f4f6f5;
@@ -193,6 +853,59 @@ td.wrap.narrow { min-width: 120px; }
 td.tuition { white-space: normal; min-width: 170px; font-variant-numeric: tabular-nums; font-size: 12.5px; }
 .share { display: inline-flex; align-items: center; gap: 8px; font-size: 12.5px; color: var(--muted); }
 @media (max-width: 760px) { .line-grid { grid-template-columns: 1fr; } }
+
+/* v4: figure, map, compact detail rows */
+.fig { border: 1px solid var(--line); border-radius: 10px; background: var(--surface); padding: 10px 12px 6px; overflow-x: auto; }
+.fig svg { display: block; width: 100%; min-width: 640px; height: auto; font-family: var(--font-body); }
+.fig .NSD { --c: var(--nsd); } .fig .LWSD { --c: var(--lwsd); } .fig .BSD { --c: var(--bsd); }
+.fig .ln { fill: none; stroke: var(--c); stroke-width: 2.5; stroke-linejoin: round; stroke-linecap: round; }
+.fig .B .ln { stroke-dasharray: 7 5; }
+.fig .mk { fill: var(--c); stroke: var(--surface); stroke-width: 2; }
+.fig .B .mk { fill: var(--surface); stroke: var(--c); stroke-width: 2.5; }
+.fig .grid { stroke: var(--line); stroke-width: 1; }
+.fig .axis { stroke: var(--line); stroke-width: 1; }
+.fig text { fill: var(--fg); font-size: 12px; }
+.fig text.mut { fill: var(--muted); font-size: 11px; }
+.fig text.lab { font-weight: 600; font-size: 12px; paint-order: stroke; stroke: var(--surface); stroke-width: 3px; stroke-linejoin: round; }
+.fig g.A text.lab, .fig g.B text.lab { fill: var(--c); }
+.fig text.sm { fill: var(--muted); font-size: 10.5px; }
+.fig text.ttl { fill: var(--muted); font-size: 11.5px; font-weight: 600; letter-spacing: 0.02em; }
+.fig .pbar { fill: var(--c); opacity: 0.85; }
+.fig .B .pbar { fill: var(--surface); stroke: var(--c); stroke-width: 2; opacity: 1; }
+.fig .whisk { stroke: var(--fg); stroke-width: 1.2; opacity: 0.6; }
+.fig-note { color: var(--muted); font-size: 12.5px; margin: 0; }
+.map-wrap { display: grid; grid-template-columns: minmax(0, 1fr) 300px; gap: 14px; align-items: start; }
+.map { height: 600px; border: 1px solid var(--line); border-radius: 10px; background: #e9ecef; overflow: hidden; }
+@media (prefers-color-scheme: dark) { :root:not([data-theme="light"]) .map { background: #22262b; } }
+:root[data-theme="dark"] .map { background: #22262b; }
+.map-side { display: grid; gap: 10px; font-size: 13px; }
+.map-ctrl { display: flex; flex-wrap: wrap; gap: 8px 14px; align-items: center; color: var(--muted); }
+.map-ctrl label { display: inline-flex; gap: 6px; align-items: center; }
+.map-legend { list-style: none; margin: 0; padding: 0; display: grid; gap: 1px; max-height: 480px; overflow: auto; }
+.map-legend button { font: inherit; font-size: 12.5px; width: 100%; text-align: left; display: grid; grid-template-columns: 14px 1fr auto; gap: 8px; align-items: center; padding: 3px 8px; border-radius: 7px; border: 1px solid transparent; background: transparent; color: var(--fg); cursor: pointer; }
+.map-legend button:hover { background: var(--head); }
+.map-legend button[aria-pressed="true"] { border-color: var(--line); background: var(--head); font-weight: 600; }
+.map-legend .dot { width: 12px; height: 12px; border-radius: 50%; background: var(--pc); display: inline-block; }
+.map-legend .ct { color: var(--muted); font-size: 11.5px; }
+.map-legend .n { color: var(--muted); font-size: 11.5px; font-variant-numeric: tabular-nums; }
+.map-note { color: var(--muted); font-size: 12.5px; margin: 0; }
+.leaflet-container { font-family: var(--font-body) !important; font-size: 12.5px !important; }
+.leaflet-container .leaflet-control-attribution { font-size: 10px; background: color-mix(in srgb, var(--surface) 80%, transparent); color: var(--muted); }
+.leaflet-container .leaflet-control-attribution a { color: var(--muted); }
+.leaflet-popup-content-wrapper, .leaflet-popup-tip { background: var(--surface); color: var(--fg); box-shadow: 0 2px 10px rgba(0,0,0,0.2); }
+.leaflet-popup-content { margin: 10px 14px; line-height: 1.45; font-size: 12.5px; }
+.leaflet-popup-content b.t { font-size: 13.5px; }
+.leaflet-popup-content .mut { color: var(--muted); }
+.leaflet-tooltip { font-family: var(--font-body); font-size: 12px; background: var(--surface); color: var(--fg); border-color: var(--line); }
+.leaflet-tooltip-top:before { border-top-color: var(--line); }
+.leaflet-bar a { background: var(--surface); color: var(--fg); border-bottom-color: var(--line); }
+.leaflet-bar a:hover { background: var(--head); }
+.sec-head .toggle { margin-left: auto; font: inherit; font-size: 12.5px; padding: 4px 10px; border-radius: 999px; border: 1px solid var(--line); background: var(--surface); color: var(--accent); cursor: pointer; }
+.sec-head .toggle[aria-pressed="true"] { background: var(--accent); color: var(--surface); border-color: var(--accent); }
+table.detail.compact tr.sub { display: none; }
+.pdot { display: inline-block; width: 10px; height: 10px; border-radius: 50%; margin-right: 7px; vertical-align: 0; }
+table.detail.compact tr.main td { border-bottom: 1px solid var(--line); padding-bottom: 6px; }
+@media (max-width: 900px) { .map-wrap { grid-template-columns: 1fr; } .map { height: 460px; } .map-legend { max-height: 220px; } }
 </style>
 </head>
 <body>
@@ -212,7 +925,7 @@ td.tuition { white-space: normal; min-width: 170px; font-variant-numeric: tabula
     <button class="chip" id="f-LWSD" data-d="LWSD" aria-pressed="true"><i class="sw LWSD"></i>LWSD</button>
     <button class="chip" id="f-BSD" data-d="BSD" aria-pressed="true"><i class="sw BSD"></i>BSD</button>
     <input id="q" type="search" placeholder="找学校" aria-label="按校名查找">
-    <nav class="jump" aria-label="跳到"><a href="#compare">对比</a><a href="#elem">小学</a><a href="#middle">初中</a><a href="#high">高中</a><a href="#choice">选择校</a><a href="#private">私立</a></nav>
+    <nav class="jump" aria-label="跳到"><a href="#compare">对比</a><a href="#elem">小学</a><a href="#middle">初中</a><a href="#high">高中</a><a href="#choice">选择校</a><a href="#map">地图</a><a href="#private">私立</a></nav>
   </div>
 
   <section class="compare" id="compare" aria-labelledby="cmp-title">
@@ -261,14 +974,34 @@ td.tuition { white-space: normal; min-width: 170px; font-variant-numeric: tabula
   </section>
 
   <section id="choice">
-    <div class="sec-head"><h2>选择校、抽签校和特殊项目</h2><span class="count" id="choice-count"></span></div>
+    <div class="sec-head"><h2>选择校、抽签校和特殊项目</h2><span class="count" id="choice-count"></span><button type="button" class="toggle" data-toggle="details" aria-pressed="false">显示细节</button></div>
     <p class="table-note">不按住址划片，本学区居民申请或抽签。外区学生一般要先在自己学区办 choice transfer，再排在本区学生后面。申请窗口以各校当年公布为准。</p>
     <div class="scroller"><table id="choice-table"></table></div>
   </section>
 
+  <section id="map">
+    <div class="sec-head"><h2>私立学校地图</h2><span class="count" id="map-count"></span><span class="sub">每所私校一种颜色，圆圈是直线距离；小点是三个学区的划片小学</span></div>
+    <div class="map-wrap">
+      <div id="leaflet-map" class="map" role="img" aria-label="私立学校和划片小学的位置图"></div>
+      <aside class="map-side">
+        <div class="map-ctrl">
+          <span>圆圈半径</span>
+          <div class="seg" role="group" aria-label="半径">
+            <button type="button" data-r="2" aria-pressed="false">2 英里</button>
+            <button type="button" data-r="3" aria-pressed="true">3 英里</button>
+            <button type="button" data-r="5" aria-pressed="false">5 英里</button>
+          </div>
+          <label><input type="checkbox" id="show-pub" checked> 划片小学</label>
+        </div>
+        <ol class="map-legend" id="map-legend"></ol>
+        <p class="map-note">点一所学校只看它的圈，再点一次恢复。3 英里大致是本地路况下 10 分钟车程，圆圈是直线距离，不是真正的等时圈。</p>
+      </aside>
+    </div>
+  </section>
+
   <section id="private">
-    <div class="sec-head"><h2>附近的私立学校</h2><span class="count" id="private-count"></span></div>
-    <p class="table-note">学费是各校公布的 2026-27 学年数字（标注的除外），不含注册费和杂费。最后一列是该校 3 英里内的公立小学和直线距离，住在那些小学片区的家庭可以把它当作就近的替代选择。</p>
+    <div class="sec-head"><h2>附近的私立学校</h2><span class="count" id="private-count"></span><button type="button" class="toggle" data-toggle="details" aria-pressed="false">显示细节</button></div>
+    <p class="table-note">学费是各校公布的 2026-27 学年数字（标注的除外），不含注册费和杂费。细节里有每所学校的特点和圆圈半径内的公立小学，住在那些小学片区的家庭可以把它当作就近的替代选择。</p>
     <div class="scroller"><table id="private-table"></table></div>
   </section>
 
@@ -279,11 +1012,13 @@ td.tuition { white-space: normal; min-width: 170px; font-variant-numeric: tabula
     <p><b>房价：</b>Redfin 近期成交记录（2026 年 6 月到 10 月）。每个 zip 取列表页最近的成交中，4 房以上、1,800 平方英尺以上的住宅（含联排，不含公寓）的成交价中位数。列表页没有建造年份，用面积下限代替“排除老破小”，所以老一些的大房子仍在样本里。样本量 n 在对比卡里显示，n 小于 15 的 zip 和只有部分街区样本的 zip 标 ≈。zip 是学校地址的邮编，不等于学区边界。升学线的房价用小学所在 zip。</p>
     <p><b>备注：</b>NSD 天才项目按 2026-27 学年安排；Moorlands 关闭和 Shelton View 重建来自 2026 年 10 月 EDAC 建议。BSD 天才班（AL）设在 Cherry Crest、Medina、Somerset、Woodridge、Odle、Tyee、Interlake。LWSD 全日制 Quest（2-5 年级）只确认了 Ben Franklin 和 Blackwell 两个点。</p>
     <p><b>选择校：</b>怎么进、申请窗口、校车等来自三个学区的选择校页面。LWSD 2027-28 的申请窗口是 2026/11/1 到 12/1；BSD 2027-28 的窗口还没公布，表里写的是 2026-27 的日期；NSD 的 waiver 每年 1 月开放。以各校当年公布为准。</p>
-    <p><b>私立学校：</b>学费、年级、考试和截止日期来自各校官网，距离来自 GreatSchools 的学校页面（BASIS Bellevue 没有 GreatSchools 页面，距离按地址估算，标 ≈）。私立学校不参加州排名，表里没有分数。</p>
+    <p><b>私立学校：</b>学费、年级、考试和截止日期来自各校官网。私立学校不参加州排名，表里没有分数。</p>
+    <p><b>地图和距离：</b>学校坐标来自 NCES 的学校地址库（公立 CCD 2011-12 和 EDGE 2014-15，私立 PSS 2013-14），2014 年以后新建或搬迁的学校（Ruby Bridges、Clara Barton、Ella Baker、Jing Mei、Tyee、BASIS Bothell、Willows Prep、Cedar Park Christian）用 GreatSchools 列出的到周边学校的距离反算，误差在 0.1 英里内；BASIS Bellevue 用同一地址上 Jewish Day School 的坐标。距离都是直线距离。底图 © OpenStreetMap 贡献者，© CARTO。</p>
     <p><b>没有列入：</b>学前班、技能中心、复学项目等很小的特殊项目。数据整理日期 2026-10-27。</p>
   </footer>
 </div>
 
+<script src="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.min.js"></script>
 <script>
 const DATA = {
  "E": [
@@ -304,7 +1039,9 @@ const DATA = {
    "pq3": 1140000,
    "pa": "",
    "sd": "0591002222",
-   "gs": "bothell/1240-Fernwood-Elementary-School"
+   "gs": "bothell/1240-Fernwood-Elementary-School",
+   "lat": 47.819798999999996,
+   "lon": -122.178965
   },
   {
    "d": "NSD",
@@ -323,7 +1060,9 @@ const DATA = {
    "pq3": 1600000,
    "pa": "",
    "sd": "0591002428",
-   "gs": "woodinville/1243-East-Ridge-Elementary-School"
+   "gs": "woodinville/1243-East-Ridge-Elementary-School",
+   "lat": 47.741161999999996,
+   "lon": -122.04293
   },
   {
    "d": "NSD",
@@ -342,7 +1081,9 @@ const DATA = {
    "pq3": 2400000,
    "pa": "",
    "sd": "0591001612",
-   "gs": "woodinville/1234-Kokanee-Elementary-School"
+   "gs": "woodinville/1234-Kokanee-Elementary-School",
+   "lat": 47.781743,
+   "lon": -122.159342
   },
   {
    "d": "NSD",
@@ -361,7 +1102,9 @@ const DATA = {
    "pq3": 1155000,
    "pa": "",
    "sd": "0591000878",
-   "gs": "bothell/1217-Canyon-Creek-Elementary-School"
+   "gs": "bothell/1217-Canyon-Creek-Elementary-School",
+   "lat": 47.804821,
+   "lon": -122.187386
   },
   {
    "d": "NSD",
@@ -380,7 +1123,9 @@ const DATA = {
    "pq3": 2400000,
    "pa": "",
    "sd": "0591001791",
-   "gs": "woodinville/1235-Hollywood-Hill-Elementary-School"
+   "gs": "woodinville/1235-Hollywood-Hill-Elementary-School",
+   "lat": 47.751796999999996,
+   "lon": -122.139624
   },
   {
    "d": "NSD",
@@ -399,7 +1144,9 @@ const DATA = {
    "pq3": 1400000,
    "pa": "",
    "sd": "0591000890",
-   "gs": "kenmore/1227-Moorlands-Elementary-School"
+   "gs": "kenmore/1227-Moorlands-Elementary-School",
+   "lat": 47.738713,
+   "lon": -122.230805
   },
   {
    "d": "NSD",
@@ -418,7 +1165,9 @@ const DATA = {
    "pq3": 1155000,
    "pa": "",
    "sd": "0591000888",
-   "gs": "bothell/1225-Lockwood-Elementary-School"
+   "gs": "bothell/1225-Lockwood-Elementary-School",
+   "lat": 47.778583,
+   "lon": -122.255374
   },
   {
    "d": "NSD",
@@ -437,7 +1186,9 @@ const DATA = {
    "pq3": 2400000,
    "pa": "",
    "sd": "0591000894",
-   "gs": "woodinville/1231-Wellington-Elementary-School"
+   "gs": "woodinville/1231-Wellington-Elementary-School",
+   "lat": 47.768049,
+   "lon": -122.120191
   },
   {
    "d": "NSD",
@@ -456,7 +1207,9 @@ const DATA = {
    "pq3": 2400000,
    "pa": "",
    "sd": "0591003746",
-   "gs": "woodinville/7786-Ruby-Bridges-Elementary"
+   "gs": "woodinville/7786-Ruby-Bridges-Elementary",
+   "lat": 47.81082,
+   "lon": -122.16773
   },
   {
    "d": "NSD",
@@ -475,7 +1228,9 @@ const DATA = {
    "pq3": 1600000,
    "pa": "",
    "sd": "0591000880",
-   "gs": "woodinville/1219-Cottage-Lake-Elementary-School"
+   "gs": "woodinville/1219-Cottage-Lake-Elementary-School",
+   "lat": 47.744487,
+   "lon": -122.07899499999999
   },
   {
    "d": "NSD",
@@ -494,7 +1249,9 @@ const DATA = {
    "pq3": 1400000,
    "pa": "",
    "sd": "0591000895",
-   "gs": "bothell/1232-Westhill-Elementary-School"
+   "gs": "bothell/1232-Westhill-Elementary-School",
+   "lat": 47.770378,
+   "lon": -122.224305
   },
   {
    "d": "NSD",
@@ -513,7 +1270,9 @@ const DATA = {
    "pq3": 1400000,
    "pa": "",
    "sd": "0591000875",
-   "gs": "kenmore/1214-Arrowhead-Elementary-School"
+   "gs": "kenmore/1214-Arrowhead-Elementary-School",
+   "lat": 47.737300000000005,
+   "lon": -122.251522
   },
   {
    "d": "NSD",
@@ -532,7 +1291,9 @@ const DATA = {
    "pq3": 1155000,
    "pa": "",
    "sd": "0591002329",
-   "gs": "bothell/1241-Frank-Love-Elementary-School"
+   "gs": "bothell/1241-Frank-Love-Elementary-School",
+   "lat": 47.795975,
+   "lon": -122.236273
   },
   {
    "d": "NSD",
@@ -551,7 +1312,9 @@ const DATA = {
    "pq3": 1155000,
    "pa": "",
    "sd": "0591000893",
-   "gs": "bothell/1230-Shelton-View-Elementary-School"
+   "gs": "bothell/1230-Shelton-View-Elementary-School",
+   "lat": 47.785694,
+   "lon": -122.239491
   },
   {
    "d": "NSD",
@@ -570,7 +1333,9 @@ const DATA = {
    "pq3": 1400000,
    "pa": "",
    "sd": "0591000885",
-   "gs": "kenmore/1222-Kenmore-Elementary-School"
+   "gs": "kenmore/1222-Kenmore-Elementary-School",
+   "lat": 47.767914,
+   "lon": -122.24582
   },
   {
    "d": "NSD",
@@ -589,7 +1354,9 @@ const DATA = {
    "pq3": 1155000,
    "pa": "",
    "sd": "0591000881",
-   "gs": "bothell/1220-Crystal-Springs-Elementary-School"
+   "gs": "bothell/1220-Crystal-Springs-Elementary-School",
+   "lat": 47.80055,
+   "lon": -122.22075
   },
   {
    "d": "NSD",
@@ -608,7 +1375,9 @@ const DATA = {
    "pq3": 1400000,
    "pa": "",
    "sd": "0591000889",
-   "gs": "bothell/1226-Maywood-Hills-Elementary-School"
+   "gs": "bothell/1226-Maywood-Hills-Elementary-School",
+   "lat": 47.769616,
+   "lon": -122.197709
   },
   {
    "d": "NSD",
@@ -627,7 +1396,9 @@ const DATA = {
    "pq3": 1400000,
    "pa": "",
    "sd": "0591002330",
-   "gs": "bothell/1242-Woodmoor-Elementary-School"
+   "gs": "bothell/1242-Woodmoor-Elementary-School",
+   "lat": 47.741343,
+   "lon": -122.176418
   },
   {
    "d": "NSD",
@@ -646,7 +1417,9 @@ const DATA = {
    "pq3": 1400000,
    "pa": "",
    "sd": "0591000896",
-   "gs": "bothell/1233-Woodin-Elementary-School"
+   "gs": "bothell/1233-Woodin-Elementary-School",
+   "lat": 47.76849,
+   "lon": -122.167684
   },
   {
    "d": "NSD",
@@ -665,7 +1438,9 @@ const DATA = {
    "pq3": 1795000,
    "pa": "",
    "sd": "0591001993",
-   "gs": "redmond/1237-Sunrise-Elementary-School"
+   "gs": "redmond/1237-Sunrise-Elementary-School",
+   "lat": 47.727337999999996,
+   "lon": -122.108367
   },
   {
    "d": "LWSD",
@@ -684,7 +1459,9 @@ const DATA = {
    "pq3": 1990000,
    "pa": "",
    "sd": "0423002062",
-   "gs": "redmond/914-Louisa-May-Alcott-Elementary-School"
+   "gs": "redmond/914-Louisa-May-Alcott-Elementary-School",
+   "lat": 47.646809,
+   "lon": -122.03756
   },
   {
    "d": "LWSD",
@@ -703,7 +1480,9 @@ const DATA = {
    "pq3": 1895000,
    "pa": "",
    "sd": "0423002216",
-   "gs": "sammamish/916-Samantha-Smith-Elementary-School"
+   "gs": "sammamish/916-Samantha-Smith-Elementary-School",
+   "lat": 47.620906999999995,
+   "lon": -122.02728
   },
   {
    "d": "LWSD",
@@ -722,7 +1501,9 @@ const DATA = {
    "pq3": 2880828,
    "pa": "样本来自 Rose Hill、Houghton、Bridle Trails 街区页",
    "sd": "0423000658",
-   "gs": "kirkland/880-Benjamin-Franklin-Elementary-School"
+   "gs": "kirkland/880-Benjamin-Franklin-Elementary-School",
+   "lat": 47.662154,
+   "lon": -122.173419
   },
   {
    "d": "LWSD",
@@ -741,7 +1522,9 @@ const DATA = {
    "pq3": 2880828,
    "pa": "样本来自 Rose Hill、Houghton、Bridle Trails 街区页",
    "sd": "0423000675",
-   "gs": "kirkland/895-Lakeview-Elementary-School"
+   "gs": "kirkland/895-Lakeview-Elementary-School",
+   "lat": 47.667443,
+   "lon": -122.200095
   },
   {
    "d": "LWSD",
@@ -760,7 +1543,9 @@ const DATA = {
    "pq3": 1600000,
    "pa": "",
    "sd": "0423002257",
-   "gs": "woodinville/917-Laura-Ingalls-Wilder-Elementary-School"
+   "gs": "woodinville/917-Laura-Ingalls-Wilder-Elementary-School",
+   "lat": 47.719525,
+   "lon": -122.041494
   },
   {
    "d": "LWSD",
@@ -779,7 +1564,9 @@ const DATA = {
    "pq3": 1795000,
    "pa": "",
    "sd": "0423000667",
-   "gs": "redmond/887-Horace-Mann-Elementary-School"
+   "gs": "redmond/887-Horace-Mann-Elementary-School",
+   "lat": 47.691736,
+   "lon": -122.112917
   },
   {
    "d": "LWSD",
@@ -798,7 +1585,9 @@ const DATA = {
    "pq3": 1895000,
    "pa": "",
    "sd": "0423003242",
-   "gs": "sammamish/5495-Rachel-Carson-Elementary-School"
+   "gs": "sammamish/5495-Rachel-Carson-Elementary-School",
+   "lat": 47.619237999999996,
+   "lon": -122.013871
   },
   {
    "d": "LWSD",
@@ -817,7 +1606,9 @@ const DATA = {
    "pq3": 1895000,
    "pa": "",
    "sd": "0423002649",
-   "gs": "sammamish/926-Elizabeth-Blackwell-Elementary-School"
+   "gs": "sammamish/926-Elizabeth-Blackwell-Elementary-School",
+   "lat": 47.638813999999996,
+   "lon": -122.067025
   },
   {
    "d": "LWSD",
@@ -836,7 +1627,9 @@ const DATA = {
    "pq3": 2880828,
    "pa": "样本来自 Rose Hill、Houghton、Bridle Trails 街区页",
    "sd": "0423000677",
-   "gs": "kirkland/897-Peter-Kirk-Elementary-School"
+   "gs": "kirkland/897-Peter-Kirk-Elementary-School",
+   "lat": 47.685901,
+   "lon": -122.195788
   },
   {
    "d": "LWSD",
@@ -855,7 +1648,9 @@ const DATA = {
    "pq3": 1990000,
    "pa": "",
    "sd": "0423003077",
-   "gs": "redmond/3746-Rosa-Parks-Elementary-School"
+   "gs": "redmond/3746-Rosa-Parks-Elementary-School",
+   "lat": 47.685004,
+   "lon": -122.034768
   },
   {
    "d": "LWSD",
@@ -874,7 +1669,9 @@ const DATA = {
    "pq3": 2880828,
    "pa": "样本来自 Rose Hill、Houghton、Bridle Trails 街区页",
    "sd": "0423000682",
-   "gs": "kirkland/902-Rose-Hill-Elementary-School"
+   "gs": "kirkland/902-Rose-Hill-Elementary-School",
+   "lat": 47.676659,
+   "lon": -122.168639
   },
   {
    "d": "LWSD",
@@ -893,7 +1690,9 @@ const DATA = {
    "pq3": 1795000,
    "pa": "",
    "sd": "0423001842",
-   "gs": "redmond/912-Norman-Rockwell-Elementary-School"
+   "gs": "redmond/912-Norman-Rockwell-Elementary-School",
+   "lat": 47.699442999999995,
+   "lon": -122.124705
   },
   {
    "d": "LWSD",
@@ -912,7 +1711,9 @@ const DATA = {
    "pq3": 1795000,
    "pa": "",
    "sd": "0423000657",
-   "gs": "redmond/879-John-J.-Audubon-Elementary-School"
+   "gs": "redmond/879-John-J.-Audubon-Elementary-School",
+   "lat": 47.637367999999995,
+   "lon": -122.101416
   },
   {
    "d": "LWSD",
@@ -931,7 +1732,9 @@ const DATA = {
    "pq3": 1795000,
    "pa": "",
    "sd": "0423000659",
-   "gs": "redmond/881-Benjamin-Rush-Elementary-School"
+   "gs": "redmond/881-Benjamin-Rush-Elementary-School",
+   "lat": 47.661761999999996,
+   "lon": -122.138763
   },
   {
    "d": "LWSD",
@@ -950,7 +1753,9 @@ const DATA = {
    "pq3": 1895000,
    "pa": "",
    "sd": "0423001785",
-   "gs": "sammamish/910-Margaret-Mead-Elementary-School"
+   "gs": "sammamish/910-Margaret-Mead-Elementary-School",
+   "lat": 47.625459,
+   "lon": -122.053101
   },
   {
    "d": "LWSD",
@@ -969,7 +1774,9 @@ const DATA = {
    "pq3": 1795000,
    "pa": "",
    "sd": "0423003640",
-   "gs": "redmond/7476-Clara-Barton-Elementary-School"
+   "gs": "redmond/7476-Clara-Barton-Elementary-School",
+   "lat": 47.70784,
+   "lon": -122.11127
   },
   {
    "d": "LWSD",
@@ -988,7 +1795,9 @@ const DATA = {
    "pq3": 2880828,
    "pa": "样本来自 Rose Hill、Houghton、Bridle Trails 街区页",
    "sd": "0423000676",
-   "gs": "kirkland/896-Mark-Twain-Elementary-School"
+   "gs": "kirkland/896-Mark-Twain-Elementary-School",
+   "lat": 47.686886,
+   "lon": -122.169389
   },
   {
    "d": "LWSD",
@@ -1007,7 +1816,9 @@ const DATA = {
    "pq3": 1990000,
    "pa": "",
    "sd": "0423003628",
-   "gs": "redmond/7477-Ella-Baker-Elementary-School"
+   "gs": "redmond/7477-Ella-Baker-Elementary-School",
+   "lat": 47.68321,
+   "lon": -122.01155
   },
   {
    "d": "LWSD",
@@ -1026,7 +1837,9 @@ const DATA = {
    "pq3": 1990000,
    "pa": "",
    "sd": "0423000661",
-   "gs": "redmond/883-Emily-Dickinson-Elementary-School"
+   "gs": "redmond/883-Emily-Dickinson-Elementary-School",
+   "lat": 47.670079,
+   "lon": -122.059998
   },
   {
    "d": "LWSD",
@@ -1045,7 +1858,9 @@ const DATA = {
    "pq3": 1479000,
    "pa": "",
    "sd": "0423000660",
-   "gs": "kirkland/882-Carl-Sandburg-Elementary-School"
+   "gs": "kirkland/882-Carl-Sandburg-Elementary-School",
+   "lat": 47.715934999999995,
+   "lon": -122.230458
   },
   {
    "d": "LWSD",
@@ -1064,7 +1879,9 @@ const DATA = {
    "pq3": 1479000,
    "pa": "",
    "sd": "0423000684",
-   "gs": "kirkland/904-Henry-David-Thoreau-Elementary-School"
+   "gs": "kirkland/904-Henry-David-Thoreau-Elementary-School",
+   "lat": 47.724802999999994,
+   "lon": -122.230654
   },
   {
    "d": "LWSD",
@@ -1083,7 +1900,9 @@ const DATA = {
    "pq3": 1795000,
    "pa": "",
    "sd": "0423002648",
-   "gs": "redmond/925-Albert-Einstein-Elementary-School"
+   "gs": "redmond/925-Albert-Einstein-Elementary-School",
+   "lat": 47.701889,
+   "lon": -122.098297
   },
   {
    "d": "LWSD",
@@ -1102,7 +1921,9 @@ const DATA = {
    "pq3": 1795000,
    "pa": "",
    "sd": "0423000678",
-   "gs": "redmond/898-Redmond-Elementary-School"
+   "gs": "redmond/898-Redmond-Elementary-School",
+   "lat": 47.675503,
+   "lon": -122.116429
   },
   {
    "d": "LWSD",
@@ -1121,7 +1942,9 @@ const DATA = {
    "pq3": 1479000,
    "pa": "",
    "sd": "0423000668",
-   "gs": "kirkland/888-John-Muir-Elementary-School"
+   "gs": "kirkland/888-John-Muir-Elementary-School",
+   "lat": 47.726838,
+   "lon": -122.163253
   },
   {
    "d": "LWSD",
@@ -1140,7 +1963,9 @@ const DATA = {
    "pq3": 1479000,
    "pa": "",
    "sd": "0423000681",
-   "gs": "kirkland/901-Robert-Frost-Elementary-School"
+   "gs": "kirkland/901-Robert-Frost-Elementary-School",
+   "lat": 47.725144,
+   "lon": -122.18392
   },
   {
    "d": "LWSD",
@@ -1159,7 +1984,9 @@ const DATA = {
    "pq3": 2880828,
    "pa": "样本来自 Rose Hill、Houghton、Bridle Trails 街区页",
    "sd": "0423000656",
-   "gs": "kirkland/878-Alexander-Graham-Bell-Elementary-School"
+   "gs": "kirkland/878-Alexander-Graham-Bell-Elementary-School",
+   "lat": 47.701687,
+   "lon": -122.191965
   },
   {
    "d": "LWSD",
@@ -1178,7 +2005,9 @@ const DATA = {
    "pq3": 1479000,
    "pa": "",
    "sd": "0423000669",
-   "gs": "kirkland/889-Juanita-Elementary-School"
+   "gs": "kirkland/889-Juanita-Elementary-School",
+   "lat": 47.717901,
+   "lon": -122.209264
   },
   {
    "d": "LWSD",
@@ -1197,7 +2026,9 @@ const DATA = {
    "pq3": 1479000,
    "pa": "",
    "sd": "0423000666",
-   "gs": "kirkland/886-Helen-Keller-Elementary-School"
+   "gs": "kirkland/886-Helen-Keller-Elementary-School",
+   "lat": 47.724758,
+   "lon": -122.195598
   },
   {
    "d": "LWSD",
@@ -1216,7 +2047,9 @@ const DATA = {
    "pq3": 1895000,
    "pa": "",
    "sd": "0423002311",
-   "gs": "sammamish/918-Christa-Mcauliffe-Elementary-School"
+   "gs": "sammamish/918-Christa-Mcauliffe-Elementary-School",
+   "lat": 47.628685,
+   "lon": -122.020843
   },
   {
    "d": "BSD",
@@ -1235,7 +2068,9 @@ const DATA = {
    "pq3": 4250000,
    "pa": "只有 4 条成交",
    "sd": "0039000076",
-   "gs": "medina/127-Medina-Elementary-School"
+   "gs": "medina/127-Medina-Elementary-School",
+   "lat": 47.617422,
+   "lon": -122.231971
   },
   {
    "d": "BSD",
@@ -1254,7 +2089,9 @@ const DATA = {
    "pq3": 2575000,
    "pa": "",
    "sd": "0039000063",
-   "gs": "bellevue/119-Cherry-Crest-Elementary-School"
+   "gs": "bellevue/119-Cherry-Crest-Elementary-School",
+   "lat": 47.63944,
+   "lon": -122.17371
   },
   {
    "d": "BSD",
@@ -1273,7 +2110,9 @@ const DATA = {
    "pq3": 2380000,
    "pa": "",
    "sd": "0039000087",
-   "gs": "bellevue/136-Somerset-Elementary-School"
+   "gs": "bellevue/136-Somerset-Elementary-School",
+   "lat": 47.563241,
+   "lon": -122.151828
   },
   {
    "d": "BSD",
@@ -1292,7 +2131,9 @@ const DATA = {
    "pq3": 2575000,
    "pa": "",
    "sd": "0039000096",
-   "gs": "bellevue/142-Woodridge-Elementary-School"
+   "gs": "bellevue/142-Woodridge-Elementary-School",
+   "lat": 47.591957,
+   "lon": -122.172876
   },
   {
    "d": "BSD",
@@ -1311,7 +2152,9 @@ const DATA = {
    "pq3": 2380000,
    "pa": "",
    "sd": "0039000077",
-   "gs": "bellevue/128-Newport-Heights-Elementary-School"
+   "gs": "bellevue/128-Newport-Heights-Elementary-School",
+   "lat": 47.554991,
+   "lon": -122.17954
   },
   {
    "d": "BSD",
@@ -1330,7 +2173,9 @@ const DATA = {
    "pq3": 2875000,
    "pa": "",
    "sd": "0039000062",
-   "gs": "bellevue/118-Bennett-Elementary-School"
+   "gs": "bellevue/118-Bennett-Elementary-School",
+   "lat": 47.624703,
+   "lon": -122.101974
   },
   {
    "d": "BSD",
@@ -1349,7 +2194,9 @@ const DATA = {
    "pq3": 2875000,
    "pa": "",
    "sd": "0039000088",
-   "gs": "bellevue/137-Spiritridge-Elementary-School"
+   "gs": "bellevue/137-Spiritridge-Elementary-School",
+   "lat": 47.587900999999995,
+   "lon": -122.12012299999999
   },
   {
    "d": "BSD",
@@ -1368,7 +2215,9 @@ const DATA = {
    "pq3": 6500000,
    "pa": "",
    "sd": "0039000065",
-   "gs": "clyde-hill/121-Clyde-Hill-Elementary-School"
+   "gs": "clyde-hill/121-Clyde-Hill-Elementary-School",
+   "lat": 47.630829999999996,
+   "lon": -122.211361
   },
   {
    "d": "BSD",
@@ -1387,7 +2236,9 @@ const DATA = {
    "pq3": 6500000,
    "pa": "",
    "sd": "0039000067",
-   "gs": "bellevue/123-Enatai-Elementary-School"
+   "gs": "bellevue/123-Enatai-Elementary-School",
+   "lat": 47.589076,
+   "lon": -122.19825
   },
   {
    "d": "BSD",
@@ -1406,7 +2257,9 @@ const DATA = {
    "pq3": 2875000,
    "pa": "",
    "sd": "0039000082",
-   "gs": "bellevue/133-Phantom-Lake-Elementary-School"
+   "gs": "bellevue/133-Phantom-Lake-Elementary-School",
+   "lat": 47.600319999999996,
+   "lon": -122.125595
   },
   {
    "d": "BSD",
@@ -1425,7 +2278,9 @@ const DATA = {
    "pq3": 2875000,
    "pa": "",
    "sd": "0039000086",
-   "gs": "bellevue/135-Sherwood-Forest-Elementary-School"
+   "gs": "bellevue/135-Sherwood-Forest-Elementary-School",
+   "lat": 47.631312,
+   "lon": -122.120461
   },
   {
    "d": "BSD",
@@ -1444,7 +2299,9 @@ const DATA = {
    "pq3": 1750000,
    "pa": "",
    "sd": "0039000089",
-   "gs": "bellevue/138-Stevenson-Elementary-School"
+   "gs": "bellevue/138-Stevenson-Elementary-School",
+   "lat": 47.617126999999996,
+   "lon": -122.14963
   },
   {
    "d": "BSD",
@@ -1463,7 +2320,9 @@ const DATA = {
    "pq3": 2875000,
    "pa": "",
    "sd": "0039000058",
-   "gs": "bellevue/116-Ardmore-Elementary-School"
+   "gs": "bellevue/116-Ardmore-Elementary-School",
+   "lat": 47.639590999999996,
+   "lon": -122.117467
   },
   {
    "d": "BSD",
@@ -1482,7 +2341,9 @@ const DATA = {
    "pq3": 1750000,
    "pa": "",
    "sd": "0039000075",
-   "gs": "bellevue/126-Lake-Hills-Elementary-School"
+   "gs": "bellevue/126-Lake-Hills-Elementary-School",
+   "lat": 47.6214,
+   "lon": -122.14920000000001
   }
  ],
  "M": [
@@ -1503,7 +2364,9 @@ const DATA = {
    "pq3": 1600000,
    "pa": "",
    "sd": "0591002571",
-   "gs": "woodinville/1244-Timbercrest-Junior-High-School"
+   "gs": "woodinville/1244-Timbercrest-Junior-High-School",
+   "lat": 47.766189999999995,
+   "lon": -122.051834
   },
   {
    "d": "NSD",
@@ -1522,7 +2385,9 @@ const DATA = {
    "pq3": 1155000,
    "pa": "",
    "sd": "0591000480",
-   "gs": "bothell/1213-Skyview-Junior-High-School"
+   "gs": "bothell/1213-Skyview-Junior-High-School",
+   "lat": 47.803227,
+   "lon": -122.190258
   },
   {
    "d": "NSD",
@@ -1541,7 +2406,9 @@ const DATA = {
    "pq3": 2400000,
    "pa": "",
    "sd": "0591000887",
-   "gs": "woodinville/1224-Leota-Junior-High-School"
+   "gs": "woodinville/1224-Leota-Junior-High-School",
+   "lat": 47.767734,
+   "lon": -122.116759
   },
   {
    "d": "NSD",
@@ -1560,7 +2427,9 @@ const DATA = {
    "pq3": 1400000,
    "pa": "",
    "sd": "0591000891",
-   "gs": "bothell/1228-Northshore-Jr-High-School"
+   "gs": "bothell/1228-Northshore-Jr-High-School",
+   "lat": 47.742933,
+   "lon": -122.179809
   },
   {
    "d": "NSD",
@@ -1579,7 +2448,9 @@ const DATA = {
    "pq3": 1155000,
    "pa": "",
    "sd": "0591000879",
-   "gs": "bothell/1218-Canyon-Park-Jr-High-School"
+   "gs": "bothell/1218-Canyon-Park-Jr-High-School",
+   "lat": 47.782866999999996,
+   "lon": -122.200939
   },
   {
    "d": "NSD",
@@ -1598,7 +2469,9 @@ const DATA = {
    "pq3": 1400000,
    "pa": "",
    "sd": "0591000886",
-   "gs": "kenmore/1223-Kenmore-Junior-High-School"
+   "gs": "kenmore/1223-Kenmore-Junior-High-School",
+   "lat": 47.77625,
+   "lon": -122.25431999999999
   },
   {
    "d": "LWSD",
@@ -1617,7 +2490,9 @@ const DATA = {
    "pq3": 1990000,
    "pa": "",
    "sd": "0423001841",
-   "gs": "redmond/911-Evergreen-Junior-High-School"
+   "gs": "redmond/911-Evergreen-Junior-High-School",
+   "lat": 47.66753,
+   "lon": -122.060779
   },
   {
    "d": "LWSD",
@@ -1636,7 +2511,9 @@ const DATA = {
    "pq3": 1990000,
    "pa": "",
    "sd": "0423003708",
-   "gs": "redmond/7749-Timberline-Middle-School"
+   "gs": "redmond/7749-Timberline-Middle-School",
+   "lat": null,
+   "lon": null
   },
   {
    "d": "LWSD",
@@ -1655,7 +2532,9 @@ const DATA = {
    "pq3": 1895000,
    "pa": "",
    "sd": "0423002435",
-   "gs": "sammamish/920-Inglewood-Junior-High-School"
+   "gs": "sammamish/920-Inglewood-Junior-High-School",
+   "lat": 47.616717,
+   "lon": -122.017921
   },
   {
    "d": "LWSD",
@@ -1674,7 +2553,9 @@ const DATA = {
    "pq3": 1795000,
    "pa": "",
    "sd": "0423000683",
-   "gs": "redmond/903-Rose-Hill-Middle-School"
+   "gs": "redmond/903-Rose-Hill-Middle-School",
+   "lat": 47.670766,
+   "lon": -122.15993
   },
   {
    "d": "LWSD",
@@ -1693,7 +2574,9 @@ const DATA = {
    "pq3": 2880828,
    "pa": "样本来自 Rose Hill、Houghton、Bridle Trails 街区页",
    "sd": "0423000672",
-   "gs": "kirkland/892-Kirkland-Junior-High-School"
+   "gs": "kirkland/892-Kirkland-Junior-High-School",
+   "lat": 47.690694,
+   "lon": -122.200745
   },
   {
    "d": "LWSD",
@@ -1712,7 +2595,9 @@ const DATA = {
    "pq3": 1795000,
    "pa": "",
    "sd": "0423000680",
-   "gs": "redmond/900-Redmond-Middle-School"
+   "gs": "redmond/900-Redmond-Middle-School",
+   "lat": 47.691897,
+   "lon": -122.11979099999999
   },
   {
    "d": "LWSD",
@@ -1731,7 +2616,9 @@ const DATA = {
    "pq3": 1479000,
    "pa": "",
    "sd": "0423000663",
-   "gs": "kirkland/884-Finn-Hill-Junior-High-School"
+   "gs": "kirkland/884-Finn-Hill-Junior-High-School",
+   "lat": 47.719941999999996,
+   "lon": -122.232609
   },
   {
    "d": "LWSD",
@@ -1750,7 +2637,9 @@ const DATA = {
    "pq3": 1479000,
    "pa": "",
    "sd": "0423000671",
-   "gs": "kirkland/891-Kamiakin-Junior-High-School"
+   "gs": "kirkland/891-Kamiakin-Junior-High-School",
+   "lat": 47.727387,
+   "lon": -122.165523
   },
   {
    "d": "BSD",
@@ -1769,7 +2658,9 @@ const DATA = {
    "pq3": 2380000,
    "pa": "",
    "sd": "0039000094",
-   "gs": "bellevue/141-Tyee-Middle-School"
+   "gs": "bellevue/141-Tyee-Middle-School",
+   "lat": 47.57316,
+   "lon": -122.15799
   },
   {
    "d": "BSD",
@@ -1788,7 +2679,9 @@ const DATA = {
    "pq3": 1750000,
    "pa": "",
    "sd": "0039000079",
-   "gs": "bellevue/130-Odle-Middle-School"
+   "gs": "bellevue/130-Odle-Middle-School",
+   "lat": 47.615111,
+   "lon": -122.148752
   },
   {
    "d": "BSD",
@@ -1807,7 +2700,9 @@ const DATA = {
    "pq3": 2875000,
    "pa": "",
    "sd": "0039000093",
-   "gs": "bellevue/140-Tillicum-Middle-School"
+   "gs": "bellevue/140-Tillicum-Middle-School",
+   "lat": 47.598383999999996,
+   "lon": -122.125747
   },
   {
    "d": "BSD",
@@ -1826,7 +2721,9 @@ const DATA = {
    "pq3": 6500000,
    "pa": "",
    "sd": "0039000064",
-   "gs": "bellevue/120-Chinook-Middle-School"
+   "gs": "bellevue/120-Chinook-Middle-School",
+   "lat": 47.62782,
+   "lon": -122.210948
   },
   {
    "d": "BSD",
@@ -1845,7 +2742,9 @@ const DATA = {
    "pq3": 1750000,
    "pa": "",
    "sd": "0039000068",
-   "gs": "bellevue/124-Highland-Middle-School"
+   "gs": "bellevue/124-Highland-Middle-School",
+   "lat": 47.625671999999994,
+   "lon": -122.14055499999999
   }
  ],
  "H": [
@@ -1866,7 +2765,9 @@ const DATA = {
    "pq3": 1400000,
    "pa": "",
    "sd": "0591000884",
-   "gs": "kenmore/1221-Inglemoor-High-School"
+   "gs": "kenmore/1221-Inglemoor-High-School",
+   "lat": 47.740651,
+   "lon": -122.222533
   },
   {
    "d": "NSD",
@@ -1885,7 +2786,9 @@ const DATA = {
    "pq3": 1140000,
    "pa": "",
    "sd": "0591003617",
-   "gs": "bothell/7456-North-Creek-High-School"
+   "gs": "bothell/7456-North-Creek-High-School",
+   "lat": null,
+   "lon": null
   },
   {
    "d": "NSD",
@@ -1904,7 +2807,9 @@ const DATA = {
    "pq3": 2400000,
    "pa": "",
    "sd": "0591001994",
-   "gs": "woodinville/1238-Woodinville-High-School"
+   "gs": "woodinville/1238-Woodinville-High-School",
+   "lat": 47.771243,
+   "lon": -122.161919
   },
   {
    "d": "NSD",
@@ -1923,7 +2828,9 @@ const DATA = {
    "pq3": 1400000,
    "pa": "",
    "sd": "0591000876",
-   "gs": "bothell/1215-Bothell-High-School"
+   "gs": "bothell/1215-Bothell-High-School",
+   "lat": 47.758506999999994,
+   "lon": -122.21907
   },
   {
    "d": "LWSD",
@@ -1942,7 +2849,9 @@ const DATA = {
    "pq3": 1895000,
    "pa": "",
    "sd": "0423001141",
-   "gs": "sammamish/905-Eastlake-High-School"
+   "gs": "sammamish/905-Eastlake-High-School",
+   "lat": 47.613558999999995,
+   "lon": -122.031221
   },
   {
    "d": "LWSD",
@@ -1961,7 +2870,9 @@ const DATA = {
    "pq3": 1795000,
    "pa": "",
    "sd": "0423000679",
-   "gs": "redmond/899-Redmond-High-School"
+   "gs": "redmond/899-Redmond-High-School",
+   "lat": 47.695201999999995,
+   "lon": -122.106616
   },
   {
    "d": "LWSD",
@@ -1980,7 +2891,9 @@ const DATA = {
    "pq3": 2880828,
    "pa": "样本来自 Rose Hill、Houghton、Bridle Trails 街区页",
    "sd": "0423000674",
-   "gs": "kirkland/894-Lake-Washington-High-School"
+   "gs": "kirkland/894-Lake-Washington-High-School",
+   "lat": 47.673218,
+   "lon": -122.18038
   },
   {
    "d": "LWSD",
@@ -1999,7 +2912,9 @@ const DATA = {
    "pq3": 1479000,
    "pa": "",
    "sd": "0423000670",
-   "gs": "kirkland/890-Juanita-High-School"
+   "gs": "kirkland/890-Juanita-High-School",
+   "lat": 47.715168999999996,
+   "lon": -122.198814
   },
   {
    "d": "BSD",
@@ -2018,7 +2933,9 @@ const DATA = {
    "pq3": 2380000,
    "pa": "",
    "sd": "0039000078",
-   "gs": "bellevue/129-Newport-Senior-High-School"
+   "gs": "bellevue/129-Newport-Senior-High-School",
+   "lat": 47.5675,
+   "lon": -122.171965
   },
   {
    "d": "BSD",
@@ -2037,7 +2954,9 @@ const DATA = {
    "pq3": 2875000,
    "pa": "",
    "sd": "0039000072",
-   "gs": "bellevue/125-Interlake-Senior-High-School"
+   "gs": "bellevue/125-Interlake-Senior-High-School",
+   "lat": 47.631332,
+   "lon": -122.123536
   },
   {
    "d": "BSD",
@@ -2056,7 +2975,9 @@ const DATA = {
    "pq3": 6500000,
    "pa": "",
    "sd": "0039000060",
-   "gs": "bellevue/117-Bellevue-High-School"
+   "gs": "bellevue/117-Bellevue-High-School",
+   "lat": 47.604668,
+   "lon": -122.197234
   },
   {
    "d": "BSD",
@@ -2075,7 +2996,9 @@ const DATA = {
    "pq3": 2575000,
    "pa": "",
    "sd": "0039000085",
-   "gs": "bellevue/134-Sammamish-Senior-High-School"
+   "gs": "bellevue/134-Sammamish-Senior-High-School",
+   "lat": 47.608019999999996,
+   "lon": -122.152288
   }
  ],
  "CHOICE": [
@@ -2099,6 +3022,8 @@ const DATA = {
    "sd": "0591003747",
    "gs": "bothell/7768-Innovation-Lab-High-School",
    "choice": true,
+   "lat": null,
+   "lon": null,
    "grades": "9-12",
    "city": "Bothell",
    "entry": "申请 + 学区内 waiver；名额不够时抽签",
@@ -2130,6 +3055,8 @@ const DATA = {
    "sd": "0591003922",
    "gs": "woodinville/7881-Northshore-Learning-Options",
    "choice": true,
+   "lat": null,
+   "lon": null,
    "grades": "K-8 家校合作；5-12 线上",
    "city": "Woodinville",
    "entry": "申请，项目审核，不抽签",
@@ -2161,6 +3088,8 @@ const DATA = {
    "sd": "0591000884",
    "gs": "kenmore/1221-Inglemoor-High-School",
    "choice": true,
+   "lat": 47.740651,
+   "lon": -122.222533,
    "grades": "9-12（IB 文凭 11-12）",
    "city": "Kenmore",
    "entry": "只需 waiver，不设名额，不抽签",
@@ -2192,6 +3121,8 @@ const DATA = {
    "sd": "0591000892",
    "gs": "bothell/1229-Secondary-Academy-For-Success",
    "choice": true,
+   "lat": 47.797889999999995,
+   "lon": -122.201878,
    "grades": "9-12",
    "city": "Bothell",
    "entry": "申请 + 原校 counselor 推荐 + waiver，滚动入学",
@@ -2223,6 +3154,8 @@ const DATA = {
    "sd": "0423003432",
    "gs": "redmond/5934-Tesla-STEM-High-School",
    "choice": true,
+   "lat": 47.64868,
+   "lon": -122.037761,
    "grades": "9-12",
    "city": "Redmond",
    "entry": "纯随机抽签，无面试作文",
@@ -2254,6 +3187,8 @@ const DATA = {
    "sd": "0423002568",
    "gs": "kirkland/924-International-Community-School",
    "choice": true,
+   "lat": 47.663806,
+   "lon": -122.19082399999999,
    "grades": "6-12",
    "city": "Kirkland",
    "entry": "随机抽签，主要在 6 年级进",
@@ -2285,6 +3220,8 @@ const DATA = {
    "sd": "0423002725",
    "gs": "kirkland/3251-Family-Learning-Center",
    "choice": true,
+   "lat": 47.655822,
+   "lon": -122.194801,
    "grades": "K-12",
    "city": "Kirkland",
    "entry": "自己申请：说明会、成绩单、推荐信，校长审核",
@@ -2316,6 +3253,8 @@ const DATA = {
    "sd": "0423000673",
    "gs": "kirkland/893-Community-School",
    "choice": true,
+   "lat": 47.663806,
+   "lon": -122.19082399999999,
    "grades": "1-5",
    "city": "Kirkland",
    "entry": "随机抽签，要参加说明会和参观",
@@ -2347,6 +3286,8 @@ const DATA = {
    "sd": "0423002448",
    "gs": "kirkland/3240-Discovery-Community-School",
    "choice": true,
+   "lat": 47.715924,
+   "lon": -122.230467,
    "grades": "K-5",
    "city": "Kirkland",
    "entry": "随机抽签",
@@ -2378,6 +3319,8 @@ const DATA = {
    "sd": "0423002519",
    "gs": "redmond/923-Explorer-Community-School",
    "choice": true,
+   "lat": 47.67004,
+   "lon": -122.059995,
    "grades": "1-5",
    "city": "Redmond",
    "entry": "随机抽签，要参观和学生试访",
@@ -2409,6 +3352,8 @@ const DATA = {
    "sd": "0423002983",
    "gs": "redmond/3741-Stella-Schola",
    "choice": true,
+   "lat": 47.670778,
+   "lon": -122.15991,
    "grades": "6-8",
    "city": "Redmond",
    "entry": "5 年级时抽签，前 30 号录取，其余保留号码 3 年",
@@ -2440,6 +3385,8 @@ const DATA = {
    "sd": "0423001843",
    "gs": "kirkland/3239-Northstar-Middle-School",
    "choice": true,
+   "lat": 47.673227999999995,
+   "lon": -122.181611,
    "grades": "6-8",
    "city": "Kirkland",
    "entry": "随机抽签",
@@ -2471,6 +3418,8 @@ const DATA = {
    "sd": "0423003070",
    "gs": "sammamish/3726-Renaissance-School-Of-Art-And-Reasoning",
    "choice": true,
+   "lat": 47.619121,
+   "lon": -122.035495,
    "grades": "6-8",
    "city": "Sammamish",
    "entry": "随机抽签",
@@ -2502,6 +3451,8 @@ const DATA = {
    "sd": "0423002726",
    "gs": "kirkland/3090-Environmental--Adventure-School",
    "choice": true,
+   "lat": 47.719953,
+   "lon": -122.232594,
    "grades": "6-8",
    "city": "Kirkland",
    "entry": "盲抽，6 年级进，三年承诺",
@@ -2533,6 +3484,8 @@ const DATA = {
    "sd": "0039003455",
    "gs": "bellevue/5938-Jing-Mei-Elementary",
    "choice": true,
+   "lat": 47.61055,
+   "lon": -122.17619,
    "grades": "K-5",
    "city": "Bellevue",
    "entry": "K 入学抽签，中文母语和非母语各半",
@@ -2564,6 +3517,8 @@ const DATA = {
    "sd": "0039000090",
    "gs": "bellevue/139-Puesta-Del-Sol-Elementary-School",
    "choice": true,
+   "lat": 47.61226,
+   "lon": -122.13873,
    "grades": "K-5",
    "city": "Bellevue",
    "entry": "K 入学抽签；1-5 年级有空位时要西语测试",
@@ -2595,6 +3550,8 @@ const DATA = {
    "sd": "0039003149",
    "gs": "bellevue/3462-International-School",
    "choice": true,
+   "lat": 47.604123,
+   "lon": -122.170332,
    "grades": "6-12",
    "city": "Bellevue",
    "entry": "6 年级抽签，其他年级排候补",
@@ -2626,6 +3583,8 @@ const DATA = {
    "sd": "0039003354",
    "gs": "bellevue/5753-Bellevue-Big-Picture-School",
    "choice": true,
+   "lat": 47.590886999999995,
+   "lon": -122.14241,
    "grades": "6-12",
    "city": "Bellevue",
    "entry": "6 年级抽签，其他年级排候补",
@@ -2657,6 +3616,8 @@ const DATA = {
    "sd": "0039003883",
    "gs": "bellevue/7847-Bellevue-Digital-Discovery",
    "choice": true,
+   "lat": null,
+   "lon": null,
    "grades": "K-12",
    "city": "Bellevue",
    "entry": "申请，全年滚动，不抽签",
@@ -2688,6 +3649,8 @@ const DATA = {
    "sd": null,
    "gs": null,
    "choice": true,
+   "lat": null,
+   "lon": null,
    "grades": "2-12",
    "city": "Bellevue",
    "entry": "测试：K、2、5 年级普筛（CogAT 等），其他年级家长申请冬季测试",
@@ -2750,7 +3713,11 @@ const DATA = {
      "school": "Canyon Park Jr High School",
      "miles": 1.27
     }
-   ]
+   ],
+   "lat": 47.80108,
+   "lon": -122.19633,
+   "address": "22833 Bothell Everett Hwy, Bothell 98021",
+   "color": "#E64B35"
   },
   {
    "name": "BASIS Independent Bellevue",
@@ -2806,7 +3773,11 @@ const DATA = {
      "miles": 2.5
     }
    ],
-   "nearby_note": "GreatSchools 没有这所学校的页面，距离按地址估算"
+   "nearby_note": "GreatSchools 没有这所学校的页面，距离按地址估算",
+   "lat": 47.61276,
+   "lon": -122.128301,
+   "address": "15749 NE 4th St, Bellevue 98008",
+   "color": "#EE4C97"
   },
   {
    "name": "Bellevue Children's Academy",
@@ -2860,7 +3831,11 @@ const DATA = {
      "school": "Odle Middle School",
      "miles": 1.24
     }
-   ]
+   ],
+   "lat": 47.63209,
+   "lon": -122.145321,
+   "address": "14600 Ne 24Th St, Bellevue 98007",
+   "color": "#3C5488"
   },
   {
    "name": "Willows Preparatory School",
@@ -2918,7 +3893,11 @@ const DATA = {
      "school": "Kamiakin Middle School",
      "miles": 2.06
     }
-   ]
+   ],
+   "lat": 47.70924,
+   "lon": -122.1306,
+   "address": "12280 NE Woodinville-Redmond Rd, Redmond 98052",
+   "color": "#0099B4"
   },
   {
    "name": "Cedar Crest Academy",
@@ -2956,7 +3935,11 @@ const DATA = {
      "school": "Chinook Middle School",
      "miles": 0.86
     }
-   ]
+   ],
+   "lat": 47.62979,
+   "lon": -122.192311,
+   "address": "2125 112Th Ave Ne, Bellevue 98004",
+   "color": "#00A087"
   },
   {
    "name": "Chestnut Hill Academy",
@@ -2989,7 +3972,11 @@ const DATA = {
      "school": "Tyee Middle School",
      "miles": 0.93
     }
-   ]
+   ],
+   "lat": 47.587244,
+   "lon": -122.158442,
+   "address": "13633 Se 26Th St, Bellevue 98005",
+   "color": "#925E9F"
   },
   {
    "name": "Open Window School",
@@ -3027,7 +4014,11 @@ const DATA = {
      "school": "Tyee Middle School",
      "miles": 2.73
     }
-   ]
+   ],
+   "lat": 47.54751,
+   "lon": -122.114391,
+   "address": "6128 168Th Pl Se, Bellevue 98006",
+   "color": "#E18727"
   },
   {
    "name": "The Overlake School",
@@ -3060,7 +4051,11 @@ const DATA = {
      "school": "Explorer Community School",
      "miles": 1.7
     }
-   ]
+   ],
+   "lat": 47.69362,
+   "lon": -122.069511,
+   "address": "20301 Ne 108Th St, Redmond 98053",
+   "color": "#7876B1"
   },
   {
    "name": "Eastside Preparatory School",
@@ -3113,7 +4108,11 @@ const DATA = {
      "school": "International Community School",
      "miles": 1.4
     }
-   ]
+   ],
+   "lat": 47.64362,
+   "lon": -122.198991,
+   "address": "10613 Ne 38Th Pl, Kirkland 98033",
+   "color": "#4DBBD5"
   },
   {
    "name": "The Bear Creek School",
@@ -3171,7 +4170,11 @@ const DATA = {
      "school": "Timberline Middle School",
      "miles": 1.65
     }
-   ]
+   ],
+   "lat": 47.68126,
+   "lon": -122.065521,
+   "address": "8905 208Th Ave Ne, Redmond 98053",
+   "color": "#7E6148"
   },
   {
    "name": "Bellevue Christian School",
@@ -3214,7 +4217,11 @@ const DATA = {
      "school": "Chinook Middle School",
      "miles": 0.19
     }
-   ]
+   ],
+   "lat": 47.624751,
+   "lon": -122.209833,
+   "address": "1601 98Th Ave Ne, Clyde Hill 98004",
+   "color": "#20854E"
   },
   {
    "name": "Eastside Catholic School",
@@ -3259,7 +4266,11 @@ const DATA = {
      "school": "Renaissance School Of Art And Reasoning",
      "miles": 0.53
     }
-   ]
+   ],
+   "lat": 47.60622,
+   "lon": -122.034821,
+   "address": "232 228Th Ave Se, Sammamish 98074",
+   "color": "#00468B"
   },
   {
    "name": "Cedar Park Christian Schools",
@@ -3314,7 +4325,11 @@ const DATA = {
      "school": "Kamiakin Middle School",
      "miles": 1.68
     }
-   ]
+   ],
+   "lat": 47.74617,
+   "lon": -122.18907,
+   "address": "16300 112th Ave NE, Bothell 98011",
+   "color": "#42B540"
   },
   {
    "name": "The Evergreen School",
@@ -3357,7 +4372,11 @@ const DATA = {
      "school": "Kellogg Middle School",
      "miles": 1.59
     }
-   ]
+   ],
+   "lat": 47.7384,
+   "lon": -122.334801,
+   "address": "15201 Meridian Ave N, Shoreline 98133",
+   "color": "#B09C85"
   },
   {
    "name": "Lakeside School",
@@ -3402,7 +4421,11 @@ const DATA = {
      "school": "Kellogg Middle School",
      "miles": 1.59
     }
-   ]
+   ],
+   "lat": 47.73238,
+   "lon": -122.327081,
+   "address": "14050 1St Ave Ne, Seattle 98125",
+   "color": "#1B1919"
   },
   {
    "name": "University Prep",
@@ -3452,7 +4475,11 @@ const DATA = {
      "school": "Eckstein Middle School",
      "miles": 0.44
     }
-   ]
+   ],
+   "lat": 47.68698,
+   "lon": -122.300391,
+   "address": "8000 25Th Ave Ne, Seattle 98115",
+   "color": "#FDAF91"
   },
   {
    "name": "Seattle Country Day School",
@@ -3483,7 +4510,11 @@ const DATA = {
      "school": "McClure Middle School",
      "miles": 0.62
     }
-   ]
+   ],
+   "lat": 47.64362,
+   "lon": -122.350381,
+   "address": "2619 4Th Ave N, Seattle 98109",
+   "color": "#8491B4"
   }
  ],
  "FEED": {
@@ -4100,7 +5131,8 @@ const state = {
   sort: { E: ["r", "asc"], M: ["r", "asc"], H: ["r", "asc"] },
   mode: "school",
   cmp: { level: "E", a: "", b: "" },
-  line: { a: "", b: "" }
+  line: { a: "", b: "" },
+  radius: 3, details: false, showPub: true
 };
 try {
   const saved = JSON.parse(localStorage.getItem("school-compare-v3") || "null");
@@ -4109,9 +5141,12 @@ try {
     if (saved.cmp) Object.assign(state.cmp, saved.cmp);
     if (saved.line) Object.assign(state.line, saved.line);
     if (saved.mode) state.mode = saved.mode;
+    if ([2, 3, 5].includes(saved.radius)) state.radius = saved.radius;
+    if (typeof saved.details === "boolean") state.details = saved.details;
+    if (typeof saved.showPub === "boolean") state.showPub = saved.showPub;
   }
 } catch (e) {}
-function persist() { try { localStorage.setItem("school-compare-v3", JSON.stringify({ on: state.on, cmp: state.cmp, line: state.line, mode: state.mode })); } catch (e) {} }
+function persist() { try { localStorage.setItem("school-compare-v3", JSON.stringify({ on: state.on, cmp: state.cmp, line: state.line, mode: state.mode, radius: state.radius, details: state.details, showPub: state.showPub })); } catch (e) {} }
 
 const fmtM = v => "$" + (v / 1e6).toFixed(2) + "M";
 const fmtShort = v => v >= 1e6 ? "$" + (v / 1e6).toFixed(v >= 1e7 ? 0 : 2).replace(/\.?0+$/, "") + "M" : "$" + Math.round(v / 1e3) + "K";
@@ -4418,20 +5453,23 @@ function lineOf(e) {
   const highs = (f.h || []).map(n => findByName("H", e.d, n)).filter(Boolean);
   return { e, m: mids[0] || null, h: highs[0] || null, mAlt: mids.slice(1), hAlt: highs.slice(1), note: f.note || "" };
 }
-function normName(s) { return s.toLowerCase().replace(/elementary school|elementary|school/g, "").replace(/[^a-z0-9]+/g, " ").trim(); }
-function nearbyPrivate(e) {
-  const target = normName(e.n);
-  const out = [];
-  DATA.PRIVATE.forEach(p => {
-    (p.nearby || []).forEach(nb => {
-      if (!/elementary/i.test(nb.school)) return;
-      const nn = normName(nb.school);
-      if (nn === target || nn.endsWith(" " + target) || nn.startsWith(target + " ") || nn.includes(target)) out.push({ p, miles: nb.miles });
-    });
-  });
-  const seen = new Set();
-  return out.filter(x => { if (seen.has(x.p.name)) return false; seen.add(x.p.name); return true; }).sort((a, b) => a.miles - b.miles);
+function miles(a, b) {
+  if (a.lat == null || b.lat == null) return null;
+  const R = 3958.8, t = Math.PI / 180;
+  const dLat = (b.lat - a.lat) * t, dLon = (b.lon - a.lon) * t;
+  const h = Math.sin(dLat / 2) ** 2 + Math.cos(a.lat * t) * Math.cos(b.lat * t) * Math.sin(dLon / 2) ** 2;
+  return 2 * R * Math.asin(Math.sqrt(h));
 }
+const ELEM_ALL = () => DATA.E.concat(DATA.CHOICE.filter(c => c.lv === "E"));
+function nearbyPrivate(e, radius) {
+  radius = radius || state.radius;
+  return DATA.PRIVATE.map(p => ({ p, miles: miles(e, p) })).filter(x => x.miles !== null && x.miles <= radius).sort((a, b) => a.miles - b.miles);
+}
+function nearbyPublic(p, radius) {
+  radius = radius || state.radius;
+  return ELEM_ALL().map(e => ({ e, miles: miles(p, e) })).filter(x => x.miles !== null && x.miles <= radius).sort((a, b) => a.miles - b.miles);
+}
+const fmtMi = m => (Math.round(m * 10) / 10).toFixed(1) + " mi";
 function lineCard(L, other) {
   const box = cell("div", undefined, "line " + L.e.d);
   const h = cell("h3");
@@ -4474,13 +5512,105 @@ function lineCard(L, other) {
   const np = nearbyPrivate(L.e);
   const near = cell("div", undefined, "near");
   if (np.length) {
-    near.append("3 英里内的私立：");
-    np.forEach((x, i) => { near.append(i ? " · " : ""); near.append(cell("b", x.p.name)); near.append(" " + (x.p.nearby_note ? "≈" : "") + x.miles + " mi（" + x.p.grades.split("（")[0] + "）"); });
+    near.append(state.radius + " 英里内的私立：");
+    np.forEach((x, i) => { near.append(i ? " · " : ""); near.append(cell("b", x.p.name)); near.append(" " + fmtMi(x.miles) + "（" + x.p.grades.split("（")[0] + "）"); });
   } else {
-    near.append("3 英里内没有表里的私立学校。");
+    near.append(state.radius + " 英里内没有表里的私立学校。");
   }
   box.append(near);
   L.avg = avg;
+  return box;
+}
+
+/* ---------- line figure (SVG) ---------- */
+const SVGNS = "http://www.w3.org/2000/svg";
+function sv(tag, attrs, text) {
+  const el = document.createElementNS(SVGNS, tag);
+  for (const k in attrs) if (attrs[k] !== undefined && attrs[k] !== null) el.setAttribute(k, attrs[k]);
+  if (text !== undefined) el.textContent = text;
+  return el;
+}
+function niceStep(max) { return max <= 20 ? 5 : max <= 50 ? 10 : 20; }
+function lineFigure(LA, LB) {
+  const lines = [LA && { L: LA, k: "A" }, LB && { L: LB, k: "B" }].filter(Boolean);
+  const W = 860, H = 320, top = 46, bottom = 44, left = 58;
+  const cw = 500, gap = 60, bw = W - left - cw - gap - 20;
+  const ph = H - top - bottom;
+  const stages = [["小学", "E", "e"], ["初中", "M", "m"], ["高中", "H", "h"]];
+  const xs = [left + 60, left + cw / 2, left + cw - 60];
+  let pmax = 0;
+  lines.forEach(({ L }) => stages.forEach(([, lv, key]) => { const r = L[key]; const p = r ? pct(r, lv) : null; if (p !== null) pmax = Math.max(pmax, p); }));
+  const step = niceStep(Math.max(pmax, 1));
+  const ymax = Math.max(step * 2, Math.ceil((pmax * 1.15) / step) * step);
+  const y = p => top + (p / ymax) * ph;
+  const svg = sv("svg", { viewBox: `0 0 ${W} ${H}`, role: "img", "aria-label": "两条升学线的全州百分位和小学 zip 房价" });
+  // grid + axis
+  for (let p = 0; p <= ymax; p += step) {
+    svg.append(sv("line", { x1: left, x2: left + cw, y1: y(p), y2: y(p), class: "grid" }));
+    svg.append(sv("text", { x: left - 8, y: y(p) + 4, "text-anchor": "end", class: "mut" }, p === 0 ? "#1" : "前 " + p + "%"));
+  }
+  stages.forEach(([lab], i) => svg.append(sv("text", { x: xs[i], y: H - bottom + 20, "text-anchor": "middle", class: "lab" }, lab)));
+  svg.append(sv("text", { x: left, y: 16, class: "ttl" }, "全州百分位（越靠上越好）"));
+  // legend
+  let lx = left + 190;
+  lines.forEach(({ L, k }) => {
+    const g = sv("g", { class: k + " " + L.e.d });
+    g.append(sv("line", { x1: lx, x2: lx + 26, y1: 12, y2: 12, class: "ln" }));
+    g.append(sv("circle", { cx: lx + 13, cy: 12, r: 4.5, class: "mk" }));
+    const t = sv("text", { x: lx + 32, y: 16, class: "mut" }, k + " " + L.e.n + " 这条线");
+    g.append(t); svg.append(g);
+    lx += 40 + Math.min(200, 12 + (k + " " + L.e.n + " 这条线").length * 8.5);
+  });
+  // lines
+  const ptsOf = L => stages.map(([, lv, key], i) => { const r = L[key]; const p = r ? pct(r, lv) : null; return p === null ? null : { x: xs[i], y: y(p), r, p, lv }; });
+  const allPts = lines.map(({ L }) => ptsOf(L));
+  lines.forEach(({ L, k }, li) => {
+    const g = sv("g", { class: k + " " + L.e.d });
+    const pts = allPts[li];
+    let d = "", pen = false;
+    pts.forEach(pt => { if (!pt) { pen = false; return; } d += (pen ? " L " : " M ") + pt.x + " " + pt.y; pen = true; });
+    if (d) g.append(sv("path", { d: d.trim(), class: "ln" }));
+    pts.forEach((pt, i) => {
+      const anchor = i === 0 ? "start" : i === 2 ? "end" : "middle";
+      const tx = i === 0 ? pt ? pt.x - 6 : xs[i] - 6 : i === 2 ? (pt ? pt.x + 6 : xs[i] + 6) : xs[i];
+      if (!pt) { g.append(sv("text", { x: tx, y: top + ph - 8 - (li * 14), "text-anchor": anchor, class: "sm" }, k + " " + (L[stages[i][2]] ? L[stages[i][2]].n + " 无排名" : "未确认"))); return; }
+      g.append(sv("circle", { cx: pt.x, cy: pt.y, r: 5.5, class: "mk" }));
+      const otherPt = lines.length === 2 ? allPts[1 - li][i] : null;
+      let above = true;
+      if (otherPt) above = pt.y < otherPt.y || (pt.y === otherPt.y && li === 0);
+      const dy = above ? -11 : 20;
+      g.append(sv("text", { x: tx, y: pt.y + dy, "text-anchor": anchor, class: "lab" }, pt.r.n + " #" + pt.r.r + " · 前 " + pt.p + "%"));
+    });
+    svg.append(g);
+  });
+  // price panel
+  const bx = left + cw + gap;
+  const prices = lines.map(({ L }) => L.e);
+  const vmax = Math.max(...prices.map(e => Math.max(e.pq3 || 0, e.p))) * 1.18;
+  const by = v => top + ph - (v / vmax) * ph;
+  svg.append(sv("text", { x: bx, y: 16, class: "ttl" }, "小学 zip 4 房房价中位数"));
+  svg.append(sv("line", { x1: bx - 6, x2: bx + bw, y1: top + ph, y2: top + ph, class: "axis" }));
+  const slot = bw / Math.max(lines.length, 1), barw = Math.min(56, slot * 0.5);
+  lines.forEach(({ L, k }, i) => {
+    const e = L.e, cx = bx + slot * (i + 0.5);
+    const g = sv("g", { class: k + " " + e.d });
+    g.append(sv("rect", { x: cx - barw / 2, y: by(e.p), width: barw, height: top + ph - by(e.p), rx: 3, class: "pbar" }));
+    if (e.pq1 && e.pq3) {
+      g.append(sv("line", { x1: cx, x2: cx, y1: by(e.pq3), y2: by(e.pq1), class: "whisk" }));
+      g.append(sv("line", { x1: cx - 7, x2: cx + 7, y1: by(e.pq3), y2: by(e.pq3), class: "whisk" }));
+      g.append(sv("line", { x1: cx - 7, x2: cx + 7, y1: by(e.pq1), y2: by(e.pq1), class: "whisk" }));
+    }
+    g.append(sv("text", { x: cx, y: by(Math.max(e.pq3 || 0, e.p)) - 8, "text-anchor": "middle", class: "lab" }, fmtPrice(e)));
+    g.append(sv("text", { x: cx, y: top + ph + 16, "text-anchor": "middle", class: "mut" }, k + " · " + e.z));
+    g.append(sv("text", { x: cx, y: top + ph + 30, "text-anchor": "middle", class: "sm" }, "n=" + e.pn));
+    svg.append(g);
+  });
+  if (lines.length === 2) {
+    const a = lines[0].L.e, b = lines[1].L.e, dpp = Math.round(100 * (b.p - a.p) / a.p);
+    svg.append(sv("text", { x: bx + bw / 2, y: 32, "text-anchor": "middle", class: "lab" }, "B 比 A " + (dpp >= 0 ? "+" : "") + dpp + "%"));
+  }
+  const box = cell("div", undefined, "fig");
+  box.append(svg);
   return box;
 }
 function renderLines(out) {
@@ -4493,7 +5623,10 @@ function renderLines(out) {
   else if (A) grid.append(cell("p", A.n + " 的升学线还没有录入。", "hint"));
   if (LB) grid.append(lineCard(LB, LA));
   else if (B) grid.append(cell("p", B.n + " 的升学线还没有录入。", "hint"));
-  out.append(grid);
+  if (LA || LB) {
+    out.append(lineFigure(LA, LB));
+    out.append(cell("p", "实线实心点是 A，虚线空心点是 B，纵轴是该学段在全州的排名百分位。右边柱子是小学所在 zip 近期成交的 4 房房价中位数，竖线是中间一半成交价的范围。", "fig-note"));
+  }
   if (LA && LB) {
     const chips = cell("div", undefined, "diff");
     const chip = t => chips.append(cell("span", t));
@@ -4507,6 +5640,7 @@ function renderLines(out) {
     chip("房价 " + (dpp >= 0 ? "+" : "") + dpp + "%（" + (dp >= 0 ? "+" : "−") + fmtShort(Math.abs(dp)) + "）");
     out.append(chips);
   }
+  out.append(grid);
   out.append(cell("p", "升学线按学区公布的 feeder pattern。片区边缘有拆分，具体地址以学区的地址查询工具为准。差值都是 B 减 A。这里只列数据，不下结论。", "cmp-foot"));
   share.hidden = false;
   const tag = "line-" + slug(A ? A.n : "") + (B ? "--vs--" + slug(B.n) : "");
@@ -4540,7 +5674,7 @@ function renderChoice() {
   const t = document.getElementById("choice-table");
   t.textContent = "";
   const cols = [["学校 / 项目", 0], ["学区", 0], ["年级", 80], ["怎么进", 240], ["申请窗口", 240], ["之后去哪", 210], ["成绩", 150]];
-  t.className = "detail";
+  t.className = "detail" + (state.details ? "" : " compact");
   const thead = document.createElement("thead"); const hr = document.createElement("tr");
   cols.forEach(([c, w]) => { const th = cell("th", c); if (w) th.style.minWidth = w + "px"; hr.append(th); }); thead.append(hr); t.append(thead);
   const tb = document.createElement("tbody");
@@ -4570,7 +5704,7 @@ function renderPrivate() {
   const t = document.getElementById("private-table");
   t.textContent = "";
   const cols = [["学校", 0], ["年级", 130], ["城市 / Zip", 96], ["学费", 200], ["入学考试", 250], ["申请截止", 200], ["学生数", 0], ["类型", 150]];
-  t.className = "detail";
+  t.className = "detail" + (state.details ? "" : " compact");
   const thead = document.createElement("thead"); const hr = document.createElement("tr");
   cols.forEach(([c, w]) => { const th = cell("th", c); if (w) th.style.minWidth = w + "px"; hr.append(th); }); thead.append(hr); t.append(thead);
   const tb = document.createElement("tbody");
@@ -4578,7 +5712,9 @@ function renderPrivate() {
   const list = DATA.PRIVATE.filter(p => !q || p.name.toLowerCase().includes(q) || (p.alias || "").toLowerCase().includes(q));
   list.forEach(p => {
     const tr = cell("tr", undefined, "main");
-    const nm = cell("td", p.name, "name");
+    const nm = cell("td", undefined, "name");
+    const dot = cell("i", undefined, "pdot"); dot.style.background = p.color; nm.append(dot);
+    nm.append(p.name);
     if (p.alias) nm.append(cell("span", p.alias, "dist"));
     nm.append(linkIcons({ url: p.website, gs: p.gs }));
     tr.append(nm);
@@ -4595,16 +5731,98 @@ function renderPrivate() {
     tr.append(cell("td", p.enrollment ? String(p.enrollment) : "—", "num"));
     tr.append(cell("td", p.affiliation || "—"));
     tb.append(tr);
-    const pubs = (p.nearby || []).filter(x => /elementary/i.test(x.school)).slice().sort((a, b) => a.miles - b.miles);
-    let near = pubs.length ? pubs.map(x => x.school.replace(/ Elementary School| Elementary/, "") + " " + (p.nearby_note ? "≈" : "") + x.miles + " mi").join(" · ") : "—";
-    if (p.nearby_note) near += "（" + p.nearby_note + "）";
-    tb.append(subRow("", cols.length, [["特点", p.focus, true], ["3 英里内的公立小学", near, true]]));
+    const pubs = nearbyPublic(p);
+    const near = pubs.length ? pubs.map(x => x.e.n + (x.e.choice ? "（选择校）" : "") + " " + fmtMi(x.miles)).join(" · ") : "—";
+    tb.append(subRow("", cols.length, [["特点", p.focus, true], [state.radius + " 英里内的公立小学", near, true]]));
   });
   if (!list.length) { const tr = cell("tr", undefined, "empty"); const td = cell("td", "没有符合条件的学校"); td.colSpan = cols.length; tr.append(td); tb.append(tr); }
   t.append(tb);
   document.getElementById("private-count").textContent = "共 " + DATA.PRIVATE.length + " 所";
 }
 
+
+/* ---------- map ---------- */
+const MAP = { map: null, priv: [], pub: [], active: null };
+function isDark() { const t = document.documentElement.getAttribute("data-theme"); return t === "dark" || (t !== "light" && matchMedia("(prefers-color-scheme: dark)").matches); }
+function popupHtml(p) {
+  const pubs = nearbyPublic(p);
+  const esc = s => String(s).replace(/[&<>"]/g, c => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" }[c]));
+  const tu = p.tuition ? Object.entries(p.tuition).map(([b, a]) => b + " " + (typeof a === "number" ? "$" + a.toLocaleString("en-US") : a)).join(" · ") : "";
+  return `<b class="t">${esc(p.name)}</b><br><span class="mut">${esc(p.grades || "")} · ${esc(p.city || "")}${tu ? "<br>" + esc(tu) : ""}</span><br>` +
+    `<span class="mut">${esc(p.address || "")}</span><br>` +
+    `<b>${state.radius} 英里内的公立小学</b><br>` + (pubs.length ? pubs.map(x => esc(x.e.n) + (x.e.choice ? "（选择校）" : "") + " <span class=\"mut\">" + fmtMi(x.miles) + "</span>").join("<br>") : "<span class=\"mut\">没有</span>");
+}
+function initMap() {
+  const el = document.getElementById("leaflet-map");
+  document.getElementById("map-count").textContent = "共 " + DATA.PRIVATE.length + " 所私校，" + DATA.E.length + " 所划片小学";
+  if (!window.L) { el.textContent = "地图库没有加载（可能是离线或被拦截），表里的距离不受影响。"; el.style.display = "grid"; el.style.placeItems = "center"; el.style.color = "var(--muted)"; return; }
+  const map = L.map(el, { scrollWheelZoom: false, zoomSnap: 0.5 });
+  map.fitBounds(L.latLngBounds(DATA.PRIVATE.map(p => [p.lat, p.lon])).pad(0.14), { padding: [8, 8] });
+  MAP.map = map;
+  const tiles = L.tileLayer("https://{s}.basemaps.cartocdn.com/" + (isDark() ? "dark_all" : "light_all") + "/{z}/{x}/{y}{r}.png", {
+    attribution: '&copy; <a href="https://www.openstreetmap.org/copyright" target="_blank" rel="noopener">OpenStreetMap</a> 贡献者 &copy; <a href="https://carto.com/attributions" target="_blank" rel="noopener">CARTO</a>', subdomains: "abcd", maxZoom: 18 });
+  let tileFails = 0;
+  tiles.on("tileerror", () => { if (++tileFails === 6) { const n = cell("div", "底图加载失败，只显示学校位置。", "map-note"); n.style.cssText = "position:absolute;left:10px;top:10px;z-index:500;background:var(--surface);padding:4px 8px;border-radius:6px;border:1px solid var(--line)"; el.append(n); } });
+  tiles.addTo(map);
+  const colors = { NSD: getComputedStyle(document.documentElement).getPropertyValue("--nsd").trim() || "#2e7d32", LWSD: getComputedStyle(document.documentElement).getPropertyValue("--lwsd").trim() || "#e07b00", BSD: getComputedStyle(document.documentElement).getPropertyValue("--bsd").trim() || "#c62828" };
+  const pubLayer = L.layerGroup();
+  ELEM_ALL().forEach(e => {
+    if (e.lat == null) return;
+    const m = L.circleMarker([e.lat, e.lon], { radius: e.choice ? 4 : 4.5, color: e.choice ? colors[e.d] : "#fff", weight: e.choice ? 2 : 1, fillColor: colors[e.d], fillOpacity: e.choice ? 0 : 0.95 });
+    m.bindTooltip(e.n + (e.choice ? "（选择校）" : "") + " · " + e.d + (e.r !== null ? " · 州排名 #" + e.r : ""), { direction: "top", offset: [0, -4] });
+    m.on("click", () => { state.mode = "line"; state.line.a = idOf(e); persist(); fillSelects(); renderCompare(); renderAll(); document.getElementById("compare").scrollIntoView({ behavior: "smooth", block: "start" }); });
+    pubLayer.addLayer(m); MAP.pub.push(m);
+  });
+  if (state.showPub) pubLayer.addTo(map);
+  MAP.pubLayer = pubLayer;
+  DATA.PRIVATE.forEach((p, i) => {
+    const circle = L.circle([p.lat, p.lon], { radius: state.radius * 1609.34, color: p.color, weight: 1.5, opacity: 0.8, fillColor: p.color, fillOpacity: 0.07, interactive: false });
+    const dot = L.circleMarker([p.lat, p.lon], { radius: 7, color: "#fff", weight: 1.5, fillColor: p.color, fillOpacity: 1 });
+    dot.bindTooltip(p.name, { direction: "top", offset: [0, -6] });
+    dot.bindPopup(() => popupHtml(p), { maxWidth: 300 });
+    dot.on("click", () => setActive(i, false));
+    circle.addTo(map); dot.addTo(map);
+    MAP.priv.push({ p, circle, dot });
+  });
+  renderLegend();
+  document.querySelectorAll(".map-ctrl .seg button").forEach(b => {
+    b.setAttribute("aria-pressed", String(Number(b.dataset.r) === state.radius));
+    b.addEventListener("click", () => { state.radius = Number(b.dataset.r); persist(); document.querySelectorAll(".map-ctrl .seg button").forEach(x => x.setAttribute("aria-pressed", String(x === b))); applyRadius(); });
+  });
+  const cb = document.getElementById("show-pub");
+  cb.checked = state.showPub;
+  cb.addEventListener("change", () => { state.showPub = cb.checked; persist(); if (cb.checked) pubLayer.addTo(map); else map.removeLayer(pubLayer); });
+  matchMedia("(prefers-color-scheme: dark)").addEventListener("change", () => tiles.setUrl("https://{s}.basemaps.cartocdn.com/" + (isDark() ? "dark_all" : "light_all") + "/{z}/{x}/{y}{r}.png"));
+}
+function applyRadius() {
+  MAP.priv.forEach(x => x.circle.setRadius(state.radius * 1609.34));
+  MAP.priv.forEach(x => { if (x.dot.isPopupOpen()) x.dot.setPopupContent(popupHtml(x.p)); });
+  renderLegend(); renderPrivate(); if (state.mode === "line") renderCompare();
+}
+function setActive(i, pan) {
+  MAP.active = MAP.active === i ? null : i;
+  MAP.priv.forEach((x, j) => {
+    const on = MAP.active === null || MAP.active === j;
+    x.circle.setStyle({ opacity: on ? (MAP.active === j ? 1 : 0.8) : 0.12, fillOpacity: on ? (MAP.active === j ? 0.16 : 0.07) : 0.015, weight: MAP.active === j ? 2.5 : 1.5 });
+    x.dot.setStyle({ fillOpacity: on ? 1 : 0.25, opacity: on ? 1 : 0.3 });
+  });
+  if (MAP.active !== null && pan) { const x = MAP.priv[MAP.active]; MAP.map.panTo([x.p.lat, x.p.lon]); x.dot.openPopup(); }
+  if (MAP.active === null) MAP.map.closePopup();
+  renderLegend();
+}
+function renderLegend() {
+  const ol = document.getElementById("map-legend");
+  ol.textContent = "";
+  DATA.PRIVATE.forEach((p, i) => {
+    const li = cell("li"); const b = cell("button"); b.type = "button";
+    b.setAttribute("aria-pressed", String(MAP.active === i));
+    const dot = cell("span", undefined, "dot"); dot.style.setProperty("--pc", p.color); b.append(dot);
+    const nm = cell("span"); nm.append(p.alias && p.alias !== p.name ? p.alias : p.name); nm.append(" "); nm.append(cell("span", p.city, "ct")); b.append(nm);
+    b.append(cell("span", nearbyPublic(p).length + " 所小学", "n"));
+    b.addEventListener("click", () => setActive(i, true));
+    li.append(b); ol.append(li);
+  });
+}
 /* ---------- wiring ---------- */
 document.querySelectorAll(".chip").forEach(b => {
   b.setAttribute("aria-pressed", String(state.on[b.dataset.d]));
@@ -4636,12 +5854,22 @@ document.getElementById("l-copy").addEventListener("click", () => {
   else document.getElementById("l-copied").textContent = url;
 });
 window.addEventListener("hashchange", () => { if (readHash()) { persist(); fillSelects(); renderCompare(); renderAll(); } });
+document.querySelectorAll("[data-toggle=details]").forEach(b => {
+  b.setAttribute("aria-pressed", String(state.details));
+  b.addEventListener("click", () => {
+    state.details = !state.details; persist();
+    document.querySelectorAll("[data-toggle=details]").forEach(x => { x.setAttribute("aria-pressed", String(state.details)); x.textContent = state.details ? "收起细节" : "显示细节"; });
+    renderChoice(); renderPrivate();
+  });
+  b.textContent = state.details ? "收起细节" : "显示细节";
+});
 readHash();
 fillSelects();
 renderCompare();
 renderAll();
 renderChoice();
 renderPrivate();
+initMap();
 </script>
 </body>
 </html>
