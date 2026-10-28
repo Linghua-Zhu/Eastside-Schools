@@ -71,7 +71,8 @@ a { color: var(--fg); }
 /* header */
 header { display: grid; gap: 6px; }
 h1 { font-family: var(--font-display); font-size: clamp(22px, 4.4vw, 30px); line-height: 1.25; margin: 0; text-wrap: balance; letter-spacing: 0.01em; }
-.lede { margin: 0; color: var(--muted); max-width: 92ch; }
+.lede { margin: 0; color: var(--muted); }
+.lede .nw { white-space: nowrap; }
 .legend { display: flex; flex-wrap: wrap; gap: 4px 14px; font-size: 13.5px; color: var(--muted); margin-top: 2px; }
 .legend span { display: inline-flex; align-items: center; gap: 6px; }
 .legend b { color: var(--fg); font-weight: 600; letter-spacing: 0.03em; }
@@ -345,7 +346,7 @@ td.tuition { white-space: normal; min-width: 170px; font-variant-numeric: tabula
 <div class="wrap">
   <header>
     <h1>大西雅图学校对照</h1>
-    <p class="lede">Seattle、Shoreline、Northshore、Lake Washington、Bellevue、Mercer Island、Issaquah 7 个学区的公立学校排名、成绩、升学线和所在 zip 的房价，加上选择校和附近的私立学校。数据整理到 2026 年 10 月。</p>
+    <p class="lede"><span class="nw">Seattle</span>、<span class="nw">Shoreline</span>、<span class="nw">Northshore</span>、<span class="nw">Lake Washington</span>、<span class="nw">Bellevue</span>、<span class="nw">Mercer Island</span>、<span class="nw">Issaquah</span> 7 个学区的公立学校排名、成绩、升学线和所在 zip 的房价，加上选择校和附近的私立学校。<span class="nw">数据整理到 2026 年 10 月。</span></p>
     <div class="legend" id="legend" aria-label="学区颜色"></div>
   </header>
 
