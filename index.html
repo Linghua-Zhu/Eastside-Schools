@@ -9,666 +9,6 @@
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans:wght@400;500;600&family=Noto+Sans+SC:wght@400;500;700&family=Noto+Serif+SC:wght@700&display=swap">
 <style>
-/* Leaflet 1.9.4, BSD-2-Clause, (c) 2010-2023 Vladimir Agafonkin, (c) 2010-2011 CloudMade; marker/layers icon rules removed */
-/* required styles */
-
-.leaflet-pane,
-.leaflet-tile,
-.leaflet-marker-icon,
-.leaflet-marker-shadow,
-.leaflet-tile-container,
-.leaflet-pane > svg,
-.leaflet-pane > canvas,
-.leaflet-zoom-box,
-.leaflet-image-layer,
-.leaflet-layer {
-	position: absolute;
-	left: 0;
-	top: 0;
-	}
-.leaflet-container {
-	overflow: hidden;
-	}
-.leaflet-tile,
-.leaflet-marker-icon,
-.leaflet-marker-shadow {
-	-webkit-user-select: none;
-	   -moz-user-select: none;
-	        user-select: none;
-	  -webkit-user-drag: none;
-	}
-/* Prevents IE11 from highlighting tiles in blue */
-.leaflet-tile::selection {
-	background: transparent;
-}
-/* Safari renders non-retina tile on retina better with this, but Chrome is worse */
-.leaflet-safari .leaflet-tile {
-	image-rendering: -webkit-optimize-contrast;
-	}
-/* hack that prevents hw layers "stretching" when loading new tiles */
-.leaflet-safari .leaflet-tile-container {
-	width: 1600px;
-	height: 1600px;
-	-webkit-transform-origin: 0 0;
-	}
-.leaflet-marker-icon,
-.leaflet-marker-shadow {
-	display: block;
-	}
-/* .leaflet-container svg: reset svg max-width decleration shipped in Joomla! (joomla.org) 3.x */
-/* .leaflet-container img: map is broken in FF if you have max-width: 100% on tiles */
-.leaflet-container .leaflet-overlay-pane svg {
-	max-width: none !important;
-	max-height: none !important;
-	}
-.leaflet-container .leaflet-marker-pane img,
-.leaflet-container .leaflet-shadow-pane img,
-.leaflet-container .leaflet-tile-pane img,
-.leaflet-container img.leaflet-image-layer,
-.leaflet-container .leaflet-tile {
-	max-width: none !important;
-	max-height: none !important;
-	width: auto;
-	padding: 0;
-	}
-
-.leaflet-container img.leaflet-tile {
-	/* See: https://bugs.chromium.org/p/chromium/issues/detail?id=600120 */
-	mix-blend-mode: plus-lighter;
-}
-
-.leaflet-container.leaflet-touch-zoom {
-	-ms-touch-action: pan-x pan-y;
-	touch-action: pan-x pan-y;
-	}
-.leaflet-container.leaflet-touch-drag {
-	-ms-touch-action: pinch-zoom;
-	/* Fallback for FF which doesn't support pinch-zoom */
-	touch-action: none;
-	touch-action: pinch-zoom;
-}
-.leaflet-container.leaflet-touch-drag.leaflet-touch-zoom {
-	-ms-touch-action: none;
-	touch-action: none;
-}
-.leaflet-container {
-	-webkit-tap-highlight-color: transparent;
-}
-.leaflet-container a {
-	-webkit-tap-highlight-color: rgba(51, 181, 229, 0.4);
-}
-.leaflet-tile {
-	filter: inherit;
-	visibility: hidden;
-	}
-.leaflet-tile-loaded {
-	visibility: inherit;
-	}
-.leaflet-zoom-box {
-	width: 0;
-	height: 0;
-	-moz-box-sizing: border-box;
-	     box-sizing: border-box;
-	z-index: 800;
-	}
-/* workaround for https://bugzilla.mozilla.org/show_bug.cgi?id=888319 */
-.leaflet-overlay-pane svg {
-	-moz-user-select: none;
-	}
-
-.leaflet-pane         { z-index: 400; }
-
-.leaflet-tile-pane    { z-index: 200; }
-.leaflet-overlay-pane { z-index: 400; }
-.leaflet-shadow-pane  { z-index: 500; }
-.leaflet-marker-pane  { z-index: 600; }
-.leaflet-tooltip-pane   { z-index: 650; }
-.leaflet-popup-pane   { z-index: 700; }
-
-.leaflet-map-pane canvas { z-index: 100; }
-.leaflet-map-pane svg    { z-index: 200; }
-
-.leaflet-vml-shape {
-	width: 1px;
-	height: 1px;
-	}
-.lvml {
-	behavior: url(#default#VML);
-	display: inline-block;
-	position: absolute;
-	}
-
-
-/* control positioning */
-
-.leaflet-control {
-	position: relative;
-	z-index: 800;
-	pointer-events: visiblePainted; /* IE 9-10 doesn't have auto */
-	pointer-events: auto;
-	}
-.leaflet-top,
-.leaflet-bottom {
-	position: absolute;
-	z-index: 1000;
-	pointer-events: none;
-	}
-.leaflet-top {
-	top: 0;
-	}
-.leaflet-right {
-	right: 0;
-	}
-.leaflet-bottom {
-	bottom: 0;
-	}
-.leaflet-left {
-	left: 0;
-	}
-.leaflet-control {
-	float: left;
-	clear: both;
-	}
-.leaflet-right .leaflet-control {
-	float: right;
-	}
-.leaflet-top .leaflet-control {
-	margin-top: 10px;
-	}
-.leaflet-bottom .leaflet-control {
-	margin-bottom: 10px;
-	}
-.leaflet-left .leaflet-control {
-	margin-left: 10px;
-	}
-.leaflet-right .leaflet-control {
-	margin-right: 10px;
-	}
-
-
-/* zoom and fade animations */
-
-.leaflet-fade-anim .leaflet-popup {
-	opacity: 0;
-	-webkit-transition: opacity 0.2s linear;
-	   -moz-transition: opacity 0.2s linear;
-	        transition: opacity 0.2s linear;
-	}
-.leaflet-fade-anim .leaflet-map-pane .leaflet-popup {
-	opacity: 1;
-	}
-.leaflet-zoom-animated {
-	-webkit-transform-origin: 0 0;
-	    -ms-transform-origin: 0 0;
-	        transform-origin: 0 0;
-	}
-svg.leaflet-zoom-animated {
-	will-change: transform;
-}
-
-.leaflet-zoom-anim .leaflet-zoom-animated {
-	-webkit-transition: -webkit-transform 0.25s cubic-bezier(0,0,0.25,1);
-	   -moz-transition:    -moz-transform 0.25s cubic-bezier(0,0,0.25,1);
-	        transition:         transform 0.25s cubic-bezier(0,0,0.25,1);
-	}
-.leaflet-zoom-anim .leaflet-tile,
-.leaflet-pan-anim .leaflet-tile {
-	-webkit-transition: none;
-	   -moz-transition: none;
-	        transition: none;
-	}
-
-.leaflet-zoom-anim .leaflet-zoom-hide {
-	visibility: hidden;
-	}
-
-
-/* cursors */
-
-.leaflet-interactive {
-	cursor: pointer;
-	}
-.leaflet-grab {
-	cursor: -webkit-grab;
-	cursor:    -moz-grab;
-	cursor:         grab;
-	}
-.leaflet-crosshair,
-.leaflet-crosshair .leaflet-interactive {
-	cursor: crosshair;
-	}
-.leaflet-popup-pane,
-.leaflet-control {
-	cursor: auto;
-	}
-.leaflet-dragging .leaflet-grab,
-.leaflet-dragging .leaflet-grab .leaflet-interactive,
-.leaflet-dragging .leaflet-marker-draggable {
-	cursor: move;
-	cursor: -webkit-grabbing;
-	cursor:    -moz-grabbing;
-	cursor:         grabbing;
-	}
-
-/* marker & overlays interactivity */
-.leaflet-marker-icon,
-.leaflet-marker-shadow,
-.leaflet-image-layer,
-.leaflet-pane > svg path,
-.leaflet-tile-container {
-	pointer-events: none;
-	}
-
-.leaflet-marker-icon.leaflet-interactive,
-.leaflet-image-layer.leaflet-interactive,
-.leaflet-pane > svg path.leaflet-interactive,
-svg.leaflet-image-layer.leaflet-interactive path {
-	pointer-events: visiblePainted; /* IE 9-10 doesn't have auto */
-	pointer-events: auto;
-	}
-
-/* visual tweaks */
-
-.leaflet-container {
-	background: #ddd;
-	outline-offset: 1px;
-	}
-.leaflet-container a {
-	color: #0078A8;
-	}
-.leaflet-zoom-box {
-	border: 2px dotted #38f;
-	background: rgba(255,255,255,0.5);
-	}
-
-
-/* general typography */
-.leaflet-container {
-	font-family: "Helvetica Neue", Arial, Helvetica, sans-serif;
-	font-size: 12px;
-	font-size: 0.75rem;
-	line-height: 1.5;
-	}
-
-
-/* general toolbar styles */
-
-.leaflet-bar {
-	box-shadow: 0 1px 5px rgba(0,0,0,0.65);
-	border-radius: 4px;
-	}
-.leaflet-bar a {
-	background-color: #fff;
-	border-bottom: 1px solid #ccc;
-	width: 26px;
-	height: 26px;
-	line-height: 26px;
-	display: block;
-	text-align: center;
-	text-decoration: none;
-	color: black;
-	}
-.leaflet-bar a,
-.leaflet-control-layers-toggle {
-	background-position: 50% 50%;
-	background-repeat: no-repeat;
-	display: block;
-	}
-.leaflet-bar a:hover,
-.leaflet-bar a:focus {
-	background-color: #f4f4f4;
-	}
-.leaflet-bar a:first-child {
-	border-top-left-radius: 4px;
-	border-top-right-radius: 4px;
-	}
-.leaflet-bar a:last-child {
-	border-bottom-left-radius: 4px;
-	border-bottom-right-radius: 4px;
-	border-bottom: none;
-	}
-.leaflet-bar a.leaflet-disabled {
-	cursor: default;
-	background-color: #f4f4f4;
-	color: #bbb;
-	}
-
-.leaflet-touch .leaflet-bar a {
-	width: 30px;
-	height: 30px;
-	line-height: 30px;
-	}
-.leaflet-touch .leaflet-bar a:first-child {
-	border-top-left-radius: 2px;
-	border-top-right-radius: 2px;
-	}
-.leaflet-touch .leaflet-bar a:last-child {
-	border-bottom-left-radius: 2px;
-	border-bottom-right-radius: 2px;
-	}
-
-/* zoom control */
-
-.leaflet-control-zoom-in,
-.leaflet-control-zoom-out {
-	font: bold 18px 'Lucida Console', Monaco, monospace;
-	text-indent: 1px;
-	}
-
-.leaflet-touch .leaflet-control-zoom-in, .leaflet-touch .leaflet-control-zoom-out  {
-	font-size: 22px;
-	}
-
-
-/* layers control */
-
-.leaflet-control-layers {
-	box-shadow: 0 1px 5px rgba(0,0,0,0.4);
-	background: #fff;
-	border-radius: 5px;
-	}
-.leaflet-control-layers-toggle {
-	width: 36px;
-	height: 36px;
-	}
-.leaflet-retina .leaflet-control-layers-toggle {
-	background-size: 26px 26px;
-	}
-.leaflet-touch .leaflet-control-layers-toggle {
-	width: 44px;
-	height: 44px;
-	}
-.leaflet-control-layers .leaflet-control-layers-list,
-.leaflet-control-layers-expanded .leaflet-control-layers-toggle {
-	display: none;
-	}
-.leaflet-control-layers-expanded .leaflet-control-layers-list {
-	display: block;
-	position: relative;
-	}
-.leaflet-control-layers-expanded {
-	padding: 6px 10px 6px 6px;
-	color: #333;
-	background: #fff;
-	}
-.leaflet-control-layers-scrollbar {
-	overflow-y: scroll;
-	overflow-x: hidden;
-	padding-right: 5px;
-	}
-.leaflet-control-layers-selector {
-	margin-top: 2px;
-	position: relative;
-	top: 1px;
-	}
-.leaflet-control-layers label {
-	display: block;
-	font-size: 13px;
-	font-size: 1.08333em;
-	}
-.leaflet-control-layers-separator {
-	height: 0;
-	border-top: 1px solid #ddd;
-	margin: 5px -10px 5px -6px;
-	}
-
-/* Default icon URLs */
-.leaflet-default-icon-path { /* used only in path-guessing heuristic, see L.Icon.Default */
-	}
-
-
-/* attribution and scale controls */
-
-.leaflet-container .leaflet-control-attribution {
-	background: #fff;
-	background: rgba(255, 255, 255, 0.8);
-	margin: 0;
-	}
-.leaflet-control-attribution,
-.leaflet-control-scale-line {
-	padding: 0 5px;
-	color: #333;
-	line-height: 1.4;
-	}
-.leaflet-control-attribution a {
-	text-decoration: none;
-	}
-.leaflet-control-attribution a:hover,
-.leaflet-control-attribution a:focus {
-	text-decoration: underline;
-	}
-.leaflet-attribution-flag {
-	display: inline !important;
-	vertical-align: baseline !important;
-	width: 1em;
-	height: 0.6669em;
-	}
-.leaflet-left .leaflet-control-scale {
-	margin-left: 5px;
-	}
-.leaflet-bottom .leaflet-control-scale {
-	margin-bottom: 5px;
-	}
-.leaflet-control-scale-line {
-	border: 2px solid #777;
-	border-top: none;
-	line-height: 1.1;
-	padding: 2px 5px 1px;
-	white-space: nowrap;
-	-moz-box-sizing: border-box;
-	     box-sizing: border-box;
-	background: rgba(255, 255, 255, 0.8);
-	text-shadow: 1px 1px #fff;
-	}
-.leaflet-control-scale-line:not(:first-child) {
-	border-top: 2px solid #777;
-	border-bottom: none;
-	margin-top: -2px;
-	}
-.leaflet-control-scale-line:not(:first-child):not(:last-child) {
-	border-bottom: 2px solid #777;
-	}
-
-.leaflet-touch .leaflet-control-attribution,
-.leaflet-touch .leaflet-control-layers,
-.leaflet-touch .leaflet-bar {
-	box-shadow: none;
-	}
-.leaflet-touch .leaflet-control-layers,
-.leaflet-touch .leaflet-bar {
-	border: 2px solid rgba(0,0,0,0.2);
-	background-clip: padding-box;
-	}
-
-
-/* popup */
-
-.leaflet-popup {
-	position: absolute;
-	text-align: center;
-	margin-bottom: 20px;
-	}
-.leaflet-popup-content-wrapper {
-	padding: 1px;
-	text-align: left;
-	border-radius: 12px;
-	}
-.leaflet-popup-content {
-	margin: 13px 24px 13px 20px;
-	line-height: 1.3;
-	font-size: 13px;
-	font-size: 1.08333em;
-	min-height: 1px;
-	}
-.leaflet-popup-content p {
-	margin: 17px 0;
-	margin: 1.3em 0;
-	}
-.leaflet-popup-tip-container {
-	width: 40px;
-	height: 20px;
-	position: absolute;
-	left: 50%;
-	margin-top: -1px;
-	margin-left: -20px;
-	overflow: hidden;
-	pointer-events: none;
-	}
-.leaflet-popup-tip {
-	width: 17px;
-	height: 17px;
-	padding: 1px;
-
-	margin: -10px auto 0;
-	pointer-events: auto;
-
-	-webkit-transform: rotate(45deg);
-	   -moz-transform: rotate(45deg);
-	    -ms-transform: rotate(45deg);
-	        transform: rotate(45deg);
-	}
-.leaflet-popup-content-wrapper,
-.leaflet-popup-tip {
-	background: white;
-	color: #333;
-	box-shadow: 0 3px 14px rgba(0,0,0,0.4);
-	}
-.leaflet-container a.leaflet-popup-close-button {
-	position: absolute;
-	top: 0;
-	right: 0;
-	border: none;
-	text-align: center;
-	width: 24px;
-	height: 24px;
-	font: 16px/24px Tahoma, Verdana, sans-serif;
-	color: #757575;
-	text-decoration: none;
-	background: transparent;
-	}
-.leaflet-container a.leaflet-popup-close-button:hover,
-.leaflet-container a.leaflet-popup-close-button:focus {
-	color: #585858;
-	}
-.leaflet-popup-scrolled {
-	overflow: auto;
-	}
-
-.leaflet-oldie .leaflet-popup-content-wrapper {
-	-ms-zoom: 1;
-	}
-.leaflet-oldie .leaflet-popup-tip {
-	width: 24px;
-	margin: 0 auto;
-
-	-ms-filter: "progid:DXImageTransform.Microsoft.Matrix(M11=0.70710678, M12=0.70710678, M21=-0.70710678, M22=0.70710678)";
-	filter: progid:DXImageTransform.Microsoft.Matrix(M11=0.70710678, M12=0.70710678, M21=-0.70710678, M22=0.70710678);
-	}
-
-.leaflet-oldie .leaflet-control-zoom,
-.leaflet-oldie .leaflet-control-layers,
-.leaflet-oldie .leaflet-popup-content-wrapper,
-.leaflet-oldie .leaflet-popup-tip {
-	border: 1px solid #999;
-	}
-
-
-/* div icon */
-
-.leaflet-div-icon {
-	background: #fff;
-	border: 1px solid #666;
-	}
-
-
-/* Tooltip */
-/* Base styles for the element that has a tooltip */
-.leaflet-tooltip {
-	position: absolute;
-	padding: 6px;
-	background-color: #fff;
-	border: 1px solid #fff;
-	border-radius: 3px;
-	color: #222;
-	white-space: nowrap;
-	-webkit-user-select: none;
-	-moz-user-select: none;
-	-ms-user-select: none;
-	user-select: none;
-	pointer-events: none;
-	box-shadow: 0 1px 3px rgba(0,0,0,0.4);
-	}
-.leaflet-tooltip.leaflet-interactive {
-	cursor: pointer;
-	pointer-events: auto;
-	}
-.leaflet-tooltip-top:before,
-.leaflet-tooltip-bottom:before,
-.leaflet-tooltip-left:before,
-.leaflet-tooltip-right:before {
-	position: absolute;
-	pointer-events: none;
-	border: 6px solid transparent;
-	background: transparent;
-	content: "";
-	}
-
-/* Directions */
-
-.leaflet-tooltip-bottom {
-	margin-top: 6px;
-}
-.leaflet-tooltip-top {
-	margin-top: -6px;
-}
-.leaflet-tooltip-bottom:before,
-.leaflet-tooltip-top:before {
-	left: 50%;
-	margin-left: -6px;
-	}
-.leaflet-tooltip-top:before {
-	bottom: 0;
-	margin-bottom: -12px;
-	border-top-color: #fff;
-	}
-.leaflet-tooltip-bottom:before {
-	top: 0;
-	margin-top: -12px;
-	margin-left: -6px;
-	border-bottom-color: #fff;
-	}
-.leaflet-tooltip-left {
-	margin-left: -6px;
-}
-.leaflet-tooltip-right {
-	margin-left: 6px;
-}
-.leaflet-tooltip-left:before,
-.leaflet-tooltip-right:before {
-	top: 50%;
-	margin-top: -6px;
-	}
-.leaflet-tooltip-left:before {
-	right: 0;
-	margin-right: -12px;
-	border-left-color: #fff;
-	}
-.leaflet-tooltip-right:before {
-	left: 0;
-	margin-left: -12px;
-	border-right-color: #fff;
-	}
-
-/* Printing */
-
-@media print {
-	/* Prevent printers from removing background-images of controls. */
-	.leaflet-control {
-		-webkit-print-color-adjust: exact;
-		print-color-adjust: exact;
-		}
-	}
-
 /* Layout: sticky toolbar, a compare card, then three ranked tables; the district lives in each row's edge stripe and tint */
 :root {
   --bg: #f4f6f5;
@@ -874,38 +214,56 @@ td.tuition { white-space: normal; min-width: 170px; font-variant-numeric: tabula
 .fig .B .pbar { fill: var(--surface); stroke: var(--c); stroke-width: 2; opacity: 1; }
 .fig .whisk { stroke: var(--fg); stroke-width: 1.2; opacity: 0.6; }
 .fig-note { color: var(--muted); font-size: 12.5px; margin: 0; }
-.map-wrap { display: grid; grid-template-columns: minmax(0, 1fr) 300px; gap: 14px; align-items: start; }
-.map { height: 600px; border: 1px solid var(--line); border-radius: 10px; background: #e9ecef; overflow: hidden; }
-@media (prefers-color-scheme: dark) { :root:not([data-theme="light"]) .map { background: #22262b; } }
-:root[data-theme="dark"] .map { background: #22262b; }
+.map-wrap { display: grid; grid-template-columns: minmax(0, 660px) minmax(260px, 1fr); gap: 16px; align-items: start; }
+.map { position: relative; border: 1px solid var(--line); border-radius: 10px; overflow: hidden; background: var(--map-land);
+  --map-land: #f4f2ed; --map-water: #d3e2ee; --map-road: #d6d2c9; --map-road2: #e2dfd7; --map-text: #7a7f87; }
+@media (prefers-color-scheme: dark) { :root:not([data-theme="light"]) .map { --map-land: #1c2025; --map-water: #18283a; --map-road: #363c45; --map-road2: #2b3038; --map-text: #8b929c; } }
+:root[data-theme="dark"] .map { --map-land: #1c2025; --map-water: #18283a; --map-road: #363c45; --map-road2: #2b3038; --map-text: #8b929c; }
+.map svg { display: block; width: 100%; height: auto; font-family: var(--font-body); }
+.map .water { fill: var(--map-water); }
+.map .land { fill: var(--map-land); }
+.map .road { fill: none; stroke: var(--map-road); stroke-width: 2.2; stroke-linejoin: round; stroke-linecap: round; }
+.map .road.minor { stroke: var(--map-road2); stroke-width: 1.6; }
+.map text { fill: var(--map-text); font-size: 11px; pointer-events: none; }
+.map text.city { font-size: 11.5px; font-weight: 600; letter-spacing: 0.06em; text-transform: uppercase; }
+.map text.zip { font-size: 9.5px; opacity: 0.8; font-variant-numeric: tabular-nums; }
+.map text.water-lab { font-style: italic; font-size: 11px; fill: #6f8fa8; }
+.map text.roadlab { font-size: 9px; }
+.map .pub circle { stroke: var(--surface); stroke-width: 1.2; cursor: pointer; }
+.map .pub.NSD circle { fill: var(--nsd); } .map .pub.LWSD circle { fill: var(--lwsd); } .map .pub.BSD circle { fill: var(--bsd); }
+.map .pub.choice circle { fill: var(--surface); stroke-width: 1.8; }
+.map .pub.choice.NSD circle { stroke: var(--nsd); } .map .pub.choice.LWSD circle { stroke: var(--lwsd); } .map .pub.choice.BSD circle { stroke: var(--bsd); }
+.map .pv .ring { fill: var(--pc); fill-opacity: 0.07; stroke: var(--pc); stroke-width: 1.4; stroke-opacity: 0.85; transition: fill-opacity 0.15s, stroke-opacity 0.15s; }
+.map .pv .dot { fill: var(--pc); stroke: #fff; stroke-width: 1.6; cursor: pointer; }
+.map.has-active .pv:not(.on) .ring { fill-opacity: 0.012; stroke-opacity: 0.18; }
+.map.has-active .pv:not(.on) .dot { fill-opacity: 0.3; stroke-opacity: 0.4; }
+.map .pv.on .ring { fill-opacity: 0.15; stroke-opacity: 1; stroke-width: 2.4; }
+.map .pv.on .dot { r: 7.5; }
+.map .scale line { stroke: var(--map-text); stroke-width: 1.5; }
+.map .tip { position: absolute; pointer-events: none; background: var(--surface); color: var(--fg); border: 1px solid var(--line); border-radius: 6px; padding: 3px 8px; font-size: 12px; white-space: nowrap; box-shadow: 0 2px 8px rgba(0,0,0,0.12); transform: translate(-50%, -130%); display: none; z-index: 2; }
 .map-side { display: grid; gap: 10px; font-size: 13px; }
 .map-ctrl { display: flex; flex-wrap: wrap; gap: 8px 14px; align-items: center; color: var(--muted); }
 .map-ctrl label { display: inline-flex; gap: 6px; align-items: center; }
-.map-legend { list-style: none; margin: 0; padding: 0; display: grid; gap: 1px; max-height: 480px; overflow: auto; }
+.map-legend { list-style: none; margin: 0; padding: 0; display: grid; gap: 1px; }
 .map-legend button { font: inherit; font-size: 12.5px; width: 100%; text-align: left; display: grid; grid-template-columns: 14px 1fr auto; gap: 8px; align-items: center; padding: 3px 8px; border-radius: 7px; border: 1px solid transparent; background: transparent; color: var(--fg); cursor: pointer; }
 .map-legend button:hover { background: var(--head); }
 .map-legend button[aria-pressed="true"] { border-color: var(--line); background: var(--head); font-weight: 600; }
 .map-legend .dot { width: 12px; height: 12px; border-radius: 50%; background: var(--pc); display: inline-block; }
 .map-legend .ct { color: var(--muted); font-size: 11.5px; }
 .map-legend .n { color: var(--muted); font-size: 11.5px; font-variant-numeric: tabular-nums; }
+.map-detail { border: 1px solid var(--line); border-radius: 10px; padding: 10px 12px; background: var(--surface); font-size: 12.5px; line-height: 1.5; display: grid; gap: 6px; }
+.map-detail h3 { margin: 0; font-size: 14px; display: flex; gap: 8px; align-items: center; }
+.map-detail h3 i { width: 12px; height: 12px; border-radius: 50%; display: inline-block; background: var(--pc); }
+.map-detail .mut { color: var(--muted); }
+.map-detail ul { margin: 0; padding-left: 16px; }
+.map-detail li span { color: var(--muted); }
 .map-note { color: var(--muted); font-size: 12.5px; margin: 0; }
-.leaflet-container { font-family: var(--font-body) !important; font-size: 12.5px !important; }
-.leaflet-container .leaflet-control-attribution { font-size: 10px; background: color-mix(in srgb, var(--surface) 80%, transparent); color: var(--muted); }
-.leaflet-container .leaflet-control-attribution a { color: var(--muted); }
-.leaflet-popup-content-wrapper, .leaflet-popup-tip { background: var(--surface); color: var(--fg); box-shadow: 0 2px 10px rgba(0,0,0,0.2); }
-.leaflet-popup-content { margin: 10px 14px; line-height: 1.45; font-size: 12.5px; }
-.leaflet-popup-content b.t { font-size: 13.5px; }
-.leaflet-popup-content .mut { color: var(--muted); }
-.leaflet-tooltip { font-family: var(--font-body); font-size: 12px; background: var(--surface); color: var(--fg); border-color: var(--line); }
-.leaflet-tooltip-top:before { border-top-color: var(--line); }
-.leaflet-bar a { background: var(--surface); color: var(--fg); border-bottom-color: var(--line); }
-.leaflet-bar a:hover { background: var(--head); }
 .sec-head .toggle { margin-left: auto; font: inherit; font-size: 12.5px; padding: 4px 10px; border-radius: 999px; border: 1px solid var(--line); background: var(--surface); color: var(--accent); cursor: pointer; }
 .sec-head .toggle[aria-pressed="true"] { background: var(--accent); color: var(--surface); border-color: var(--accent); }
 table.detail.compact tr.sub { display: none; }
 .pdot { display: inline-block; width: 10px; height: 10px; border-radius: 50%; margin-right: 7px; vertical-align: 0; }
 table.detail.compact tr.main td { border-bottom: 1px solid var(--line); padding-bottom: 6px; }
-@media (max-width: 900px) { .map-wrap { grid-template-columns: 1fr; } .map { height: 460px; } .map-legend { max-height: 220px; } }
+@media (max-width: 900px) { .map-wrap { grid-template-columns: 1fr; } }
 </style>
 </head>
 <body>
@@ -980,9 +338,9 @@ table.detail.compact tr.main td { border-bottom: 1px solid var(--line); padding-
   </section>
 
   <section id="map">
-    <div class="sec-head"><h2>私立学校地图</h2><span class="count" id="map-count"></span><span class="sub">每所私校一种颜色，圆圈是直线距离；小点是三个学区的划片小学</span></div>
+    <div class="sec-head"><h2>私立学校地图</h2><span class="count" id="map-count"></span><span class="sub">每所私校一种颜色，圆圈是直线距离；小点是三个学区的划片小学，灰字是 zip</span></div>
     <div class="map-wrap">
-      <div id="leaflet-map" class="map" role="img" aria-label="私立学校和划片小学的位置图"></div>
+      <div id="svgmap" class="map"><div class="tip" id="map-tip"></div></div>
       <aside class="map-side">
         <div class="map-ctrl">
           <span>圆圈半径</span>
@@ -994,7 +352,8 @@ table.detail.compact tr.main td { border-bottom: 1px solid var(--line); padding-
           <label><input type="checkbox" id="show-pub" checked> 划片小学</label>
         </div>
         <ol class="map-legend" id="map-legend"></ol>
-        <p class="map-note">点一所学校只看它的圈，再点一次恢复。3 英里大致是本地路况下 10 分钟车程，圆圈是直线距离，不是真正的等时圈。</p>
+        <div class="map-detail" id="map-detail"></div>
+        <p class="map-note">点校名或地图上的大点只看那一所的圈，再点一次恢复；点小学的点会跳到它的升学线。3 英里大致是本地路况下 10 分钟车程，圆圈是直线距离。学校位置按坐标画，湖和主路是示意。</p>
       </aside>
     </div>
   </section>
@@ -1013,12 +372,11 @@ table.detail.compact tr.main td { border-bottom: 1px solid var(--line); padding-
     <p><b>备注：</b>NSD 天才项目按 2026-27 学年安排；Moorlands 关闭和 Shelton View 重建来自 2026 年 10 月 EDAC 建议。BSD 天才班（AL）设在 Cherry Crest、Medina、Somerset、Woodridge、Odle、Tyee、Interlake。LWSD 全日制 Quest（2-5 年级）只确认了 Ben Franklin 和 Blackwell 两个点。</p>
     <p><b>选择校：</b>怎么进、申请窗口、校车等来自三个学区的选择校页面。LWSD 2027-28 的申请窗口是 2026/11/1 到 12/1；BSD 2027-28 的窗口还没公布，表里写的是 2026-27 的日期；NSD 的 waiver 每年 1 月开放。以各校当年公布为准。</p>
     <p><b>私立学校：</b>学费、年级、考试和截止日期来自各校官网。私立学校不参加州排名，表里没有分数。</p>
-    <p><b>地图和距离：</b>学校坐标来自 NCES 的学校地址库（公立 CCD 2011-12 和 EDGE 2014-15，私立 PSS 2013-14），2014 年以后新建或搬迁的学校（Ruby Bridges、Clara Barton、Ella Baker、Jing Mei、Tyee、BASIS Bothell、Willows Prep、Cedar Park Christian）用 GreatSchools 列出的到周边学校的距离反算，误差在 0.1 英里内；BASIS Bellevue 用同一地址上 Jewish Day School 的坐标。距离都是直线距离。底图 © OpenStreetMap 贡献者，© CARTO。</p>
+    <p><b>地图和距离：</b>学校坐标来自 NCES 的学校地址库（公立 CCD 2011-12 和 EDGE 2014-15，私立 PSS 2013-14），2014 年以后新建或搬迁的学校（Ruby Bridges、Clara Barton、Ella Baker、Jing Mei、Tyee、BASIS Bothell、Willows Prep、Cedar Park Christian）用 GreatSchools 列出的到周边学校的距离反算，误差在 0.1 英里内；BASIS Bellevue 用同一地址上 Jewish Day School 的坐标。距离都是直线距离。地图上学校的位置按坐标画，湖和主路是手画的示意。</p>
     <p><b>没有列入：</b>学前班、技能中心、复学项目等很小的特殊项目。数据整理日期 2026-10-27。</p>
   </footer>
 </div>
 
-<script src="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.min.js"></script>
 <script>
 const DATA = {
  "E": [
@@ -4425,7 +3783,7 @@ const DATA = {
    "lat": 47.73238,
    "lon": -122.327081,
    "address": "14050 1St Ave Ne, Seattle 98125",
-   "color": "#1B1919"
+   "color": "#D4A017"
   },
   {
    "name": "University Prep",
@@ -5111,6 +4469,92 @@ const DATA = {
   "M": 514,
   "H": 396
  },
+ "ZIPS": {
+  "98012": [
+   47.8198,
+   -122.179
+  ],
+  "98077": [
+   47.7428,
+   -122.0538
+  ],
+  "98072": [
+   47.7752,
+   -122.1443
+  ],
+  "98021": [
+   47.7945,
+   -122.2143
+  ],
+  "98028": [
+   47.7502,
+   -122.2379
+  ],
+  "98011": [
+   47.7568,
+   -122.1934
+  ],
+  "98052": [
+   47.6878,
+   -122.1222
+  ],
+  "98053": [
+   47.6718,
+   -122.0486
+  ],
+  "98074": [
+   47.621,
+   -122.0335
+  ],
+  "98033": [
+   47.6727,
+   -122.1875
+  ],
+  "98034": [
+   47.7213,
+   -122.2067
+  ],
+  "98039": [
+   47.6174,
+   -122.232
+  ],
+  "98005": [
+   47.6069,
+   -122.1673
+  ],
+  "98006": [
+   47.5662,
+   -122.153
+  ],
+  "98008": [
+   47.6158,
+   -122.1204
+  ],
+  "98004": [
+   47.6178,
+   -122.2033
+  ],
+  "98007": [
+   47.6206,
+   -122.1454
+  ],
+  "98133": [
+   47.7384,
+   -122.3348
+  ],
+  "98125": [
+   47.7324,
+   -122.3271
+  ],
+  "98115": [
+   47.687,
+   -122.3004
+  ],
+  "98109": [
+   47.6436,
+   -122.3504
+  ]
+ },
  "updated": "2026-10-27"
 };
 const LEVEL_NAME = { E: "小学", M: "初中", H: "高中" };
@@ -5442,7 +4886,7 @@ function renderCompare() {
     f.append(box);
   });
   out.append(f);
-  out.append(cell("p", "差值都是 B 减 A。房价是两校所在 zip 的近期成交，不是学区内的房价；同一个 zip 里不同片区差别很大。这里只列数据，不下结论。", "cmp-foot"));
+  out.append(cell("p", "差值都是 B 减 A。房价是两校所在 zip 的近期成交，不是学区内的房价；同一个 zip 里不同片区差别很大。", "cmp-foot"));
 }
 
 /* ---------- lines ---------- */
@@ -5641,7 +5085,7 @@ function renderLines(out) {
     out.append(chips);
   }
   out.append(grid);
-  out.append(cell("p", "升学线按学区公布的 feeder pattern。片区边缘有拆分，具体地址以学区的地址查询工具为准。差值都是 B 减 A。这里只列数据，不下结论。", "cmp-foot"));
+  out.append(cell("p", "升学线按学区公布的 feeder pattern。片区边缘有拆分，具体地址以学区的地址查询工具为准。差值都是 B 减 A。", "cmp-foot"));
   share.hidden = false;
   const tag = "line-" + slug(A ? A.n : "") + (B ? "--vs--" + slug(B.n) : "");
   history.replaceState(null, "", location.pathname + location.search + "#" + tag);
@@ -5741,74 +5185,105 @@ function renderPrivate() {
 }
 
 
-/* ---------- map ---------- */
-const MAP = { map: null, priv: [], pub: [], active: null };
-function isDark() { const t = document.documentElement.getAttribute("data-theme"); return t === "dark" || (t !== "light" && matchMedia("(prefers-color-scheme: dark)").matches); }
-function popupHtml(p) {
-  const pubs = nearbyPublic(p);
-  const esc = s => String(s).replace(/[&<>"]/g, c => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" }[c]));
-  const tu = p.tuition ? Object.entries(p.tuition).map(([b, a]) => b + " " + (typeof a === "number" ? "$" + a.toLocaleString("en-US") : a)).join(" · ") : "";
-  return `<b class="t">${esc(p.name)}</b><br><span class="mut">${esc(p.grades || "")} · ${esc(p.city || "")}${tu ? "<br>" + esc(tu) : ""}</span><br>` +
-    `<span class="mut">${esc(p.address || "")}</span><br>` +
-    `<b>${state.radius} 英里内的公立小学</b><br>` + (pubs.length ? pubs.map(x => esc(x.e.n) + (x.e.choice ? "（选择校）" : "") + " <span class=\"mut\">" + fmtMi(x.miles) + "</span>").join("<br>") : "<span class=\"mut\">没有</span>");
-}
+/* ---------- map (hand-drawn SVG) ---------- */
+const MAP = { active: null, groups: [], pubLayer: null, rings: [] };
+const GEO = {
+  lon0: -122.425, lon1: -121.965, lat0: 47.495, lat1: 47.85, s: 30,
+  kx: 69.17 * Math.cos(47.67 * Math.PI / 180), ky: 69.17,
+  lakes: {
+    "Lake Washington": [[-122.255,47.757],[-122.235,47.745],[-122.222,47.725],[-122.21,47.706],[-122.205,47.69],[-122.212,47.675],[-122.208,47.66],[-122.216,47.653],[-122.228,47.648],[-122.24,47.642],[-122.235,47.625],[-122.218,47.612],[-122.21,47.6],[-122.205,47.585],[-122.2,47.575],[-122.193,47.555],[-122.2,47.53],[-122.21,47.508],[-122.222,47.5],[-122.245,47.505],[-122.262,47.52],[-122.258,47.545],[-122.265,47.57],[-122.285,47.6],[-122.282,47.63],[-122.278,47.645],[-122.27,47.66],[-122.255,47.675],[-122.265,47.695],[-122.275,47.715],[-122.27,47.735],[-122.26,47.75]],
+    "Lake Sammamish": [[-122.105,47.66],[-122.08,47.645],[-122.065,47.62],[-122.06,47.595],[-122.065,47.57],[-122.07,47.555],[-122.09,47.56],[-122.105,47.58],[-122.105,47.61],[-122.11,47.64]]
+  },
+  islands: { "Mercer Island": [[-122.232,47.593],[-122.215,47.58],[-122.208,47.555],[-122.215,47.535],[-122.232,47.52],[-122.245,47.535],[-122.248,47.56],[-122.242,47.58]] },
+  roads: [
+    { n: "I-405", major: true, pts: [[-122.2,47.495],[-122.19,47.53],[-122.175,47.555],[-122.165,47.578],[-122.185,47.6],[-122.188,47.62],[-122.188,47.64],[-122.185,47.66],[-122.185,47.68],[-122.183,47.71],[-122.19,47.735],[-122.195,47.755],[-122.205,47.775],[-122.215,47.795],[-122.24,47.815],[-122.27,47.83],[-122.29,47.85]], lab: [-122.176, 47.698] },
+    { n: "I-90", major: true, pts: [[-122.33,47.59],[-122.29,47.59],[-122.25,47.59],[-122.215,47.585],[-122.195,47.58],[-122.165,47.578],[-122.14,47.58],[-122.1,47.575],[-122.06,47.55],[-122.02,47.53],[-121.965,47.52]], lab: [-122.12, 47.569] },
+    { n: "SR 520", major: true, pts: [[-122.305,47.645],[-122.26,47.643],[-122.235,47.64],[-122.19,47.64],[-122.16,47.635],[-122.135,47.63],[-122.12,47.65],[-122.11,47.67],[-122.09,47.68]], lab: [-122.165, 47.628] },
+    { n: "I-5", major: true, pts: [[-122.33,47.85],[-122.335,47.76],[-122.325,47.72],[-122.32,47.68],[-122.325,47.64],[-122.33,47.6],[-122.32,47.55],[-122.3,47.5]], lab: [-122.337, 47.705] },
+    { n: "SR 522", major: false, pts: [[-122.305,47.7],[-122.27,47.74],[-122.245,47.757],[-122.21,47.76],[-122.17,47.755],[-122.14,47.76],[-122.1,47.77],[-122.06,47.785]], lab: [-122.128, 47.768] }
+  ],
+  cities: [["Seattle",-122.335,47.62],["Shoreline",-122.355,47.755],["Kenmore",-122.247,47.76],["Bothell",-122.207,47.767],["Woodinville",-122.152,47.752],["Kirkland",-122.21,47.682],["Redmond",-122.12,47.675],["Bellevue",-122.2,47.61],["Sammamish",-122.04,47.612],["Issaquah",-122.035,47.532],["Mercer Island",-122.233,47.565],["Lynnwood",-122.31,47.822],["Mill Creek",-122.21,47.84]]
+};
+const px = (lat, lon) => [(lon - GEO.lon0) * GEO.kx * GEO.s, (GEO.lat1 - lat) * GEO.ky * GEO.s];
+function poly(pts) { return pts.map(([lo, la], i) => { const [x, y] = px(la, lo); return (i ? "L" : "M") + x.toFixed(1) + " " + y.toFixed(1); }).join(" ") + " Z"; }
+function pline(pts) { return pts.map(([lo, la], i) => { const [x, y] = px(la, lo); return (i ? "L" : "M") + x.toFixed(1) + " " + y.toFixed(1); }).join(" "); }
 function initMap() {
-  const el = document.getElementById("leaflet-map");
+  const box = document.getElementById("svgmap");
+  const tip = document.getElementById("map-tip");
   document.getElementById("map-count").textContent = "共 " + DATA.PRIVATE.length + " 所私校，" + DATA.E.length + " 所划片小学";
-  if (!window.L) { el.textContent = "地图库没有加载（可能是离线或被拦截），表里的距离不受影响。"; el.style.display = "grid"; el.style.placeItems = "center"; el.style.color = "var(--muted)"; return; }
-  const map = L.map(el, { scrollWheelZoom: false, zoomSnap: 0.5 });
-  map.fitBounds(L.latLngBounds(DATA.PRIVATE.map(p => [p.lat, p.lon])).pad(0.14), { padding: [8, 8] });
-  MAP.map = map;
-  const tiles = L.tileLayer("https://{s}.basemaps.cartocdn.com/" + (isDark() ? "dark_all" : "light_all") + "/{z}/{x}/{y}{r}.png", {
-    attribution: '&copy; <a href="https://www.openstreetmap.org/copyright" target="_blank" rel="noopener">OpenStreetMap</a> 贡献者 &copy; <a href="https://carto.com/attributions" target="_blank" rel="noopener">CARTO</a>', subdomains: "abcd", maxZoom: 18 });
-  let tileFails = 0;
-  tiles.on("tileerror", () => { if (++tileFails === 6) { const n = cell("div", "底图加载失败，只显示学校位置。", "map-note"); n.style.cssText = "position:absolute;left:10px;top:10px;z-index:500;background:var(--surface);padding:4px 8px;border-radius:6px;border:1px solid var(--line)"; el.append(n); } });
-  tiles.addTo(map);
-  const colors = { NSD: getComputedStyle(document.documentElement).getPropertyValue("--nsd").trim() || "#2e7d32", LWSD: getComputedStyle(document.documentElement).getPropertyValue("--lwsd").trim() || "#e07b00", BSD: getComputedStyle(document.documentElement).getPropertyValue("--bsd").trim() || "#c62828" };
-  const pubLayer = L.layerGroup();
+  const W = (GEO.lon1 - GEO.lon0) * GEO.kx * GEO.s, H = (GEO.lat1 - GEO.lat0) * GEO.ky * GEO.s;
+  const svg = sv("svg", { viewBox: `0 0 ${W.toFixed(0)} ${H.toFixed(0)}`, role: "img", "aria-label": "私立学校和划片小学的位置示意图" });
+  svg.append(sv("rect", { x: 0, y: 0, width: W, height: H, class: "land" }));
+  for (const name in GEO.lakes) svg.append(sv("path", { d: poly(GEO.lakes[name]), class: "water" }));
+  for (const name in GEO.islands) svg.append(sv("path", { d: poly(GEO.islands[name]), class: "land" }));
+  const lw = px(47.692, -122.262), ls = px(47.603, -122.097);
+  svg.append(sv("text", { x: lw[0], y: lw[1], class: "water-lab", "text-anchor": "middle", transform: `rotate(-80 ${lw[0]} ${lw[1]})` }, "Lake Washington"));
+  svg.append(sv("text", { x: ls[0], y: ls[1], class: "water-lab", "text-anchor": "middle", transform: `rotate(-80 ${ls[0]} ${ls[1]})` }, "Lake Sammamish"));
+  GEO.roads.forEach(r => { svg.append(sv("path", { d: pline(r.pts), class: "road" + (r.major ? "" : " minor") })); const [x, y] = px(r.lab[1], r.lab[0]); svg.append(sv("text", { x, y, class: "roadlab" }, r.n)); });
+  GEO.cities.forEach(([n, lo, la]) => { const [x, y] = px(la, lo); svg.append(sv("text", { x, y, class: "city", "text-anchor": "middle" }, n)); });
+  Object.entries(DATA.ZIPS).forEach(([z, [la, lo]]) => { const [x, y] = px(la, lo); svg.append(sv("text", { x, y, class: "zip", "text-anchor": "middle" }, z)); });
+  // scale bar
+  const sb = sv("g", { class: "scale" }); const [sx, sy] = [16, H - 18];
+  sb.append(sv("line", { x1: sx, x2: sx + 5 * GEO.s, y1: sy, y2: sy })); sb.append(sv("line", { x1: sx, x2: sx, y1: sy - 4, y2: sy + 4 })); sb.append(sv("line", { x1: sx + 5 * GEO.s, x2: sx + 5 * GEO.s, y1: sy - 4, y2: sy + 4 }));
+  sb.append(sv("text", { x: sx + 2.5 * GEO.s, y: sy - 6, "text-anchor": "middle" }, "5 英里")); svg.append(sb);
+  // private rings first (under dots)
+  const ringLayer = sv("g"); const pvLayer = sv("g"); const pubLayer = sv("g", { class: "publayer" });
+  DATA.PRIVATE.forEach((p, i) => {
+    const [x, y] = px(p.lat, p.lon);
+    const g = sv("g", { class: "pv", "data-i": i }); g.style.setProperty("--pc", p.color);
+    const ring = sv("circle", { cx: x, cy: y, r: state.radius * GEO.s, class: "ring" });
+    g.append(ring); ringLayer.append(g);
+    const g2 = sv("g", { class: "pv", "data-i": i }); g2.style.setProperty("--pc", p.color);
+    const dot = sv("circle", { cx: x, cy: y, r: 6, class: "dot", tabindex: 0, role: "button", "aria-label": p.name });
+    dot.addEventListener("click", () => setActive(i));
+    dot.addEventListener("keydown", e => { if (e.key === "Enter" || e.key === " ") { e.preventDefault(); setActive(i); } });
+    dot.addEventListener("mouseenter", () => showTip(tip, box, x, y, W, H, p.name + " · " + (p.grades || "").split("（")[0]));
+    dot.addEventListener("mouseleave", () => { tip.style.display = "none"; });
+    g2.append(dot); pvLayer.append(g2);
+    MAP.groups.push([g, g2]); MAP.rings.push(ring);
+  });
   ELEM_ALL().forEach(e => {
     if (e.lat == null) return;
-    const m = L.circleMarker([e.lat, e.lon], { radius: e.choice ? 4 : 4.5, color: e.choice ? colors[e.d] : "#fff", weight: e.choice ? 2 : 1, fillColor: colors[e.d], fillOpacity: e.choice ? 0 : 0.95 });
-    m.bindTooltip(e.n + (e.choice ? "（选择校）" : "") + " · " + e.d + (e.r !== null ? " · 州排名 #" + e.r : ""), { direction: "top", offset: [0, -4] });
-    m.on("click", () => { state.mode = "line"; state.line.a = idOf(e); persist(); fillSelects(); renderCompare(); renderAll(); document.getElementById("compare").scrollIntoView({ behavior: "smooth", block: "start" }); });
-    pubLayer.addLayer(m); MAP.pub.push(m);
+    const [x, y] = px(e.lat, e.lon);
+    const g = sv("g", { class: "pub " + e.d + (e.choice ? " choice" : "") });
+    const c = sv("circle", { cx: x, cy: y, r: 3.6, tabindex: 0, role: "button", "aria-label": e.n });
+    const label = e.n + (e.choice ? "（选择校）" : "") + " · " + e.d + (e.r !== null ? " · #" + e.r : "") + " · " + e.z;
+    c.addEventListener("mouseenter", () => showTip(tip, box, x, y, W, H, label));
+    c.addEventListener("mouseleave", () => { tip.style.display = "none"; });
+    const go = () => { state.mode = "line"; state.line.a = idOf(e); persist(); fillSelects(); renderCompare(); renderAll(); document.getElementById("compare").scrollIntoView({ behavior: "smooth", block: "start" }); };
+    c.addEventListener("click", go);
+    c.addEventListener("keydown", ev => { if (ev.key === "Enter" || ev.key === " ") { ev.preventDefault(); go(); } });
+    g.append(c); pubLayer.append(g);
   });
-  if (state.showPub) pubLayer.addTo(map);
-  MAP.pubLayer = pubLayer;
-  DATA.PRIVATE.forEach((p, i) => {
-    const circle = L.circle([p.lat, p.lon], { radius: state.radius * 1609.34, color: p.color, weight: 1.5, opacity: 0.8, fillColor: p.color, fillOpacity: 0.07, interactive: false });
-    const dot = L.circleMarker([p.lat, p.lon], { radius: 7, color: "#fff", weight: 1.5, fillColor: p.color, fillOpacity: 1 });
-    dot.bindTooltip(p.name, { direction: "top", offset: [0, -6] });
-    dot.bindPopup(() => popupHtml(p), { maxWidth: 300 });
-    dot.on("click", () => setActive(i, false));
-    circle.addTo(map); dot.addTo(map);
-    MAP.priv.push({ p, circle, dot });
-  });
-  renderLegend();
+  svg.append(ringLayer); svg.append(pubLayer); svg.append(pvLayer);
+  box.append(svg);
+  MAP.svg = svg; MAP.box = box; MAP.pubLayer = pubLayer;
+  pubLayer.style.display = state.showPub ? "" : "none";
+  renderLegend(); renderDetail();
   document.querySelectorAll(".map-ctrl .seg button").forEach(b => {
     b.setAttribute("aria-pressed", String(Number(b.dataset.r) === state.radius));
     b.addEventListener("click", () => { state.radius = Number(b.dataset.r); persist(); document.querySelectorAll(".map-ctrl .seg button").forEach(x => x.setAttribute("aria-pressed", String(x === b))); applyRadius(); });
   });
   const cb = document.getElementById("show-pub");
   cb.checked = state.showPub;
-  cb.addEventListener("change", () => { state.showPub = cb.checked; persist(); if (cb.checked) pubLayer.addTo(map); else map.removeLayer(pubLayer); });
-  matchMedia("(prefers-color-scheme: dark)").addEventListener("change", () => tiles.setUrl("https://{s}.basemaps.cartocdn.com/" + (isDark() ? "dark_all" : "light_all") + "/{z}/{x}/{y}{r}.png"));
+  cb.addEventListener("change", () => { state.showPub = cb.checked; persist(); pubLayer.style.display = cb.checked ? "" : "none"; });
+}
+function showTip(tip, box, x, y, W, H, text) {
+  const r = box.getBoundingClientRect();
+  tip.textContent = text;
+  tip.style.left = (x / W * r.width) + "px";
+  tip.style.top = (y / H * r.height) + "px";
+  tip.style.display = "block";
 }
 function applyRadius() {
-  MAP.priv.forEach(x => x.circle.setRadius(state.radius * 1609.34));
-  MAP.priv.forEach(x => { if (x.dot.isPopupOpen()) x.dot.setPopupContent(popupHtml(x.p)); });
-  renderLegend(); renderPrivate(); if (state.mode === "line") renderCompare();
+  MAP.rings.forEach(r => r.setAttribute("r", state.radius * GEO.s));
+  renderLegend(); renderDetail(); renderPrivate(); if (state.mode === "line") renderCompare();
 }
-function setActive(i, pan) {
+function setActive(i) {
   MAP.active = MAP.active === i ? null : i;
-  MAP.priv.forEach((x, j) => {
-    const on = MAP.active === null || MAP.active === j;
-    x.circle.setStyle({ opacity: on ? (MAP.active === j ? 1 : 0.8) : 0.12, fillOpacity: on ? (MAP.active === j ? 0.16 : 0.07) : 0.015, weight: MAP.active === j ? 2.5 : 1.5 });
-    x.dot.setStyle({ fillOpacity: on ? 1 : 0.25, opacity: on ? 1 : 0.3 });
-  });
-  if (MAP.active !== null && pan) { const x = MAP.priv[MAP.active]; MAP.map.panTo([x.p.lat, x.p.lon]); x.dot.openPopup(); }
-  if (MAP.active === null) MAP.map.closePopup();
-  renderLegend();
+  MAP.box.classList.toggle("has-active", MAP.active !== null);
+  MAP.groups.forEach((gs, j) => gs.forEach(g => g.classList.toggle("on", MAP.active === j)));
+  renderLegend(); renderDetail();
 }
 function renderLegend() {
   const ol = document.getElementById("map-legend");
@@ -5817,11 +5292,28 @@ function renderLegend() {
     const li = cell("li"); const b = cell("button"); b.type = "button";
     b.setAttribute("aria-pressed", String(MAP.active === i));
     const dot = cell("span", undefined, "dot"); dot.style.setProperty("--pc", p.color); b.append(dot);
-    const nm = cell("span"); nm.append(p.alias && p.alias !== p.name ? p.alias : p.name); nm.append(" "); nm.append(cell("span", p.city, "ct")); b.append(nm);
+    const nm = cell("span"); nm.append(p.alias && p.alias !== p.name ? p.alias : p.name); nm.append(" "); nm.append(cell("span", (p.city || "") + " " + (p.zip || ""), "ct")); b.append(nm);
     b.append(cell("span", nearbyPublic(p).length + " 所小学", "n"));
-    b.addEventListener("click", () => setActive(i, true));
+    b.addEventListener("click", () => setActive(i));
     li.append(b); ol.append(li);
   });
+}
+function renderDetail() {
+  const d = document.getElementById("map-detail");
+  d.textContent = "";
+  if (MAP.active === null) { d.append(cell("span", "点一所私校，这里显示它的地址、学费和圆圈里的公立小学。", "mut")); return; }
+  const p = DATA.PRIVATE[MAP.active];
+  const h = cell("h3"); const i = cell("i"); i.style.setProperty("--pc", p.color); h.append(i); h.append(p.name); d.append(h);
+  d.append(cell("div", (p.grades || "") + " · " + (p.address || ""), "mut"));
+  if (p.tuition) d.append(cell("div", "学费 " + Object.entries(p.tuition).map(([b, a]) => b + " " + (typeof a === "number" ? "$" + a.toLocaleString("en-US") : a)).join(" · ")));
+  const pubs = nearbyPublic(p);
+  d.append(cell("div", state.radius + " 英里内的公立小学" + (pubs.length ? "（" + pubs.length + " 所）" : "：没有")));
+  if (pubs.length) {
+    const ul = cell("ul");
+    pubs.forEach(x => { const li = cell("li"); li.append(x.e.n + (x.e.choice ? "（选择校）" : "") + " "); li.append(cell("span", fmtMi(x.miles) + " · " + x.e.d + (x.e.r !== null ? " · #" + x.e.r : "") + " · " + x.e.z)); ul.append(li); });
+    d.append(ul);
+  }
+  const links = linkIcons({ url: p.website, gs: p.gs }); links.style.marginLeft = "0"; d.append(links);
 }
 /* ---------- wiring ---------- */
 document.querySelectorAll(".chip").forEach(b => {
