@@ -253,6 +253,7 @@ td.tuition { white-space: normal; min-width: 170px; font-variant-numeric: tabula
 .map-legend .n { color: var(--muted); font-size: 11.5px; font-variant-numeric: tabular-nums; }
 .map-detail { border: 1px solid var(--line); border-radius: 10px; padding: 10px 12px; background: var(--surface); font-size: 12.5px; line-height: 1.5; display: grid; gap: 6px; }
 .map-detail h3 { margin: 0; font-size: 14px; display: flex; gap: 8px; align-items: center; }
+.map-detail b { font-weight: 600; color: var(--muted); }
 .map-detail h3 i { width: 12px; height: 12px; border-radius: 50%; display: inline-block; background: var(--pc); }
 .map-detail .mut { color: var(--muted); }
 .map-detail ul { margin: 0; padding-left: 16px; }
@@ -283,7 +284,7 @@ table.detail.compact tr.main td { border-bottom: 1px solid var(--line); padding-
     <button class="chip" id="f-LWSD" data-d="LWSD" aria-pressed="true"><i class="sw LWSD"></i>LWSD</button>
     <button class="chip" id="f-BSD" data-d="BSD" aria-pressed="true"><i class="sw BSD"></i>BSD</button>
     <input id="q" type="search" placeholder="找学校" aria-label="按校名查找">
-    <nav class="jump" aria-label="跳到"><a href="#compare">对比</a><a href="#elem">小学</a><a href="#middle">初中</a><a href="#high">高中</a><a href="#choice">选择校</a><a href="#map">地图</a><a href="#private">私立</a></nav>
+    <nav class="jump" aria-label="跳到"><a href="#compare">对比</a><a href="#elem">小学</a><a href="#middle">初中</a><a href="#high">高中</a><a href="#choice">选择校</a><a href="#map">地图</a><a href="#private">私立申请</a></nav>
   </div>
 
   <section class="compare" id="compare" aria-labelledby="cmp-title">
@@ -359,9 +360,11 @@ table.detail.compact tr.main td { border-bottom: 1px solid var(--line); padding-
   </section>
 
   <section id="private">
-    <div class="sec-head"><h2>附近的私立学校</h2><span class="count" id="private-count"></span><button type="button" class="toggle" data-toggle="details" aria-pressed="false">显示细节</button></div>
-    <p class="table-note">学费是各校公布的 2026-27 学年数字（标注的除外），不含注册费和杂费。细节里有每所学校的特点和圆圈半径内的公立小学，住在那些小学片区的家庭可以把它当作就近的替代选择。</p>
-    <div class="scroller"><table id="private-table"></table></div>
+    <div class="sec-head"><h2>私立申请</h2><span class="count" id="private-count"></span><span class="sub">17 所私校的学费、入学考试、申请截止和类型，点地图上的学校也能看到</span><button type="button" class="toggle" id="priv-open" aria-expanded="false" aria-controls="private-body">展开表格</button></div>
+    <div id="private-body" hidden>
+      <div class="sec-head" style="margin-top:4px"><p class="table-note" style="margin:0">学费是各校公布的 2026-27 学年数字（标注的除外），不含注册费和杂费。</p><button type="button" class="toggle" data-toggle="details" aria-pressed="false">显示细节</button></div>
+      <div class="scroller"><table id="private-table"></table></div>
+    </div>
   </section>
 
   <footer>
@@ -3192,7 +3195,7 @@ const DATA = {
    ],
    "lat": 47.63209,
    "lon": -122.145321,
-   "address": "14600 Ne 24Th St, Bellevue 98007",
+   "address": "14600 NE 24th St, Bellevue 98007",
    "color": "#3C5488"
   },
   {
@@ -3296,7 +3299,7 @@ const DATA = {
    ],
    "lat": 47.62979,
    "lon": -122.192311,
-   "address": "2125 112Th Ave Ne, Bellevue 98004",
+   "address": "2125 112th Ave NE, Bellevue 98004",
    "color": "#00A087"
   },
   {
@@ -3333,7 +3336,7 @@ const DATA = {
    ],
    "lat": 47.587244,
    "lon": -122.158442,
-   "address": "13633 Se 26Th St, Bellevue 98005",
+   "address": "13633 SE 26th St, Bellevue 98005",
    "color": "#925E9F"
   },
   {
@@ -3375,7 +3378,7 @@ const DATA = {
    ],
    "lat": 47.54751,
    "lon": -122.114391,
-   "address": "6128 168Th Pl Se, Bellevue 98006",
+   "address": "6128 168th Pl SE, Bellevue 98006",
    "color": "#E18727"
   },
   {
@@ -3412,7 +3415,7 @@ const DATA = {
    ],
    "lat": 47.69362,
    "lon": -122.069511,
-   "address": "20301 Ne 108Th St, Redmond 98053",
+   "address": "20301 NE 108th St, Redmond 98053",
    "color": "#7876B1"
   },
   {
@@ -3469,7 +3472,7 @@ const DATA = {
    ],
    "lat": 47.64362,
    "lon": -122.198991,
-   "address": "10613 Ne 38Th Pl, Kirkland 98033",
+   "address": "10613 NE 38th Pl, Kirkland 98033",
    "color": "#4DBBD5"
   },
   {
@@ -3531,7 +3534,7 @@ const DATA = {
    ],
    "lat": 47.68126,
    "lon": -122.065521,
-   "address": "8905 208Th Ave Ne, Redmond 98053",
+   "address": "8905 208th Ave NE, Redmond 98053",
    "color": "#7E6148"
   },
   {
@@ -3578,7 +3581,7 @@ const DATA = {
    ],
    "lat": 47.624751,
    "lon": -122.209833,
-   "address": "1601 98Th Ave Ne, Clyde Hill 98004",
+   "address": "1601 98th Ave NE, Clyde Hill 98004",
    "color": "#20854E"
   },
   {
@@ -3627,7 +3630,7 @@ const DATA = {
    ],
    "lat": 47.60622,
    "lon": -122.034821,
-   "address": "232 228Th Ave Se, Sammamish 98074",
+   "address": "232 228th Ave SE, Sammamish 98074",
    "color": "#00468B"
   },
   {
@@ -3782,7 +3785,7 @@ const DATA = {
    ],
    "lat": 47.73238,
    "lon": -122.327081,
-   "address": "14050 1St Ave Ne, Seattle 98125",
+   "address": "14050 1st Ave NE, Seattle 98125",
    "color": "#D4A017"
   },
   {
@@ -3836,7 +3839,7 @@ const DATA = {
    ],
    "lat": 47.68698,
    "lon": -122.300391,
-   "address": "8000 25Th Ave Ne, Seattle 98115",
+   "address": "8000 25th Ave NE, Seattle 98115",
    "color": "#FDAF91"
   },
   {
@@ -3871,7 +3874,7 @@ const DATA = {
    ],
    "lat": 47.64362,
    "lon": -122.350381,
-   "address": "2619 4Th Ave N, Seattle 98109",
+   "address": "2619 4th Ave N, Seattle 98109",
    "color": "#8491B4"
   }
  ],
@@ -4576,7 +4579,7 @@ const state = {
   mode: "school",
   cmp: { level: "E", a: "", b: "" },
   line: { a: "", b: "" },
-  radius: 3, details: false, showPub: true
+  radius: 3, details: false, showPub: true, privOpen: false
 };
 try {
   const saved = JSON.parse(localStorage.getItem("school-compare-v3") || "null");
@@ -4588,9 +4591,10 @@ try {
     if ([2, 3, 5].includes(saved.radius)) state.radius = saved.radius;
     if (typeof saved.details === "boolean") state.details = saved.details;
     if (typeof saved.showPub === "boolean") state.showPub = saved.showPub;
+    if (typeof saved.privOpen === "boolean") state.privOpen = saved.privOpen;
   }
 } catch (e) {}
-function persist() { try { localStorage.setItem("school-compare-v3", JSON.stringify({ on: state.on, cmp: state.cmp, line: state.line, mode: state.mode, radius: state.radius, details: state.details, showPub: state.showPub })); } catch (e) {} }
+function persist() { try { localStorage.setItem("school-compare-v3", JSON.stringify({ on: state.on, cmp: state.cmp, line: state.line, mode: state.mode, radius: state.radius, details: state.details, showPub: state.showPub, privOpen: state.privOpen })); } catch (e) {} }
 
 const fmtM = v => "$" + (v / 1e6).toFixed(2) + "M";
 const fmtShort = v => v >= 1e6 ? "$" + (v / 1e6).toFixed(v >= 1e7 ? 0 : 2).replace(/\.?0+$/, "") + "M" : "$" + Math.round(v / 1e3) + "K";
@@ -5305,7 +5309,12 @@ function renderDetail() {
   const p = DATA.PRIVATE[MAP.active];
   const h = cell("h3"); const i = cell("i"); i.style.setProperty("--pc", p.color); h.append(i); h.append(p.name); d.append(h);
   d.append(cell("div", (p.grades || "") + " · " + (p.address || ""), "mut"));
-  if (p.tuition) d.append(cell("div", "学费 " + Object.entries(p.tuition).map(([b, a]) => b + " " + (typeof a === "number" ? "$" + a.toLocaleString("en-US") : a)).join(" · ")));
+  const kv = (k, v) => { if (!v) return; const row = cell("div"); row.append(cell("b", k + " ")); row.append(v); d.append(row); };
+  if (p.tuition) kv("学费", Object.entries(p.tuition).map(([b, a]) => b + " " + (typeof a === "number" ? "$" + a.toLocaleString("en-US") : a)).join(" · ") + (p.tuition_year && p.tuition_year !== "2026-27" ? "（" + p.tuition_year + " 学年）" : ""));
+  kv("入学考试", p.test);
+  kv("申请截止", (p.deadline || "") + (p.deadline_cycle ? "（" + p.deadline_cycle + "）" : ""));
+  kv("类型", (p.affiliation || "") + (p.enrollment ? " · 学生 " + p.enrollment + " 人" : ""));
+  kv("特点", p.focus);
   const pubs = nearbyPublic(p);
   d.append(cell("div", state.radius + " 英里内的公立小学" + (pubs.length ? "（" + pubs.length + " 所）" : "：没有")));
   if (pubs.length) {
@@ -5346,6 +5355,12 @@ document.getElementById("l-copy").addEventListener("click", () => {
   else document.getElementById("l-copied").textContent = url;
 });
 window.addEventListener("hashchange", () => { if (readHash()) { persist(); fillSelects(); renderCompare(); renderAll(); } });
+(() => {
+  const b = document.getElementById("priv-open"), body = document.getElementById("private-body");
+  const apply = () => { body.hidden = !state.privOpen; b.setAttribute("aria-expanded", String(state.privOpen)); b.textContent = state.privOpen ? "收起表格" : "展开表格"; };
+  b.addEventListener("click", () => { state.privOpen = !state.privOpen; persist(); apply(); });
+  apply();
+})();
 document.querySelectorAll("[data-toggle=details]").forEach(b => {
   b.setAttribute("aria-pressed", String(state.details));
   b.addEventListener("click", () => {
