@@ -4,7 +4,7 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <title>NSD · LWSD · BSD 学校对照</title>
-<meta name="description" content="Northshore、Lake Washington、Bellevue 三个学区全部学校的排名、成绩、GreatSchools 评分和所在 zip 的 4 房房价对照，可两两比较。">
+<meta name="description" content="Northshore、Lake Washington、Bellevue 三个学区全部学校的排名、成绩、GreatSchools 评分和所在 zip 的 4 房房价对照，可比学校、比升学线，附选择校和私立学校。">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans:wght@400;500;600&family=Noto+Sans+SC:wght@400;500;700&family=Noto+Serif+SC:wght@700&display=swap">
@@ -36,6 +36,7 @@
   --accent: #84bcd4; --nsd: #55b77d; --lwsd: #ef9440; --bsd: #ea6a62; --tint: 15%; color-scheme: dark;
 }
 * { box-sizing: border-box; }
+[hidden] { display: none !important; }
 html { scroll-behavior: smooth; }
 @media (prefers-reduced-motion: reduce) { html { scroll-behavior: auto; } }
 body {
@@ -152,13 +153,53 @@ footer a { color: var(--accent); }
   .facts { grid-template-columns: 1fr; }
   .cmp-grid .lbl { font-size: 11px; }
 }
+
+/* v3 additions */
+.seg { display: inline-flex; border: 1px solid var(--line); border-radius: 999px; overflow: hidden; }
+.seg button { font: inherit; font-size: 13px; padding: 5px 14px; border: 0; background: var(--surface); color: var(--muted); cursor: pointer; }
+.seg button[aria-pressed="true"] { background: var(--accent); color: var(--surface); }
+.seg button:focus-visible { outline: 2px solid var(--accent); outline-offset: -2px; }
+.links { display: inline-flex; gap: 4px; margin-left: 6px; vertical-align: middle; }
+.links a { font-size: 10.5px; font-weight: 600; letter-spacing: 0.03em; color: var(--muted); text-decoration: none; border: 1px solid var(--line); border-radius: 4px; padding: 0 4px; line-height: 15px; background: var(--surface); }
+.links a:hover { color: var(--accent); border-color: var(--accent); }
+.line-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; }
+.line-grid.single { grid-template-columns: 1fr; }
+.line { border: 1px solid var(--line); border-radius: 10px; padding: 12px 14px; display: grid; gap: 8px; background: color-mix(in srgb, var(--row) 5%, var(--surface)); }
+.line.NSD { --row: var(--nsd); } .line.LWSD { --row: var(--lwsd); } .line.BSD { --row: var(--bsd); }
+.line h3 { margin: 0; font-size: 15px; display: flex; flex-wrap: wrap; gap: 8px; align-items: baseline; }
+.line h3 .tag { font-size: 11px; font-weight: 600; letter-spacing: 0.04em; }
+.stage { display: grid; grid-template-columns: 44px 1fr; gap: 0 10px; align-items: baseline; padding: 6px 0; border-top: 1px dashed var(--line); }
+.stage .lv { color: var(--muted); font-size: 12px; }
+.stage .nm { font-weight: 600; font-size: 15px; }
+.stage .st { color: var(--muted); font-size: 12.5px; display: flex; flex-wrap: wrap; gap: 4px 12px; font-variant-numeric: tabular-nums; }
+.stage .st b { color: var(--fg); font-weight: 600; }
+.stage .split { grid-column: 2; color: var(--muted); font-size: 12px; }
+.line .sum { display: flex; flex-wrap: wrap; gap: 6px 16px; border-top: 1px solid var(--line); padding-top: 8px; font-size: 13px; }
+.line .sum b { font-size: 16px; }
+.line .near { font-size: 12.5px; color: var(--muted); }
+.line .near b { color: var(--fg); font-weight: 500; }
+.table-note { color: var(--muted); font-size: 13px; margin: 0; }
+table.detail { min-width: 0; }
+table.detail th, table.detail td { white-space: normal; vertical-align: top; line-height: 1.45; }
+table.detail td.name { min-width: 200px; max-width: 250px; }
+table.detail td.name .links { display: flex; margin: 4px 0 0; }
+table.detail tr.main td { border-bottom: 0; padding-bottom: 2px; }
+table.detail tr.sub td { padding-top: 0; color: var(--muted); font-size: 12.5px; line-height: 1.5; }
+table.detail tr.sub .kv { display: inline-block; margin-right: 18px; }
+table.detail tr.sub .kv b { color: var(--fg); font-weight: 600; margin-right: 4px; }
+table.detail tr.sub .kv.long { display: block; margin-top: 2px; }
+td.wrap { white-space: normal; min-width: 180px; }
+td.wrap.narrow { min-width: 120px; }
+td.tuition { white-space: normal; min-width: 170px; font-variant-numeric: tabular-nums; font-size: 12.5px; }
+.share { display: inline-flex; align-items: center; gap: 8px; font-size: 12.5px; color: var(--muted); }
+@media (max-width: 760px) { .line-grid { grid-template-columns: 1fr; } }
 </style>
 </head>
 <body>
 <div class="wrap">
   <header>
     <h1>NSD · LWSD · BSD 学校对照</h1>
-    <p class="lede">Northshore、Lake Washington、Bellevue 三个学区的全部小学、初中和高中，默认按 SchoolDigger 2026 全州排名排序。点表头可以按成绩、GreatSchools 评分或房价重新排序；选两所学校可以并排比较。</p>
+    <p class="lede">Northshore、Lake Washington、Bellevue 三个学区的全部公立学校。划片校按 SchoolDigger 2026 全州排名排序，可以比两所学校，也可以比两条升学线。选择校、抽签校和附近的私立学校各有一张表。</p>
     <div class="legend" aria-label="颜色说明">
       <span><i class="sw NSD"></i>Northshore（NSD）</span>
       <span><i class="sw LWSD"></i>Lake Washington（LWSD）</span>
@@ -171,12 +212,18 @@ footer a { color: var(--accent); }
     <button class="chip" id="f-LWSD" data-d="LWSD" aria-pressed="true"><i class="sw LWSD"></i>LWSD</button>
     <button class="chip" id="f-BSD" data-d="BSD" aria-pressed="true"><i class="sw BSD"></i>BSD</button>
     <input id="q" type="search" placeholder="找学校" aria-label="按校名查找">
-    <nav class="jump" aria-label="跳到"><a href="#compare">对比</a><a href="#elem">小学</a><a href="#middle">初中</a><a href="#high">高中</a></nav>
+    <nav class="jump" aria-label="跳到"><a href="#compare">对比</a><a href="#elem">小学</a><a href="#middle">初中</a><a href="#high">高中</a><a href="#choice">选择校</a><a href="#private">私立</a></nav>
   </div>
 
   <section class="compare" id="compare" aria-labelledby="cmp-title">
-    <h2 id="cmp-title">对比两所学校</h2>
     <div class="ctrl">
+      <h2 id="cmp-title" style="margin-right:6px">对比</h2>
+      <div class="seg" role="group" aria-label="对比方式">
+        <button type="button" id="mode-school" aria-pressed="true">比学校</button>
+        <button type="button" id="mode-line" aria-pressed="false">比升学线</button>
+      </div>
+    </div>
+    <div class="ctrl" id="ctrl-school">
       <label>学段
         <select id="c-level" aria-label="学段">
           <option value="E">小学</option><option value="M">初中</option><option value="H">高中</option>
@@ -187,30 +234,52 @@ footer a { color: var(--accent); }
       <button class="btn" id="c-swap" type="button">交换</button>
       <button class="btn" id="c-clear" type="button">清除</button>
     </div>
-    <p class="hint">也可以直接点表格里的「对比」按钮。房价是学校所在 zip 近期成交的 4 房以上住宅中位数，不是学校学区内的房价。</p>
+    <div class="ctrl" id="ctrl-line" hidden>
+      <label>小学 A <select id="l-a" aria-label="升学线 A 的小学"></select></label>
+      <label>小学 B <select id="l-b" aria-label="升学线 B 的小学"></select></label>
+      <button class="btn" id="l-swap" type="button">交换</button>
+      <button class="btn" id="l-clear" type="button">清除</button>
+      <span class="share" id="l-share" hidden><button class="btn" id="l-copy" type="button">复制链接</button><span id="l-copied"></span></span>
+    </div>
+    <p class="hint" id="cmp-hint">也可以直接点表格里的「对比」按钮。房价是学校所在 zip 近期成交的 4 房以上住宅中位数，不是学校学区内的房价。</p>
     <div id="c-out"></div>
   </section>
 
   <section id="elem">
-    <div class="sec-head"><h2>小学</h2><span class="count" data-count="E"></span><span class="sub">州排名为全州 1,138 所公立小学中的名次</span></div>
+    <div class="sec-head"><h2>小学</h2><span class="count" data-count="E"></span><span class="sub">划片校 · 州排名为全州 1,138 所公立小学中的名次</span></div>
     <div class="scroller"><table data-level="E"></table></div>
   </section>
 
   <section id="middle">
-    <div class="sec-head"><h2>初中</h2><span class="count" data-count="M"></span><span class="sub">州排名为全州 514 所公立初中中的名次 · NSD 六所初中都有 AAP 加速班 · LWSD 部分初中有 Quest（MSQ）</span></div>
+    <div class="sec-head"><h2>初中</h2><span class="count" data-count="M"></span><span class="sub">划片校 · 州排名为全州 514 所公立初中中的名次 · NSD 六所初中都有 AAP 加速班 · LWSD 部分初中有 Quest（MSQ）</span></div>
     <div class="scroller"><table data-level="M"></table></div>
   </section>
 
   <section id="high">
-    <div class="sec-head"><h2>高中</h2><span class="count" data-count="H"></span><span class="sub">州排名为全州 396 所公立高中中的名次 · 阅读/数学为 10 年级达标率</span></div>
+    <div class="sec-head"><h2>高中</h2><span class="count" data-count="H"></span><span class="sub">划片校 · 州排名为全州 396 所公立高中中的名次 · 阅读/数学为 10 年级达标率</span></div>
     <div class="scroller"><table data-level="H"></table></div>
   </section>
 
+  <section id="choice">
+    <div class="sec-head"><h2>选择校、抽签校和特殊项目</h2><span class="count" id="choice-count"></span></div>
+    <p class="table-note">不按住址划片，本学区居民申请或抽签。外区学生一般要先在自己学区办 choice transfer，再排在本区学生后面。申请窗口以各校当年公布为准。</p>
+    <div class="scroller"><table id="choice-table"></table></div>
+  </section>
+
+  <section id="private">
+    <div class="sec-head"><h2>附近的私立学校</h2><span class="count" id="private-count"></span></div>
+    <p class="table-note">学费是各校公布的 2026-27 学年数字（标注的除外），不含注册费和杂费。最后一列是该校 3 英里内的公立小学和直线距离，住在那些小学片区的家庭可以把它当作就近的替代选择。</p>
+    <div class="scroller"><table id="private-table"></table></div>
+  </section>
+
   <footer>
-    <p><b>州排名、阅读、数学：</b>SchoolDigger 2026 排名，依据 2025-26 学年州考（SBAC）。阅读和数学是达标率（%），小学和初中为全年级合计。“—”表示该校当年没有排名或数据。选择校、线上和替代校没有学区内排名，排在各表最后。排名变化对比的是 2025 排名（分母 1,160 / 534 / 438）。</p>
+    <p><b>州排名、阅读、数学：</b>SchoolDigger 2026 排名，依据 2025-26 学年州考（SBAC）。阅读和数学是达标率（%），小学和初中为全年级合计。“—”表示该校当年没有排名或数据。排名变化对比的是 2025 排名（分母 1,160 / 534 / 438）。校名后的 SD 和 GS 分别是该校在 SchoolDigger 和 GreatSchools 的页面。</p>
     <p><b>GS：</b>GreatSchools 评分（1-10），包含成绩、进步和公平性，比排名更粗。</p>
-    <p><b>房价：</b>Redfin 近期成交记录（2026 年 6 月到 10 月）。每个 zip 取列表页最近的成交中，4 房以上、1,800 平方英尺以上的住宅（含联排，不含公寓）的成交价中位数。列表页没有建造年份，用面积下限代替“排除老破小”，所以老一些的大房子仍在样本里。样本量 n 在对比卡里显示，n 小于 15 的 zip 和只有部分街区样本的 zip 标 ≈。zip 是学校地址的邮编，不等于学区边界。</p>
-    <p><b>备注：</b>NSD 天才项目按 2026-27 学年安排；Moorlands 关闭和 Shelton View 重建来自 2026 年 10 月 EDAC 建议，董事会 2027 年 3 月投票。BSD 天才班（AL）设在 Cherry Crest、Medina、Somerset、Woodridge、Odle、Tyee、Interlake。LWSD 全日制 Quest（2-5 年级）只确认了 Ben Franklin 和 Blackwell 两个点。</p>
+    <p><b>升学线：</b>按各学区公布的 feeder pattern，小学片区大部分对应一所初中和一所高中。片区边缘有拆分的会在线下注明，具体地址以学区的地址查询工具为准。NSD 2028 年起的划界调整（EDAC 2026 年 10 月建议，董事会 2027 年 3 月投票）也写在备注里。</p>
+    <p><b>房价：</b>Redfin 近期成交记录（2026 年 6 月到 10 月）。每个 zip 取列表页最近的成交中，4 房以上、1,800 平方英尺以上的住宅（含联排，不含公寓）的成交价中位数。列表页没有建造年份，用面积下限代替“排除老破小”，所以老一些的大房子仍在样本里。样本量 n 在对比卡里显示，n 小于 15 的 zip 和只有部分街区样本的 zip 标 ≈。zip 是学校地址的邮编，不等于学区边界。升学线的房价用小学所在 zip。</p>
+    <p><b>备注：</b>NSD 天才项目按 2026-27 学年安排；Moorlands 关闭和 Shelton View 重建来自 2026 年 10 月 EDAC 建议。BSD 天才班（AL）设在 Cherry Crest、Medina、Somerset、Woodridge、Odle、Tyee、Interlake。LWSD 全日制 Quest（2-5 年级）只确认了 Ben Franklin 和 Blackwell 两个点。</p>
+    <p><b>选择校：</b>怎么进、申请窗口、校车等来自三个学区的选择校页面。LWSD 2027-28 的申请窗口是 2026/11/1 到 12/1；BSD 2027-28 的窗口还没公布，表里写的是 2026-27 的日期；NSD 的 waiver 每年 1 月开放。以各校当年公布为准。</p>
+    <p><b>私立学校：</b>学费、年级、考试和截止日期来自各校官网，距离来自 GreatSchools 的学校页面（BASIS Bellevue 没有 GreatSchools 页面，距离按地址估算，标 ≈）。私立学校不参加州排名，表里没有分数。</p>
     <p><b>没有列入：</b>学前班、技能中心、复学项目等很小的特殊项目。数据整理日期 2026-10-27。</p>
   </footer>
 </div>
@@ -233,7 +302,9 @@ const DATA = {
    "pn": 17,
    "pq1": 860000,
    "pq3": 1140000,
-   "pa": ""
+   "pa": "",
+   "sd": "0591002222",
+   "gs": "bothell/1240-Fernwood-Elementary-School"
   },
   {
    "d": "NSD",
@@ -250,7 +321,9 @@ const DATA = {
    "pn": 14,
    "pq1": 1400000,
    "pq3": 1600000,
-   "pa": ""
+   "pa": "",
+   "sd": "0591002428",
+   "gs": "woodinville/1243-East-Ridge-Elementary-School"
   },
   {
    "d": "NSD",
@@ -267,7 +340,9 @@ const DATA = {
    "pn": 22,
    "pq1": 1230000,
    "pq3": 2400000,
-   "pa": ""
+   "pa": "",
+   "sd": "0591001612",
+   "gs": "woodinville/1234-Kokanee-Elementary-School"
   },
   {
    "d": "NSD",
@@ -284,7 +359,9 @@ const DATA = {
    "pn": 13,
    "pq1": 859100,
    "pq3": 1155000,
-   "pa": ""
+   "pa": "",
+   "sd": "0591000878",
+   "gs": "bothell/1217-Canyon-Creek-Elementary-School"
   },
   {
    "d": "NSD",
@@ -301,7 +378,9 @@ const DATA = {
    "pn": 22,
    "pq1": 1230000,
    "pq3": 2400000,
-   "pa": ""
+   "pa": "",
+   "sd": "0591001791",
+   "gs": "woodinville/1235-Hollywood-Hill-Elementary-School"
   },
   {
    "d": "NSD",
@@ -318,7 +397,9 @@ const DATA = {
    "pn": 15,
    "pq1": 947875,
    "pq3": 1400000,
-   "pa": ""
+   "pa": "",
+   "sd": "0591000890",
+   "gs": "kenmore/1227-Moorlands-Elementary-School"
   },
   {
    "d": "NSD",
@@ -335,7 +416,9 @@ const DATA = {
    "pn": 13,
    "pq1": 859100,
    "pq3": 1155000,
-   "pa": ""
+   "pa": "",
+   "sd": "0591000888",
+   "gs": "bothell/1225-Lockwood-Elementary-School"
   },
   {
    "d": "NSD",
@@ -352,7 +435,9 @@ const DATA = {
    "pn": 22,
    "pq1": 1230000,
    "pq3": 2400000,
-   "pa": ""
+   "pa": "",
+   "sd": "0591000894",
+   "gs": "woodinville/1231-Wellington-Elementary-School"
   },
   {
    "d": "NSD",
@@ -369,7 +454,9 @@ const DATA = {
    "pn": 22,
    "pq1": 1230000,
    "pq3": 2400000,
-   "pa": ""
+   "pa": "",
+   "sd": "0591003746",
+   "gs": "woodinville/7786-Ruby-Bridges-Elementary"
   },
   {
    "d": "NSD",
@@ -386,7 +473,9 @@ const DATA = {
    "pn": 14,
    "pq1": 1400000,
    "pq3": 1600000,
-   "pa": ""
+   "pa": "",
+   "sd": "0591000880",
+   "gs": "woodinville/1219-Cottage-Lake-Elementary-School"
   },
   {
    "d": "NSD",
@@ -403,7 +492,9 @@ const DATA = {
    "pn": 19,
    "pq1": 1100000,
    "pq3": 1400000,
-   "pa": ""
+   "pa": "",
+   "sd": "0591000895",
+   "gs": "bothell/1232-Westhill-Elementary-School"
   },
   {
    "d": "NSD",
@@ -420,7 +511,9 @@ const DATA = {
    "pn": 15,
    "pq1": 947875,
    "pq3": 1400000,
-   "pa": ""
+   "pa": "",
+   "sd": "0591000875",
+   "gs": "kenmore/1214-Arrowhead-Elementary-School"
   },
   {
    "d": "NSD",
@@ -437,7 +530,9 @@ const DATA = {
    "pn": 13,
    "pq1": 859100,
    "pq3": 1155000,
-   "pa": ""
+   "pa": "",
+   "sd": "0591002329",
+   "gs": "bothell/1241-Frank-Love-Elementary-School"
   },
   {
    "d": "NSD",
@@ -454,7 +549,9 @@ const DATA = {
    "pn": 13,
    "pq1": 859100,
    "pq3": 1155000,
-   "pa": ""
+   "pa": "",
+   "sd": "0591000893",
+   "gs": "bothell/1230-Shelton-View-Elementary-School"
   },
   {
    "d": "NSD",
@@ -471,7 +568,9 @@ const DATA = {
    "pn": 15,
    "pq1": 947875,
    "pq3": 1400000,
-   "pa": ""
+   "pa": "",
+   "sd": "0591000885",
+   "gs": "kenmore/1222-Kenmore-Elementary-School"
   },
   {
    "d": "NSD",
@@ -488,7 +587,9 @@ const DATA = {
    "pn": 13,
    "pq1": 859100,
    "pq3": 1155000,
-   "pa": ""
+   "pa": "",
+   "sd": "0591000881",
+   "gs": "bothell/1220-Crystal-Springs-Elementary-School"
   },
   {
    "d": "NSD",
@@ -505,7 +606,9 @@ const DATA = {
    "pn": 19,
    "pq1": 1100000,
    "pq3": 1400000,
-   "pa": ""
+   "pa": "",
+   "sd": "0591000889",
+   "gs": "bothell/1226-Maywood-Hills-Elementary-School"
   },
   {
    "d": "NSD",
@@ -522,7 +625,9 @@ const DATA = {
    "pn": 19,
    "pq1": 1100000,
    "pq3": 1400000,
-   "pa": ""
+   "pa": "",
+   "sd": "0591002330",
+   "gs": "bothell/1242-Woodmoor-Elementary-School"
   },
   {
    "d": "NSD",
@@ -539,7 +644,9 @@ const DATA = {
    "pn": 19,
    "pq1": 1100000,
    "pq3": 1400000,
-   "pa": ""
+   "pa": "",
+   "sd": "0591000896",
+   "gs": "bothell/1233-Woodin-Elementary-School"
   },
   {
    "d": "NSD",
@@ -556,7 +663,9 @@ const DATA = {
    "pn": 20,
    "pq1": 1365000,
    "pq3": 1795000,
-   "pa": ""
+   "pa": "",
+   "sd": "0591001993",
+   "gs": "redmond/1237-Sunrise-Elementary-School"
   },
   {
    "d": "LWSD",
@@ -573,7 +682,9 @@ const DATA = {
    "pn": 23,
    "pq1": 1380000,
    "pq3": 1990000,
-   "pa": ""
+   "pa": "",
+   "sd": "0423002062",
+   "gs": "redmond/914-Louisa-May-Alcott-Elementary-School"
   },
   {
    "d": "LWSD",
@@ -590,7 +701,9 @@ const DATA = {
    "pn": 17,
    "pq1": 1275000,
    "pq3": 1895000,
-   "pa": ""
+   "pa": "",
+   "sd": "0423002216",
+   "gs": "sammamish/916-Samantha-Smith-Elementary-School"
   },
   {
    "d": "LWSD",
@@ -607,7 +720,9 @@ const DATA = {
    "pn": 49,
    "pq1": 1750000,
    "pq3": 2880828,
-   "pa": "样本来自 Rose Hill、Houghton、Bridle Trails 街区页"
+   "pa": "样本来自 Rose Hill、Houghton、Bridle Trails 街区页",
+   "sd": "0423000658",
+   "gs": "kirkland/880-Benjamin-Franklin-Elementary-School"
   },
   {
    "d": "LWSD",
@@ -624,7 +739,9 @@ const DATA = {
    "pn": 49,
    "pq1": 1750000,
    "pq3": 2880828,
-   "pa": "样本来自 Rose Hill、Houghton、Bridle Trails 街区页"
+   "pa": "样本来自 Rose Hill、Houghton、Bridle Trails 街区页",
+   "sd": "0423000675",
+   "gs": "kirkland/895-Lakeview-Elementary-School"
   },
   {
    "d": "LWSD",
@@ -641,7 +758,9 @@ const DATA = {
    "pn": 14,
    "pq1": 1400000,
    "pq3": 1600000,
-   "pa": ""
+   "pa": "",
+   "sd": "0423002257",
+   "gs": "woodinville/917-Laura-Ingalls-Wilder-Elementary-School"
   },
   {
    "d": "LWSD",
@@ -658,7 +777,9 @@ const DATA = {
    "pn": 20,
    "pq1": 1365000,
    "pq3": 1795000,
-   "pa": ""
+   "pa": "",
+   "sd": "0423000667",
+   "gs": "redmond/887-Horace-Mann-Elementary-School"
   },
   {
    "d": "LWSD",
@@ -675,7 +796,9 @@ const DATA = {
    "pn": 17,
    "pq1": 1275000,
    "pq3": 1895000,
-   "pa": ""
+   "pa": "",
+   "sd": "0423003242",
+   "gs": "sammamish/5495-Rachel-Carson-Elementary-School"
   },
   {
    "d": "LWSD",
@@ -692,7 +815,9 @@ const DATA = {
    "pn": 17,
    "pq1": 1275000,
    "pq3": 1895000,
-   "pa": ""
+   "pa": "",
+   "sd": "0423002649",
+   "gs": "sammamish/926-Elizabeth-Blackwell-Elementary-School"
   },
   {
    "d": "LWSD",
@@ -709,7 +834,9 @@ const DATA = {
    "pn": 49,
    "pq1": 1750000,
    "pq3": 2880828,
-   "pa": "样本来自 Rose Hill、Houghton、Bridle Trails 街区页"
+   "pa": "样本来自 Rose Hill、Houghton、Bridle Trails 街区页",
+   "sd": "0423000677",
+   "gs": "kirkland/897-Peter-Kirk-Elementary-School"
   },
   {
    "d": "LWSD",
@@ -726,7 +853,9 @@ const DATA = {
    "pn": 23,
    "pq1": 1380000,
    "pq3": 1990000,
-   "pa": ""
+   "pa": "",
+   "sd": "0423003077",
+   "gs": "redmond/3746-Rosa-Parks-Elementary-School"
   },
   {
    "d": "LWSD",
@@ -743,7 +872,9 @@ const DATA = {
    "pn": 49,
    "pq1": 1750000,
    "pq3": 2880828,
-   "pa": "样本来自 Rose Hill、Houghton、Bridle Trails 街区页"
+   "pa": "样本来自 Rose Hill、Houghton、Bridle Trails 街区页",
+   "sd": "0423000682",
+   "gs": "kirkland/902-Rose-Hill-Elementary-School"
   },
   {
    "d": "LWSD",
@@ -760,7 +891,9 @@ const DATA = {
    "pn": 20,
    "pq1": 1365000,
    "pq3": 1795000,
-   "pa": ""
+   "pa": "",
+   "sd": "0423001842",
+   "gs": "redmond/912-Norman-Rockwell-Elementary-School"
   },
   {
    "d": "LWSD",
@@ -777,7 +910,9 @@ const DATA = {
    "pn": 20,
    "pq1": 1365000,
    "pq3": 1795000,
-   "pa": ""
+   "pa": "",
+   "sd": "0423000657",
+   "gs": "redmond/879-John-J.-Audubon-Elementary-School"
   },
   {
    "d": "LWSD",
@@ -794,7 +929,9 @@ const DATA = {
    "pn": 20,
    "pq1": 1365000,
    "pq3": 1795000,
-   "pa": ""
+   "pa": "",
+   "sd": "0423000659",
+   "gs": "redmond/881-Benjamin-Rush-Elementary-School"
   },
   {
    "d": "LWSD",
@@ -811,7 +948,9 @@ const DATA = {
    "pn": 17,
    "pq1": 1275000,
    "pq3": 1895000,
-   "pa": ""
+   "pa": "",
+   "sd": "0423001785",
+   "gs": "sammamish/910-Margaret-Mead-Elementary-School"
   },
   {
    "d": "LWSD",
@@ -828,7 +967,9 @@ const DATA = {
    "pn": 20,
    "pq1": 1365000,
    "pq3": 1795000,
-   "pa": ""
+   "pa": "",
+   "sd": "0423003640",
+   "gs": "redmond/7476-Clara-Barton-Elementary-School"
   },
   {
    "d": "LWSD",
@@ -845,7 +986,9 @@ const DATA = {
    "pn": 49,
    "pq1": 1750000,
    "pq3": 2880828,
-   "pa": "样本来自 Rose Hill、Houghton、Bridle Trails 街区页"
+   "pa": "样本来自 Rose Hill、Houghton、Bridle Trails 街区页",
+   "sd": "0423000676",
+   "gs": "kirkland/896-Mark-Twain-Elementary-School"
   },
   {
    "d": "LWSD",
@@ -862,7 +1005,9 @@ const DATA = {
    "pn": 23,
    "pq1": 1380000,
    "pq3": 1990000,
-   "pa": ""
+   "pa": "",
+   "sd": "0423003628",
+   "gs": "redmond/7477-Ella-Baker-Elementary-School"
   },
   {
    "d": "LWSD",
@@ -879,7 +1024,9 @@ const DATA = {
    "pn": 23,
    "pq1": 1380000,
    "pq3": 1990000,
-   "pa": ""
+   "pa": "",
+   "sd": "0423000661",
+   "gs": "redmond/883-Emily-Dickinson-Elementary-School"
   },
   {
    "d": "LWSD",
@@ -896,7 +1043,9 @@ const DATA = {
    "pn": 41,
    "pq1": 1000000,
    "pq3": 1479000,
-   "pa": ""
+   "pa": "",
+   "sd": "0423000660",
+   "gs": "kirkland/882-Carl-Sandburg-Elementary-School"
   },
   {
    "d": "LWSD",
@@ -913,7 +1062,9 @@ const DATA = {
    "pn": 41,
    "pq1": 1000000,
    "pq3": 1479000,
-   "pa": ""
+   "pa": "",
+   "sd": "0423000684",
+   "gs": "kirkland/904-Henry-David-Thoreau-Elementary-School"
   },
   {
    "d": "LWSD",
@@ -930,7 +1081,9 @@ const DATA = {
    "pn": 20,
    "pq1": 1365000,
    "pq3": 1795000,
-   "pa": ""
+   "pa": "",
+   "sd": "0423002648",
+   "gs": "redmond/925-Albert-Einstein-Elementary-School"
   },
   {
    "d": "LWSD",
@@ -947,7 +1100,9 @@ const DATA = {
    "pn": 20,
    "pq1": 1365000,
    "pq3": 1795000,
-   "pa": ""
+   "pa": "",
+   "sd": "0423000678",
+   "gs": "redmond/898-Redmond-Elementary-School"
   },
   {
    "d": "LWSD",
@@ -964,7 +1119,9 @@ const DATA = {
    "pn": 41,
    "pq1": 1000000,
    "pq3": 1479000,
-   "pa": ""
+   "pa": "",
+   "sd": "0423000668",
+   "gs": "kirkland/888-John-Muir-Elementary-School"
   },
   {
    "d": "LWSD",
@@ -981,7 +1138,9 @@ const DATA = {
    "pn": 41,
    "pq1": 1000000,
    "pq3": 1479000,
-   "pa": ""
+   "pa": "",
+   "sd": "0423000681",
+   "gs": "kirkland/901-Robert-Frost-Elementary-School"
   },
   {
    "d": "LWSD",
@@ -998,7 +1157,9 @@ const DATA = {
    "pn": 49,
    "pq1": 1750000,
    "pq3": 2880828,
-   "pa": "样本来自 Rose Hill、Houghton、Bridle Trails 街区页"
+   "pa": "样本来自 Rose Hill、Houghton、Bridle Trails 街区页",
+   "sd": "0423000656",
+   "gs": "kirkland/878-Alexander-Graham-Bell-Elementary-School"
   },
   {
    "d": "LWSD",
@@ -1015,7 +1176,9 @@ const DATA = {
    "pn": 41,
    "pq1": 1000000,
    "pq3": 1479000,
-   "pa": ""
+   "pa": "",
+   "sd": "0423000669",
+   "gs": "kirkland/889-Juanita-Elementary-School"
   },
   {
    "d": "LWSD",
@@ -1032,7 +1195,9 @@ const DATA = {
    "pn": 41,
    "pq1": 1000000,
    "pq3": 1479000,
-   "pa": ""
+   "pa": "",
+   "sd": "0423000666",
+   "gs": "kirkland/886-Helen-Keller-Elementary-School"
   },
   {
    "d": "LWSD",
@@ -1049,58 +1214,9 @@ const DATA = {
    "pn": 17,
    "pq1": 1275000,
    "pq3": 1895000,
-   "pa": ""
-  },
-  {
-   "d": "LWSD",
-   "n": "Explorer Community",
-   "z": "98052",
-   "r": null,
-   "r25": null,
-   "e": null,
-   "m": null,
-   "g": 10,
-   "enr": 60,
-   "note": "选择校（1-5年级）",
-   "p": 1499750.0,
-   "pn": 20,
-   "pq1": 1365000,
-   "pq3": 1795000,
-   "pa": ""
-  },
-  {
-   "d": "LWSD",
-   "n": "Community School",
-   "z": "98033",
-   "r": null,
-   "r25": null,
-   "e": null,
-   "m": null,
-   "g": 9,
-   "enr": 67,
-   "note": "选择校（1-5年级）",
-   "p": 2477500,
-   "pn": 49,
-   "pq1": 1750000,
-   "pq3": 2880828,
-   "pa": "样本来自 Rose Hill、Houghton、Bridle Trails 街区页"
-  },
-  {
-   "d": "LWSD",
-   "n": "Discovery Community",
-   "z": "98034",
-   "r": null,
-   "r25": null,
-   "e": null,
-   "m": null,
-   "g": 7,
-   "enr": 71,
-   "note": "选择校",
-   "p": 1250000,
-   "pn": 41,
-   "pq1": 1000000,
-   "pq3": 1479000,
-   "pa": ""
+   "pa": "",
+   "sd": "0423002311",
+   "gs": "sammamish/918-Christa-Mcauliffe-Elementary-School"
   },
   {
    "d": "BSD",
@@ -1117,7 +1233,9 @@ const DATA = {
    "pn": 4,
    "pq1": 3100000,
    "pq3": 4250000,
-   "pa": "只有 4 条成交"
+   "pa": "只有 4 条成交",
+   "sd": "0039000076",
+   "gs": "medina/127-Medina-Elementary-School"
   },
   {
    "d": "BSD",
@@ -1134,7 +1252,9 @@ const DATA = {
    "pn": 21,
    "pq1": 1725000,
    "pq3": 2575000,
-   "pa": ""
+   "pa": "",
+   "sd": "0039000063",
+   "gs": "bellevue/119-Cherry-Crest-Elementary-School"
   },
   {
    "d": "BSD",
@@ -1151,7 +1271,9 @@ const DATA = {
    "pn": 29,
    "pq1": 1650000,
    "pq3": 2380000,
-   "pa": ""
+   "pa": "",
+   "sd": "0039000087",
+   "gs": "bellevue/136-Somerset-Elementary-School"
   },
   {
    "d": "BSD",
@@ -1168,7 +1290,9 @@ const DATA = {
    "pn": 21,
    "pq1": 1725000,
    "pq3": 2575000,
-   "pa": ""
+   "pa": "",
+   "sd": "0039000096",
+   "gs": "bellevue/142-Woodridge-Elementary-School"
   },
   {
    "d": "BSD",
@@ -1185,7 +1309,9 @@ const DATA = {
    "pn": 29,
    "pq1": 1650000,
    "pq3": 2380000,
-   "pa": ""
+   "pa": "",
+   "sd": "0039000077",
+   "gs": "bellevue/128-Newport-Heights-Elementary-School"
   },
   {
    "d": "BSD",
@@ -1202,7 +1328,9 @@ const DATA = {
    "pn": 26,
    "pq1": 1445721,
    "pq3": 2875000,
-   "pa": ""
+   "pa": "",
+   "sd": "0039000062",
+   "gs": "bellevue/118-Bennett-Elementary-School"
   },
   {
    "d": "BSD",
@@ -1219,7 +1347,9 @@ const DATA = {
    "pn": 26,
    "pq1": 1445721,
    "pq3": 2875000,
-   "pa": ""
+   "pa": "",
+   "sd": "0039000088",
+   "gs": "bellevue/137-Spiritridge-Elementary-School"
   },
   {
    "d": "BSD",
@@ -1236,7 +1366,9 @@ const DATA = {
    "pn": 25,
    "pq1": 3200000,
    "pq3": 6500000,
-   "pa": ""
+   "pa": "",
+   "sd": "0039000065",
+   "gs": "clyde-hill/121-Clyde-Hill-Elementary-School"
   },
   {
    "d": "BSD",
@@ -1253,7 +1385,9 @@ const DATA = {
    "pn": 25,
    "pq1": 3200000,
    "pq3": 6500000,
-   "pa": ""
+   "pa": "",
+   "sd": "0039000067",
+   "gs": "bellevue/123-Enatai-Elementary-School"
   },
   {
    "d": "BSD",
@@ -1270,24 +1404,9 @@ const DATA = {
    "pn": 26,
    "pq1": 1445721,
    "pq3": 2875000,
-   "pa": ""
-  },
-  {
-   "d": "BSD",
-   "n": "Puesta del Sol",
-   "z": "98007",
-   "r": 326,
-   "r25": 221,
-   "e": 59.9,
-   "m": 53.7,
-   "g": 7,
-   "enr": 494,
-   "note": "西语沉浸选择校",
-   "p": 1600000,
-   "pn": 15,
-   "pq1": 1215000,
-   "pq3": 1750000,
-   "pa": ""
+   "pa": "",
+   "sd": "0039000082",
+   "gs": "bellevue/133-Phantom-Lake-Elementary-School"
   },
   {
    "d": "BSD",
@@ -1304,7 +1423,9 @@ const DATA = {
    "pn": 26,
    "pq1": 1445721,
    "pq3": 2875000,
-   "pa": ""
+   "pa": "",
+   "sd": "0039000086",
+   "gs": "bellevue/135-Sherwood-Forest-Elementary-School"
   },
   {
    "d": "BSD",
@@ -1321,7 +1442,9 @@ const DATA = {
    "pn": 15,
    "pq1": 1215000,
    "pq3": 1750000,
-   "pa": ""
+   "pa": "",
+   "sd": "0039000089",
+   "gs": "bellevue/138-Stevenson-Elementary-School"
   },
   {
    "d": "BSD",
@@ -1338,7 +1461,9 @@ const DATA = {
    "pn": 26,
    "pq1": 1445721,
    "pq3": 2875000,
-   "pa": ""
+   "pa": "",
+   "sd": "0039000058",
+   "gs": "bellevue/116-Ardmore-Elementary-School"
   },
   {
    "d": "BSD",
@@ -1355,24 +1480,9 @@ const DATA = {
    "pn": 15,
    "pq1": 1215000,
    "pq3": 1750000,
-   "pa": ""
-  },
-  {
-   "d": "BSD",
-   "n": "Jing Mei",
-   "z": "98005",
-   "r": null,
-   "r25": null,
-   "e": 89.9,
-   "m": null,
-   "g": 10,
-   "enr": 577,
-   "note": "中文沉浸选择校",
-   "p": 2000000,
-   "pn": 21,
-   "pq1": 1725000,
-   "pq3": 2575000,
-   "pa": ""
+   "pa": "",
+   "sd": "0039000075",
+   "gs": "bellevue/126-Lake-Hills-Elementary-School"
   }
  ],
  "M": [
@@ -1391,7 +1501,9 @@ const DATA = {
    "pn": 14,
    "pq1": 1400000,
    "pq3": 1600000,
-   "pa": ""
+   "pa": "",
+   "sd": "0591002571",
+   "gs": "woodinville/1244-Timbercrest-Junior-High-School"
   },
   {
    "d": "NSD",
@@ -1408,7 +1520,9 @@ const DATA = {
    "pn": 13,
    "pq1": 859100,
    "pq3": 1155000,
-   "pa": ""
+   "pa": "",
+   "sd": "0591000480",
+   "gs": "bothell/1213-Skyview-Junior-High-School"
   },
   {
    "d": "NSD",
@@ -1425,7 +1539,9 @@ const DATA = {
    "pn": 22,
    "pq1": 1230000,
    "pq3": 2400000,
-   "pa": ""
+   "pa": "",
+   "sd": "0591000887",
+   "gs": "woodinville/1224-Leota-Junior-High-School"
   },
   {
    "d": "NSD",
@@ -1442,7 +1558,9 @@ const DATA = {
    "pn": 19,
    "pq1": 1100000,
    "pq3": 1400000,
-   "pa": ""
+   "pa": "",
+   "sd": "0591000891",
+   "gs": "bothell/1228-Northshore-Jr-High-School"
   },
   {
    "d": "NSD",
@@ -1459,7 +1577,9 @@ const DATA = {
    "pn": 13,
    "pq1": 859100,
    "pq3": 1155000,
-   "pa": ""
+   "pa": "",
+   "sd": "0591000879",
+   "gs": "bothell/1218-Canyon-Park-Jr-High-School"
   },
   {
    "d": "NSD",
@@ -1476,7 +1596,9 @@ const DATA = {
    "pn": 15,
    "pq1": 947875,
    "pq3": 1400000,
-   "pa": ""
+   "pa": "",
+   "sd": "0591000886",
+   "gs": "kenmore/1223-Kenmore-Junior-High-School"
   },
   {
    "d": "LWSD",
@@ -1493,7 +1615,9 @@ const DATA = {
    "pn": 23,
    "pq1": 1380000,
    "pq3": 1990000,
-   "pa": ""
+   "pa": "",
+   "sd": "0423001841",
+   "gs": "redmond/911-Evergreen-Junior-High-School"
   },
   {
    "d": "LWSD",
@@ -1510,7 +1634,9 @@ const DATA = {
    "pn": 23,
    "pq1": 1380000,
    "pq3": 1990000,
-   "pa": ""
+   "pa": "",
+   "sd": "0423003708",
+   "gs": "redmond/7749-Timberline-Middle-School"
   },
   {
    "d": "LWSD",
@@ -1527,7 +1653,9 @@ const DATA = {
    "pn": 17,
    "pq1": 1275000,
    "pq3": 1895000,
-   "pa": ""
+   "pa": "",
+   "sd": "0423002435",
+   "gs": "sammamish/920-Inglewood-Junior-High-School"
   },
   {
    "d": "LWSD",
@@ -1544,7 +1672,9 @@ const DATA = {
    "pn": 20,
    "pq1": 1365000,
    "pq3": 1795000,
-   "pa": ""
+   "pa": "",
+   "sd": "0423000683",
+   "gs": "redmond/903-Rose-Hill-Middle-School"
   },
   {
    "d": "LWSD",
@@ -1561,7 +1691,9 @@ const DATA = {
    "pn": 49,
    "pq1": 1750000,
    "pq3": 2880828,
-   "pa": "样本来自 Rose Hill、Houghton、Bridle Trails 街区页"
+   "pa": "样本来自 Rose Hill、Houghton、Bridle Trails 街区页",
+   "sd": "0423000672",
+   "gs": "kirkland/892-Kirkland-Junior-High-School"
   },
   {
    "d": "LWSD",
@@ -1578,7 +1710,9 @@ const DATA = {
    "pn": 20,
    "pq1": 1365000,
    "pq3": 1795000,
-   "pa": ""
+   "pa": "",
+   "sd": "0423000680",
+   "gs": "redmond/900-Redmond-Middle-School"
   },
   {
    "d": "LWSD",
@@ -1595,7 +1729,9 @@ const DATA = {
    "pn": 41,
    "pq1": 1000000,
    "pq3": 1479000,
-   "pa": ""
+   "pa": "",
+   "sd": "0423000663",
+   "gs": "kirkland/884-Finn-Hill-Junior-High-School"
   },
   {
    "d": "LWSD",
@@ -1612,75 +1748,9 @@ const DATA = {
    "pn": 41,
    "pq1": 1000000,
    "pq3": 1479000,
-   "pa": ""
-  },
-  {
-   "d": "LWSD",
-   "n": "Stella Schola",
-   "z": "98052",
-   "r": null,
-   "r25": null,
-   "e": 92.1,
-   "m": 87.5,
-   "g": 9,
-   "enr": 90,
-   "note": "选择校",
-   "p": 1499750.0,
-   "pn": 20,
-   "pq1": 1365000,
-   "pq3": 1795000,
-   "pa": ""
-  },
-  {
-   "d": "LWSD",
-   "n": "Northstar",
-   "z": "98033",
-   "r": null,
-   "r25": null,
-   "e": null,
-   "m": 88.8,
-   "g": 10,
-   "enr": 85,
-   "note": "选择校",
-   "p": 2477500,
-   "pn": 49,
-   "pq1": 1750000,
-   "pq3": 2880828,
-   "pa": "样本来自 Rose Hill、Houghton、Bridle Trails 街区页"
-  },
-  {
-   "d": "LWSD",
-   "n": "Renaissance",
-   "z": "98074",
-   "r": null,
-   "r25": null,
-   "e": 87.0,
-   "m": 73.9,
-   "g": 8,
-   "enr": 80,
-   "note": "选择校",
-   "p": 1515000,
-   "pn": 17,
-   "pq1": 1275000,
-   "pq3": 1895000,
-   "pa": ""
-  },
-  {
-   "d": "LWSD",
-   "n": "Environmental & Adventure",
-   "z": "98034",
-   "r": null,
-   "r25": null,
-   "e": null,
-   "m": null,
-   "g": 8,
-   "enr": 138,
-   "note": "选择校",
-   "p": 1250000,
-   "pn": 41,
-   "pq1": 1000000,
-   "pq3": 1479000,
-   "pa": ""
+   "pa": "",
+   "sd": "0423000671",
+   "gs": "kirkland/891-Kamiakin-Junior-High-School"
   },
   {
    "d": "BSD",
@@ -1697,7 +1767,9 @@ const DATA = {
    "pn": 29,
    "pq1": 1650000,
    "pq3": 2380000,
-   "pa": ""
+   "pa": "",
+   "sd": "0039000094",
+   "gs": "bellevue/141-Tyee-Middle-School"
   },
   {
    "d": "BSD",
@@ -1714,7 +1786,9 @@ const DATA = {
    "pn": 15,
    "pq1": 1215000,
    "pq3": 1750000,
-   "pa": ""
+   "pa": "",
+   "sd": "0039000079",
+   "gs": "bellevue/130-Odle-Middle-School"
   },
   {
    "d": "BSD",
@@ -1731,7 +1805,9 @@ const DATA = {
    "pn": 26,
    "pq1": 1445721,
    "pq3": 2875000,
-   "pa": ""
+   "pa": "",
+   "sd": "0039000093",
+   "gs": "bellevue/140-Tillicum-Middle-School"
   },
   {
    "d": "BSD",
@@ -1748,7 +1824,9 @@ const DATA = {
    "pn": 25,
    "pq1": 3200000,
    "pq3": 6500000,
-   "pa": ""
+   "pa": "",
+   "sd": "0039000064",
+   "gs": "bellevue/120-Chinook-Middle-School"
   },
   {
    "d": "BSD",
@@ -1765,7 +1843,9 @@ const DATA = {
    "pn": 15,
    "pq1": 1215000,
    "pq3": 1750000,
-   "pa": ""
+   "pa": "",
+   "sd": "0039000068",
+   "gs": "bellevue/124-Highland-Middle-School"
   }
  ],
  "H": [
@@ -1784,7 +1864,9 @@ const DATA = {
    "pn": 15,
    "pq1": 947875,
    "pq3": 1400000,
-   "pa": ""
+   "pa": "",
+   "sd": "0591000884",
+   "gs": "kenmore/1221-Inglemoor-High-School"
   },
   {
    "d": "NSD",
@@ -1801,7 +1883,9 @@ const DATA = {
    "pn": 17,
    "pq1": 860000,
    "pq3": 1140000,
-   "pa": ""
+   "pa": "",
+   "sd": "0591003617",
+   "gs": "bothell/7456-North-Creek-High-School"
   },
   {
    "d": "NSD",
@@ -1818,7 +1902,9 @@ const DATA = {
    "pn": 22,
    "pq1": 1230000,
    "pq3": 2400000,
-   "pa": ""
+   "pa": "",
+   "sd": "0591001994",
+   "gs": "woodinville/1238-Woodinville-High-School"
   },
   {
    "d": "NSD",
@@ -1835,58 +1921,9 @@ const DATA = {
    "pn": 19,
    "pq1": 1100000,
    "pq3": 1400000,
-   "pa": ""
-  },
-  {
-   "d": "NSD",
-   "n": "Innovation Lab",
-   "z": "98021",
-   "r": null,
-   "r25": null,
-   "e": null,
-   "m": 51.9,
-   "g": 8,
-   "enr": 252,
-   "note": "选择校",
-   "p": 950000,
-   "pn": 13,
-   "pq1": 859100,
-   "pq3": 1155000,
-   "pa": ""
-  },
-  {
-   "d": "NSD",
-   "n": "Northshore Learning Options",
-   "z": "98077",
-   "r": null,
-   "r25": null,
-   "e": null,
-   "m": null,
-   "g": 7,
-   "enr": 428,
-   "note": "线上 / 家校合作",
-   "p": 1522000.0,
-   "pn": 14,
-   "pq1": 1400000,
-   "pq3": 1600000,
-   "pa": ""
-  },
-  {
-   "d": "NSD",
-   "n": "Secondary Academy",
-   "z": "98021",
-   "r": null,
-   "r25": null,
-   "e": 33.3,
-   "m": null,
-   "g": 2,
-   "enr": 76,
-   "note": "替代校",
-   "p": 950000,
-   "pn": 13,
-   "pq1": 859100,
-   "pq3": 1155000,
-   "pa": ""
+   "pa": "",
+   "sd": "0591000876",
+   "gs": "bothell/1215-Bothell-High-School"
   },
   {
    "d": "LWSD",
@@ -1903,7 +1940,9 @@ const DATA = {
    "pn": 17,
    "pq1": 1275000,
    "pq3": 1895000,
-   "pa": ""
+   "pa": "",
+   "sd": "0423001141",
+   "gs": "sammamish/905-Eastlake-High-School"
   },
   {
    "d": "LWSD",
@@ -1920,7 +1959,9 @@ const DATA = {
    "pn": 20,
    "pq1": 1365000,
    "pq3": 1795000,
-   "pa": ""
+   "pa": "",
+   "sd": "0423000679",
+   "gs": "redmond/899-Redmond-High-School"
   },
   {
    "d": "LWSD",
@@ -1937,7 +1978,9 @@ const DATA = {
    "pn": 49,
    "pq1": 1750000,
    "pq3": 2880828,
-   "pa": "样本来自 Rose Hill、Houghton、Bridle Trails 街区页"
+   "pa": "样本来自 Rose Hill、Houghton、Bridle Trails 街区页",
+   "sd": "0423000674",
+   "gs": "kirkland/894-Lake-Washington-High-School"
   },
   {
    "d": "LWSD",
@@ -1954,58 +1997,9 @@ const DATA = {
    "pn": 41,
    "pq1": 1000000,
    "pq3": 1479000,
-   "pa": ""
-  },
-  {
-   "d": "LWSD",
-   "n": "Emerson",
-   "z": "98033",
-   "r": 176,
-   "r25": 243,
-   "e": 63.2,
-   "m": null,
-   "g": null,
-   "enr": 67,
-   "note": "替代校",
-   "p": 2477500,
-   "pn": 49,
-   "pq1": 1750000,
-   "pq3": 2880828,
-   "pa": "样本来自 Rose Hill、Houghton、Bridle Trails 街区页"
-  },
-  {
-   "d": "LWSD",
-   "n": "Tesla STEM",
-   "z": "98053",
-   "r": null,
-   "r25": null,
-   "e": null,
-   "m": null,
-   "g": 10,
-   "enr": 605,
-   "note": "选择校（抽签），未排名",
-   "p": 1590000,
-   "pn": 23,
-   "pq1": 1380000,
-   "pq3": 1990000,
-   "pa": ""
-  },
-  {
-   "d": "LWSD",
-   "n": "International Community School",
-   "z": "98033",
-   "r": null,
-   "r25": null,
-   "e": 93.3,
-   "m": 90.8,
-   "g": 9,
-   "enr": 421,
-   "note": "6-12 选择校（抽签），成绩为全年级",
-   "p": 2477500,
-   "pn": 49,
-   "pq1": 1750000,
-   "pq3": 2880828,
-   "pa": "样本来自 Rose Hill、Houghton、Bridle Trails 街区页"
+   "pa": "",
+   "sd": "0423000670",
+   "gs": "kirkland/890-Juanita-High-School"
   },
   {
    "d": "BSD",
@@ -2022,7 +2016,9 @@ const DATA = {
    "pn": 29,
    "pq1": 1650000,
    "pq3": 2380000,
-   "pa": ""
+   "pa": "",
+   "sd": "0039000078",
+   "gs": "bellevue/129-Newport-Senior-High-School"
   },
   {
    "d": "BSD",
@@ -2039,7 +2035,9 @@ const DATA = {
    "pn": 26,
    "pq1": 1445721,
    "pq3": 2875000,
-   "pa": ""
+   "pa": "",
+   "sd": "0039000072",
+   "gs": "bellevue/125-Interlake-Senior-High-School"
   },
   {
    "d": "BSD",
@@ -2056,24 +2054,9 @@ const DATA = {
    "pn": 25,
    "pq1": 3200000,
    "pq3": 6500000,
-   "pa": ""
-  },
-  {
-   "d": "BSD",
-   "n": "Big Picture",
-   "z": "98007",
-   "r": 79,
-   "r25": 88,
-   "e": 58.6,
-   "m": 45.9,
-   "g": 7,
-   "enr": 346,
-   "note": "6-12 选择校，成绩为全年级",
-   "p": 1600000,
-   "pn": 15,
-   "pq1": 1215000,
-   "pq3": 1750000,
-   "pa": ""
+   "pa": "",
+   "sd": "0039000060",
+   "gs": "bellevue/117-Bellevue-High-School"
   },
   {
    "d": "BSD",
@@ -2090,11 +2073,512 @@ const DATA = {
    "pn": 21,
    "pq1": 1725000,
    "pq3": 2575000,
-   "pa": ""
+   "pa": "",
+   "sd": "0039000085",
+   "gs": "bellevue/134-Sammamish-Senior-High-School"
+  }
+ ],
+ "CHOICE": [
+  {
+   "d": "NSD",
+   "n": "Innovation Lab",
+   "lv": "H",
+   "z": "98021",
+   "r": null,
+   "r25": null,
+   "e": null,
+   "m": 51.9,
+   "g": 8,
+   "enr": 252,
+   "note": "选择校",
+   "p": 950000,
+   "pn": 13,
+   "pq1": 859100,
+   "pq3": 1155000,
+   "pa": "",
+   "sd": "0591003747",
+   "gs": "bothell/7768-Innovation-Lab-High-School",
+   "choice": true,
+   "grades": "9-12",
+   "city": "Bothell",
+   "entry": "申请 + 学区内 waiver；名额不够时抽签",
+   "window": "每年 1 月开放，2 月中优先截止（2026-27：1/8 到 2/12）",
+   "who": "本区为主，外区未确认",
+   "sibling": "有（按 2020 年规则）",
+   "transport": "家长自理；有空位可搭现有校车",
+   "after": "高中项目，读到毕业",
+   "url": "https://innovationlab.nsd.org/apply",
+   "odds": "约 250 人，9-11 年级位置很少；项目制、掌握式学习"
+  },
+  {
+   "d": "NSD",
+   "n": "Northshore Learning Options",
+   "lv": "H",
+   "z": "98077",
+   "r": null,
+   "r25": null,
+   "e": null,
+   "m": null,
+   "g": 7,
+   "enr": 428,
+   "note": "线上 / 家校合作",
+   "p": 1522000.0,
+   "pn": 14,
+   "pq1": 1400000,
+   "pq3": 1600000,
+   "pa": "",
+   "sd": "0591003922",
+   "gs": "woodinville/7881-Northshore-Learning-Options",
+   "choice": true,
+   "grades": "K-8 家校合作；5-12 线上",
+   "city": "Woodinville",
+   "entry": "申请，项目审核，不抽签",
+   "window": "1 月开放，2 月中优先截止，之后滚动，可学期中插班",
+   "who": "外区可申请，录取后办 choice transfer",
+   "sibling": null,
+   "transport": "无",
+   "after": "K-8 读完回划片高中，或转 NLO 线上高中",
+   "url": "https://northshorelearningoptions.nsd.org/our-school/enrollment",
+   "odds": "2026 年夏其他学校都关闭 waiver 时仍开放"
+  },
+  {
+   "d": "NSD",
+   "n": "Inglemoor IB",
+   "lv": "H",
+   "z": "98028",
+   "r": null,
+   "r25": null,
+   "e": null,
+   "m": null,
+   "g": null,
+   "enr": null,
+   "note": "IB 项目",
+   "p": 1300000,
+   "pn": 15,
+   "pq1": 947875,
+   "pq3": 1400000,
+   "pa": "",
+   "sd": "0591000884",
+   "gs": "kenmore/1221-Inglemoor-High-School",
+   "choice": true,
+   "grades": "9-12（IB 文凭 11-12）",
+   "city": "Kenmore",
+   "entry": "只需 waiver，不设名额，不抽签",
+   "window": "1 月开放，2 月中优先截止，3 月底最后截止（2026-27）",
+   "who": "全区可申请；外区 choice transfer 看空位",
+   "sibling": null,
+   "transport": "家长自理；有空位可搭校车",
+   "after": "高中项目，读到毕业",
+   "url": "https://inglemoor.nsd.org/academics/ib",
+   "odds": "20% 以上学生读 IB 文凭；IB 考试费约 $850-950"
+  },
+  {
+   "d": "NSD",
+   "n": "Secondary Academy for Success",
+   "lv": "H",
+   "z": "98021",
+   "r": null,
+   "r25": null,
+   "e": 33.3,
+   "m": null,
+   "g": 2,
+   "enr": 76,
+   "note": "替代校",
+   "p": 950000,
+   "pn": 13,
+   "pq1": 859100,
+   "pq3": 1155000,
+   "pa": "",
+   "sd": "0591000892",
+   "gs": "bothell/1229-Secondary-Academy-For-Success",
+   "choice": true,
+   "grades": "9-12",
+   "city": "Bothell",
+   "entry": "申请 + 原校 counselor 推荐 + waiver，滚动入学",
+   "window": "全年多个入学日期",
+   "who": "本区",
+   "sibling": null,
+   "transport": null,
+   "after": "高中项目，读到毕业",
+   "url": "https://sas.nsd.org/counseling/registration-and-orientation",
+   "odds": "替代高中：无字母成绩，可补学分"
+  },
+  {
+   "d": "LWSD",
+   "n": "Tesla STEM",
+   "lv": "H",
+   "z": "98053",
+   "r": null,
+   "r25": null,
+   "e": null,
+   "m": null,
+   "g": 10,
+   "enr": 605,
+   "note": "选择校·抽签",
+   "p": 1590000,
+   "pn": 23,
+   "pq1": 1380000,
+   "pq3": 1990000,
+   "pa": "",
+   "sd": "0423003432",
+   "gs": "redmond/5934-Tesla-STEM-High-School",
+   "choice": true,
+   "grades": "9-12",
+   "city": "Redmond",
+   "entry": "纯随机抽签，无面试作文",
+   "window": "2027-28：2026/11/1 到 12/1 申请，1 月初抽签，1/15 通知",
+   "who": "仅本区居民（截止日前住在区内）",
+   "sibling": "无",
+   "transport": "家长自理；学区有选择校班车",
+   "after": "高中项目，读到毕业",
+   "url": "https://tesla.lwsd.org/about-us/application-process",
+   "odds": "每级约 150 人；2027-28 十年级候补已排到 273 号；U.S. News 2026 全美第 9"
+  },
+  {
+   "d": "LWSD",
+   "n": "International Community School",
+   "lv": "H",
+   "z": "98033",
+   "r": null,
+   "r25": null,
+   "e": 93.3,
+   "m": 90.8,
+   "g": 9,
+   "enr": 421,
+   "note": "选择校·抽签",
+   "p": 2477500,
+   "pn": 49,
+   "pq1": 1750000,
+   "pq3": 2880828,
+   "pa": "",
+   "sd": "0423002568",
+   "gs": "kirkland/924-International-Community-School",
+   "choice": true,
+   "grades": "6-12",
+   "city": "Kirkland",
+   "entry": "随机抽签，主要在 6 年级进",
+   "window": "2027-28：2026/11/1 到 12/1 申请，1 月初抽签，1/15 通知",
+   "who": "仅本区居民",
+   "sibling": "无",
+   "transport": "家长自理；有班车，很多学生坐 Metro",
+   "after": "6-12 一贯制，不用重新申请；9 年级候补不延续，要重新申请",
+   "url": "https://ics.lwsd.org/about-us/lottery-information",
+   "odds": "2026-27 候补：6 年级排到 115 号，7 年级 108 号，8 年级 237 号"
+  },
+  {
+   "d": "LWSD",
+   "n": "Emerson K-12",
+   "lv": "H",
+   "z": "98033",
+   "r": 176,
+   "r25": null,
+   "e": 63.2,
+   "m": null,
+   "g": 10,
+   "enr": 67,
+   "note": "替代校·家长合作",
+   "p": 2477500,
+   "pn": 49,
+   "pq1": 1750000,
+   "pq3": 2880828,
+   "pa": "",
+   "sd": "0423002725",
+   "gs": "kirkland/3251-Family-Learning-Center",
+   "choice": true,
+   "grades": "K-12",
+   "city": "Kirkland",
+   "entry": "自己申请：说明会、成绩单、推荐信，校长审核",
+   "window": "按学期滚动（2026-27 第二学期 1/8/2027 截止）",
+   "who": "本区优先，外区看空位",
+   "sibling": "有",
+   "transport": "无校车；Metro 255",
+   "after": "K-12 一贯",
+   "url": "https://emersonk12.lwsd.org/about-us",
+   "odds": "约 75 名全日制学生；家长合作项目，每周到校两天"
+  },
+  {
+   "d": "LWSD",
+   "n": "Community School",
+   "lv": "E",
+   "z": "98033",
+   "r": null,
+   "r25": null,
+   "e": null,
+   "m": null,
+   "g": 9,
+   "enr": 67,
+   "note": "选择校·抽签",
+   "p": 2477500,
+   "pn": 49,
+   "pq1": 1750000,
+   "pq3": 2880828,
+   "pa": "",
+   "sd": "0423000673",
+   "gs": "kirkland/893-Community-School",
+   "choice": true,
+   "grades": "1-5",
+   "city": "Kirkland",
+   "entry": "随机抽签，要参加说明会和参观",
+   "window": "2027-28：2026/11/1 到 12/1 申请，1 月初抽签，1/15 通知",
+   "who": "仅本区",
+   "sibling": "有（1-4 年级）",
+   "transport": "家长自理",
+   "after": "5 年级后回按住址划片的初中；想继续读选择校要再抽一次",
+   "url": "https://community.lwsd.org/about-us/quick-facts",
+   "odds": "约 75 人，三个混龄班"
+  },
+  {
+   "d": "LWSD",
+   "n": "Discovery Community School",
+   "lv": "E",
+   "z": "98034",
+   "r": null,
+   "r25": null,
+   "e": null,
+   "m": null,
+   "g": 7,
+   "enr": 71,
+   "note": "选择校·抽签",
+   "p": 1250000,
+   "pn": 41,
+   "pq1": 1000000,
+   "pq3": 1479000,
+   "pa": "",
+   "sd": "0423002448",
+   "gs": "kirkland/3240-Discovery-Community-School",
+   "choice": true,
+   "grades": "K-5",
+   "city": "Kirkland",
+   "entry": "随机抽签",
+   "window": "1-5 年级同上；K 到 2027/2/26，3 月抽签",
+   "who": "仅本区",
+   "sibling": "有（K）",
+   "transport": "家长自理",
+   "after": "5 年级后回按住址划片的初中；想继续读选择校要再抽一次",
+   "url": "https://discovery.lwsd.org/about-us/how-to-apply",
+   "odds": "2025-26 只有 1 个二年级空位"
+  },
+  {
+   "d": "LWSD",
+   "n": "Explorer Community School",
+   "lv": "E",
+   "z": "98053",
+   "r": null,
+   "r25": null,
+   "e": null,
+   "m": null,
+   "g": 10,
+   "enr": 60,
+   "note": "选择校·抽签",
+   "p": 1590000,
+   "pn": 23,
+   "pq1": 1380000,
+   "pq3": 1990000,
+   "pa": "",
+   "sd": "0423002519",
+   "gs": "redmond/923-Explorer-Community-School",
+   "choice": true,
+   "grades": "1-5",
+   "city": "Redmond",
+   "entry": "随机抽签，要参观和学生试访",
+   "window": "2027-28：2026/11/1 到 12/1 申请，1 月初抽签，1/15 通知",
+   "who": "仅本区",
+   "sibling": "有",
+   "transport": "家长自理",
+   "after": "5 年级后回按住址划片的初中；想继续读选择校要再抽一次",
+   "url": "https://explorer.lwsd.org/students-and-families/registration",
+   "odds": "空位多在 1 年级"
+  },
+  {
+   "d": "LWSD",
+   "n": "Stella Schola",
+   "lv": "M",
+   "z": "98052",
+   "r": null,
+   "r25": null,
+   "e": 92.1,
+   "m": 87.5,
+   "g": 9,
+   "enr": 90,
+   "note": "选择校·抽签",
+   "p": 1499750.0,
+   "pn": 20,
+   "pq1": 1365000,
+   "pq3": 1795000,
+   "pa": "",
+   "sd": "0423002983",
+   "gs": "redmond/3741-Stella-Schola",
+   "choice": true,
+   "grades": "6-8",
+   "city": "Redmond",
+   "entry": "5 年级时抽签，前 30 号录取，其余保留号码 3 年",
+   "window": "2027-28：2026/11/1 到 12/1 申请，1 月初抽签，1/15 通知",
+   "who": "仅本区",
+   "sibling": "无",
+   "transport": "家长自理",
+   "after": "8 年级后回划片高中；Tesla STEM / ICS 9 年级要另外抽",
+   "url": "https://ssms.lwsd.org/about-us/admissions",
+   "odds": "每级 30 人；2026-27 候补 6 年级排到 70 号；古典 / 苏格拉底式课程，在 Rose Hill MS 校内"
+  },
+  {
+   "d": "LWSD",
+   "n": "Northstar Middle School",
+   "lv": "M",
+   "z": "98033",
+   "r": null,
+   "r25": null,
+   "e": null,
+   "m": 88.8,
+   "g": 10,
+   "enr": 85,
+   "note": "选择校·抽签",
+   "p": 2477500,
+   "pn": 49,
+   "pq1": 1750000,
+   "pq3": 2880828,
+   "pa": "",
+   "sd": "0423001843",
+   "gs": "kirkland/3239-Northstar-Middle-School",
+   "choice": true,
+   "grades": "6-8",
+   "city": "Kirkland",
+   "entry": "随机抽签",
+   "window": "2027-28：2026/11/1 到 12/1 申请，1 月初抽签，1/15 通知",
+   "who": "仅本区",
+   "sibling": "无",
+   "transport": "家长自理",
+   "after": "8 年级后回划片高中；Tesla STEM / ICS 9 年级要另外抽",
+   "url": "https://nsms.lwsd.org/about-us",
+   "odds": "约 90 人，4 位老师"
+  },
+  {
+   "d": "LWSD",
+   "n": "Renaissance School of Art and Reasoning",
+   "lv": "M",
+   "z": "98074",
+   "r": null,
+   "r25": null,
+   "e": 87.0,
+   "m": 73.9,
+   "g": 8,
+   "enr": 80,
+   "note": "选择校·抽签",
+   "p": 1515000,
+   "pn": 17,
+   "pq1": 1275000,
+   "pq3": 1895000,
+   "pa": "",
+   "sd": "0423003070",
+   "gs": "sammamish/3726-Renaissance-School-Of-Art-And-Reasoning",
+   "choice": true,
+   "grades": "6-8",
+   "city": "Sammamish",
+   "entry": "随机抽签",
+   "window": "2027-28：2026/11/1 到 12/1 申请，1 月初抽签，1/15 通知",
+   "who": "仅本区",
+   "sibling": "无",
+   "transport": "家长自理；Eastlake 片区可搭 Eastlake 校车",
+   "after": "8 年级后回划片高中；Tesla STEM / ICS 9 年级要另外抽",
+   "url": "https://rsar.lwsd.org/about-us/how-to-apply",
+   "odds": "最多 96 人；在 Eastlake HS 校内"
+  },
+  {
+   "d": "LWSD",
+   "n": "Environmental & Adventure School",
+   "lv": "M",
+   "z": "98034",
+   "r": null,
+   "r25": null,
+   "e": null,
+   "m": null,
+   "g": 8,
+   "enr": 138,
+   "note": "选择校·抽签",
+   "p": 1250000,
+   "pn": 41,
+   "pq1": 1000000,
+   "pq3": 1479000,
+   "pa": "",
+   "sd": "0423002726",
+   "gs": "kirkland/3090-Environmental--Adventure-School",
+   "choice": true,
+   "grades": "6-8",
+   "city": "Kirkland",
+   "entry": "盲抽，6 年级进，三年承诺",
+   "window": "2027-28：2026/11/1 到 12/1 申请，1 月初抽签，1/15 通知",
+   "who": "仅本区",
+   "sibling": "无",
+   "transport": "家长自理",
+   "after": "8 年级后回划片高中；Tesla STEM / ICS 9 年级要另外抽",
+   "url": "https://eas.lwsd.org/admission",
+   "odds": "每年 45 个六年级名额，申请 500 多人"
+  },
+  {
+   "d": "BSD",
+   "n": "Jing Mei",
+   "lv": "E",
+   "z": "98005",
+   "r": null,
+   "r25": null,
+   "e": 89.9,
+   "m": null,
+   "g": 10,
+   "enr": 577,
+   "note": "中文沉浸·抽签",
+   "p": 2000000,
+   "pn": 21,
+   "pq1": 1725000,
+   "pq3": 2575000,
+   "pa": "",
+   "sd": "0039003455",
+   "gs": "bellevue/5938-Jing-Mei-Elementary",
+   "choice": true,
+   "grades": "K-5",
+   "city": "Bellevue",
+   "entry": "K 入学抽签，中文母语和非母语各半",
+   "window": "2026-27：2025/12/15 到 2026/1/16；2027-28 待公布（一般 12 月到 1 月）",
+   "who": "仅本区",
+   "sibling": "有",
+   "transport": "学区提供",
+   "after": "直升 Tillicum，再到 Newport",
+   "url": "https://jingmei.bsd405.org/our-school",
+   "odds": "90/10 双语；K 需 10/31 前满 5 岁"
+  },
+  {
+   "d": "BSD",
+   "n": "Puesta del Sol",
+   "lv": "E",
+   "z": "98007",
+   "r": 326,
+   "r25": null,
+   "e": 59.9,
+   "m": 53.7,
+   "g": 7,
+   "enr": 494,
+   "note": "西语沉浸·抽签",
+   "p": 1600000,
+   "pn": 15,
+   "pq1": 1215000,
+   "pq3": 1750000,
+   "pa": "",
+   "sd": "0039000090",
+   "gs": "bellevue/139-Puesta-Del-Sol-Elementary-School",
+   "choice": true,
+   "grades": "K-5",
+   "city": "Bellevue",
+   "entry": "K 入学抽签；1-5 年级有空位时要西语测试",
+   "window": "2026-27：2025/12/15 到 2026/1/16；2027-28 待公布（一般 12 月到 1 月）",
+   "who": "本区优先，外区可排后",
+   "sibling": "有",
+   "transport": "学区提供",
+   "after": "直升 Tillicum，8 年级选 Newport 或 Sammamish",
+   "url": "https://puestadelsol.bsd405.org/our-school",
+   "odds": "西班牙教育部认证的 International Spanish Academy"
   },
   {
    "d": "BSD",
    "n": "International School",
+   "lv": "H",
    "z": "98005",
    "r": null,
    "r25": null,
@@ -2102,16 +2586,61 @@ const DATA = {
    "m": 83.1,
    "g": 9,
    "enr": 600,
-   "note": "6-12 选择校，成绩为全年级",
+   "note": "选择校·抽签",
    "p": 2000000,
    "pn": 21,
    "pq1": 1725000,
    "pq3": 2575000,
-   "pa": ""
+   "pa": "",
+   "sd": "0039003149",
+   "gs": "bellevue/3462-International-School",
+   "choice": true,
+   "grades": "6-12",
+   "city": "Bellevue",
+   "entry": "6 年级抽签，其他年级排候补",
+   "window": "2026-27：2025/12/15 到 2026/1/16；2027-28 待公布（一般 12 月到 1 月）",
+   "who": "仅本区",
+   "sibling": "有",
+   "transport": "无校车；Metro 免费卡",
+   "after": "6-12 一贯制 7 年",
+   "url": "https://international.bsd405.org/academics/curriculum/faqs",
+   "odds": null
+  },
+  {
+   "d": "BSD",
+   "n": "Big Picture",
+   "lv": "H",
+   "z": "98006",
+   "r": 79,
+   "r25": null,
+   "e": 58.6,
+   "m": 45.9,
+   "g": 7,
+   "enr": 346,
+   "note": "选择校·抽签",
+   "p": 1888000,
+   "pn": 29,
+   "pq1": 1650000,
+   "pq3": 2380000,
+   "pa": "",
+   "sd": "0039003354",
+   "gs": "bellevue/5753-Bellevue-Big-Picture-School",
+   "choice": true,
+   "grades": "6-12",
+   "city": "Bellevue",
+   "entry": "6 年级抽签，其他年级排候补",
+   "window": "2026-27：2025/12/15 到 2026/1/16；2027-28 待公布（一般 12 月到 1 月）",
+   "who": "本区优先，外区排后",
+   "sibling": "有",
+   "transport": "无校车；Metro",
+   "after": "6-12 一贯",
+   "url": "https://bellevuebigpicture.bsd405.org/our-school",
+   "odds": "每级 75 个名额，按四个片区各 25%（2023）；项目制 + 实习；2026 秋搬到 153rd Ave SE"
   },
   {
    "d": "BSD",
    "n": "Bellevue Digital Discovery",
+   "lv": "H",
    "z": "98005",
    "r": null,
    "r25": null,
@@ -2119,14 +2648,1433 @@ const DATA = {
    "m": 42.5,
    "g": 8,
    "enr": 229,
-   "note": "线上 K-12",
+   "note": "线上",
    "p": 2000000,
    "pn": 21,
    "pq1": 1725000,
    "pq3": 2575000,
-   "pa": ""
+   "pa": "",
+   "sd": "0039003883",
+   "gs": "bellevue/7847-Bellevue-Digital-Discovery",
+   "choice": true,
+   "grades": "K-12",
+   "city": "Bellevue",
+   "entry": "申请，全年滚动，不抽签",
+   "window": "全年",
+   "who": "全州学生都可",
+   "sibling": null,
+   "transport": "线上",
+   "after": "K-12",
+   "url": "https://bellevuedigitaldiscovery.bsd405.org/our-school",
+   "odds": "小学同步直播为主，中学自学为主"
+  },
+  {
+   "d": "BSD",
+   "n": "Advanced Learning 自足式天才班",
+   "lv": "E",
+   "z": "98005",
+   "r": null,
+   "r25": null,
+   "e": null,
+   "m": null,
+   "g": null,
+   "enr": null,
+   "note": "天才班·测试",
+   "p": 2000000,
+   "pn": 21,
+   "pq1": 1725000,
+   "pq3": 2575000,
+   "pa": "",
+   "sd": null,
+   "gs": null,
+   "choice": true,
+   "grades": "2-12",
+   "city": "Bellevue",
+   "entry": "测试：K、2、5 年级普筛（CogAT 等），其他年级家长申请冬季测试",
+   "window": "2026-27：9 月初到 10/6 申请，11 月到次年 3 月测试",
+   "who": "本区在读学生；住区内的私校 / 在家学生可申请测试",
+   "sibling": "无",
+   "transport": "只在 AL 片区内有校车",
+   "after": "Cherry Crest、Medina、Woodridge（I-90 北）→ Odle；Somerset、Woodridge（南）→ Tyee；高中 Interlake",
+   "url": "https://www.bsd405.org/academics/advanced-learning/services-we-provide",
+   "odds": null
   }
  ],
+ "PRIVATE": [
+  {
+   "name": "BASIS Independent Bothell",
+   "alias": "BASIS Bothell",
+   "city": "Bothell",
+   "zip": "98021",
+   "grades": "PreK-12（2027-28 招到 9 年级）",
+   "tuition": {
+    "K-4": 31650,
+    "5-8": 34825,
+    "9-12": 38500
+   },
+   "tuition_year": "2026-27",
+   "test": "PreK-1 年级 play date + 老师推荐；2-9 年级 ISEE 或 SSAT + 数学英语老师推荐 + 家长面谈",
+   "deadline": "Early 轮 2026/11/12，Regular 轮 2027/1/15；之后滚动",
+   "deadline_cycle": "2027 秋入学",
+   "enrollment": 322,
+   "affiliation": "无宗教（Spring Education 连锁）",
+   "focus": "BASIS 体系，理科重、进度快，小学起分科教师；2025 年开校，还没有毕业生",
+   "website": "https://basisindependent.com/schools/wa/bothell",
+   "gs": "bothell/7963-BASIS-Independent-Bothell",
+   "nearby": [
+    {
+     "school": "Canyon Creek Elementary School",
+     "miles": 0.44
+    },
+    {
+     "school": "Crystal Springs Elementary School",
+     "miles": 1.06
+    },
+    {
+     "school": "Ruby Bridges Elementary",
+     "miles": 1.51
+    },
+    {
+     "school": "Fernwood Elementary School",
+     "miles": 1.54
+    },
+    {
+     "school": "Frank Love Elementary School",
+     "miles": 1.93
+    },
+    {
+     "school": "Skyview Middle School",
+     "miles": 0.33
+    },
+    {
+     "school": "Canyon Park Jr High School",
+     "miles": 1.27
+    }
+   ]
+  },
+  {
+   "name": "BASIS Independent Bellevue",
+   "alias": "BASIS Bellevue",
+   "city": "Bellevue",
+   "zip": "98008",
+   "grades": "K-12（2027-28 招到 9 年级；K-4 新楼 2027 秋启用）",
+   "tuition": {
+    "K-4": 31650,
+    "5-8": 34825,
+    "9-12": 38500
+   },
+   "tuition_year": "2026-27",
+   "test": "K-1 年级 play date + 老师推荐；2-9 年级 ISEE + 老师推荐 + 成绩单；都要家长面谈",
+   "deadline": "Early 轮 2026/11/12（只限 K），Regular 轮 2027/1/15",
+   "deadline_cycle": "2027 秋入学",
+   "enrollment": 331,
+   "affiliation": "无宗教（Spring Education 连锁）",
+   "focus": "BASIS 体系，2022 年开校；现校区以后改为 5-12 年级",
+   "website": "https://basisindependent.com/schools/wa/bellevue",
+   "gs": null,
+   "nearby": [
+    {
+     "school": "Puesta Del Sol Elementary School",
+     "miles": 0.4
+    },
+    {
+     "school": "Stevenson Elementary School",
+     "miles": 1.0
+    },
+    {
+     "school": "Phantom Lake Elementary School",
+     "miles": 1.0
+    },
+    {
+     "school": "Lake Hills Elementary School",
+     "miles": 1.3
+    },
+    {
+     "school": "Sherwood Forest Elementary School",
+     "miles": 1.5
+    },
+    {
+     "school": "Bennett Elementary School",
+     "miles": 1.8
+    },
+    {
+     "school": "Spiritridge Elementary School",
+     "miles": 1.9
+    },
+    {
+     "school": "Cherry Crest Elementary School",
+     "miles": 2.5
+    }
+   ],
+   "nearby_note": "GreatSchools 没有这所学校的页面，距离按地址估算"
+  },
+  {
+   "name": "Bellevue Children's Academy",
+   "alias": "BCA",
+   "city": "Bellevue",
+   "zip": "98007",
+   "grades": "学前到 4 年级（4 年级后转去姐妹校 Willows Prep）",
+   "tuition": {
+    "学前": 29100,
+    "PreK-4": 30450
+   },
+   "tuition_year": "2026-27",
+   "test": "学校自己的学业测评和小组观察 + 孩子面谈；成绩单和老师推荐",
+   "deadline": "优先轮 2026/12/15，常规轮 2027/2/26，之后滚动",
+   "deadline_cycle": "2027 秋入学",
+   "enrollment": null,
+   "affiliation": "无宗教（ISP 集团）",
+   "focus": "IB 小学项目，探究式，K-4 有西语；另收注册费 $2,000 等杂费",
+   "website": "https://www.bcacademy.com/",
+   "gs": "bellevue/3418-Bellevue-Childrens-Academy",
+   "nearby": [
+    {
+     "school": "Stevenson Elementary School",
+     "miles": 1.05
+    },
+    {
+     "school": "Sherwood Forest Elementary School",
+     "miles": 1.1
+    },
+    {
+     "school": "Ardmore Elementary School",
+     "miles": 1.32
+    },
+    {
+     "school": "Puesta Del Sol Elementary School",
+     "miles": 1.39
+    },
+    {
+     "school": "Cherry Crest Elementary School",
+     "miles": 1.49
+    },
+    {
+     "school": "John J. Audubon Elementary School",
+     "miles": 2.01
+    },
+    {
+     "school": "Highland Middle School",
+     "miles": 0.49
+    },
+    {
+     "school": "Odle Middle School",
+     "miles": 1.24
+    }
+   ]
+  },
+  {
+   "name": "Willows Preparatory School",
+   "alias": "Willows Prep",
+   "city": "Redmond",
+   "zip": "98052",
+   "grades": "5-12",
+   "tuition": {
+    "5-8": 33360,
+    "9-12": 33895
+   },
+   "tuition_year": "2026-27",
+   "test": "交已有的标准化成绩（ITBS、ISEE、SSAT 或州考都可）+ 学生面谈，不另考",
+   "deadline": "官网没有公布截止日，说尽早申请",
+   "deadline_cycle": null,
+   "enrollment": 194,
+   "affiliation": "无宗教（ISP 集团，BCA 姐妹校）",
+   "focus": "5-12 大学预科，高中 IB 文凭；注册费 $2,200",
+   "website": "https://www.willowsprep.com",
+   "gs": "redmond/7637-Willows-Preparatory-School",
+   "nearby": [
+    {
+     "school": "Norman Rockwell Elementary School",
+     "miles": 0.74
+    },
+    {
+     "school": "Clara Barton Elementary School",
+     "miles": 0.89
+    },
+    {
+     "school": "Horace Mann Elementary School",
+     "miles": 1.47
+    },
+    {
+     "school": "Albert Einstein Elementary School",
+     "miles": 1.54
+    },
+    {
+     "school": "Sunrise Elementary School",
+     "miles": 1.64
+    },
+    {
+     "school": "John Muir Elementary School",
+     "miles": 1.9
+    },
+    {
+     "school": "Mark Twain Elementary School",
+     "miles": 2.38
+    },
+    {
+     "school": "Redmond Middle School",
+     "miles": 1.29
+    },
+    {
+     "school": "Kamiakin Middle School",
+     "miles": 2.06
+    }
+   ]
+  },
+  {
+   "name": "Cedar Crest Academy",
+   "alias": "CCA",
+   "city": "Bellevue",
+   "zip": "98004",
+   "grades": "学前到 5 年级（K-5 只在 Bellewood 校区；学前校区在 Bellevue 和 Redmond）",
+   "tuition": {
+    "K-5": "$2,810/月 × 10（约 $28,000；年付 $24,700）",
+    "学前全天": "$2,555/月"
+   },
+   "tuition_year": "2026-27（2027-28 已公布：K-5 $2,950/月）",
+   "test": "K-5 到校参观日做学校自己的学业测评；PreK 没上过学的做 playdate；老师推荐",
+   "deadline": "2027/2/5；K-5 结果 2027/2/26",
+   "deadline_cycle": "2027 秋入学",
+   "enrollment": 152,
+   "affiliation": "无宗教",
+   "focus": "进度偏快的核心课程，强调品格和领导力，有校服，含午餐和用品；另收教育费 $2,000 和一个月押金",
+   "website": "https://www.cedarcrestacademy.org",
+   "gs": "bellevue/7358-Cedar-Crest-Academy-Elementary---Bellewood",
+   "nearby": [
+    {
+     "school": "Clyde Hill Elementary School",
+     "miles": 0.89
+    },
+    {
+     "school": "Cherry Crest Elementary School",
+     "miles": 1.12
+    },
+    {
+     "school": "Jing Mei Elementary",
+     "miles": 1.5
+    },
+    {
+     "school": "Chinook Middle School",
+     "miles": 0.86
+    }
+   ]
+  },
+  {
+   "name": "Chestnut Hill Academy",
+   "alias": "CHA",
+   "city": "Bellevue",
+   "zip": "98005",
+   "grades": "K-5",
+   "tuition": {
+    "K-5": 36808
+   },
+   "tuition_year": "2026-27",
+   "test": "学校自己的到校测评，不要求智商测试；老师评价；1-5 年级要成绩单",
+   "deadline": "2027/1/15 申请，2027/1/29 前参观；结果 2027/3/19",
+   "deadline_cycle": "2027 秋入学",
+   "enrollment": 350,
+   "affiliation": "无宗教",
+   "focus": "Leader in Me 领导力课程，新加坡数学，有 SPARC 天才项目；另收书本材料费 $2,200",
+   "website": "https://www.chestnuthillacademy.com",
+   "gs": "bellevue/3366-Chestnut-Hill-Academy",
+   "nearby": [
+    {
+     "school": "Woodridge Elementary School",
+     "miles": 0.79
+    },
+    {
+     "school": "Somerset Elementary School",
+     "miles": 1.65
+    },
+    {
+     "school": "Tyee Middle School",
+     "miles": 0.93
+    }
+   ]
+  },
+  {
+   "name": "Open Window School",
+   "alias": "OWS",
+   "city": "Bellevue",
+   "zip": "98006",
+   "grades": "K-8",
+   "tuition": {
+    "K-4": 42880,
+    "5-8": 48070
+   },
+   "tuition_year": "2026-27",
+   "test": "要持牌心理师做的 Wechsler 智商测试（WPPSI/WISC），一般 95 百分位以上；4 年级以上加阅读数学成就测试；必须家长参观",
+   "deadline": "2027/1/14；结果 2027/3/19",
+   "deadline_cycle": "2027 秋入学",
+   "enrollment": 360,
+   "affiliation": "无宗教",
+   "focus": "天才教育 K-8，1985 年建校；学费含实地考察和设备",
+   "website": "https://www.openwindowschool.org",
+   "gs": "bellevue/2552-Open-Window-School",
+   "nearby": [
+    {
+     "school": "Cougar Ridge Elementary School",
+     "miles": 1.02
+    },
+    {
+     "school": "Sunset Elementary School",
+     "miles": 1.55
+    },
+    {
+     "school": "Somerset Elementary School",
+     "miles": 2.07
+    },
+    {
+     "school": "Tyee Middle School",
+     "miles": 2.73
+    }
+   ]
+  },
+  {
+   "name": "The Overlake School",
+   "alias": "Overlake",
+   "city": "Redmond",
+   "zip": "98053",
+   "grades": "5-12",
+   "tuition": {
+    "5-12": 51156
+   },
+   "tuition_year": "2026-27",
+   "test": "交一年内任一标准化成绩（州考、MAP、Iowa、ISEE、SSAT 都可）",
+   "deadline": "2027/1/14；初中结果 2027/3/19，高中 2027/2/19",
+   "deadline_cycle": "2027 秋入学",
+   "enrollment": 575,
+   "affiliation": "无宗教",
+   "focus": "独立大学预科，75 英亩校园；主要入口 5 年级 32 人、6 年级 32 人、9 年级 25-30 人",
+   "website": "https://www.overlake.org",
+   "gs": "redmond/2354-The-Overlake-School",
+   "nearby": [
+    {
+     "school": "Albert Einstein Elementary School",
+     "miles": 1.47
+    },
+    {
+     "school": "Emily Dickinson Elementary School",
+     "miles": 1.7
+    },
+    {
+     "school": "Explorer Community School",
+     "miles": 1.7
+    }
+   ]
+  },
+  {
+   "name": "Eastside Preparatory School",
+   "alias": "EPS",
+   "city": "Kirkland",
+   "zip": "98033",
+   "grades": "5-12",
+   "tuition": {
+    "5-12": 50300
+   },
+   "tuition_year": "2026-27",
+   "test": "已有标准化成绩或 ISEE/SSAT 都可 + 学校在线测评 + 老师评价",
+   "deadline": "2027/1/14；初中结果 2027/3/19，高中 2027/2/19",
+   "deadline_cycle": "2027 秋入学",
+   "enrollment": 538,
+   "affiliation": "无宗教",
+   "focus": "独立大学预科，班级上限 18 人；入口 5 年级 36 人、6 年级 18 人、9 年级 35-40 人",
+   "website": "https://www.eastsideprep.org",
+   "gs": "kirkland/3438-Eastside-Preparatory-School",
+   "nearby": [
+    {
+     "school": "Clyde Hill Elementary School",
+     "miles": 1.07
+    },
+    {
+     "school": "Cherry Crest Elementary School",
+     "miles": 1.24
+    },
+    {
+     "school": "Community School",
+     "miles": 1.4
+    },
+    {
+     "school": "Lakeview Elementary School",
+     "miles": 1.65
+    },
+    {
+     "school": "Benjamin Franklin Elementary School",
+     "miles": 1.75
+    },
+    {
+     "school": "Chinook Middle School",
+     "miles": 1.2
+    },
+    {
+     "school": "Northstar Middle School",
+     "miles": 0.81
+    },
+    {
+     "school": "International Community School",
+     "miles": 1.4
+    }
+   ]
+  },
+  {
+   "name": "The Bear Creek School",
+   "alias": "Bear Creek",
+   "city": "Redmond",
+   "zip": "98053",
+   "grades": "学前到 12 年级",
+   "tuition": {
+    "K-6": 32120,
+    "7-12": 38830
+   },
+   "tuition_year": "2026-27",
+   "test": "K-1 学校自测；2-4 年级 ISEE Primary 或 SSAT；5-8 年级 ISEE Lower/Middle 或 SSAT；9 年级以上 ISEE Upper；加面谈",
+   "deadline": "2027/1/22（兄弟姐妹和教职工子女优先轮 2026/12/2）；K-8 结果 2027/3/17",
+   "deadline_cycle": "2027 秋入学",
+   "enrollment": 942,
+   "affiliation": "基督教（古典基督教，无宗派）",
+   "focus": "古典基督教大学预科，1988 年建校；另收设施费 $2,000/家庭等",
+   "website": "https://www.tbcs.org",
+   "gs": "redmond/3411-The-Bear-Creek-School",
+   "nearby": [
+    {
+     "school": "Emily Dickinson Elementary School",
+     "miles": 0.81
+    },
+    {
+     "school": "Explorer Community School",
+     "miles": 0.81
+    },
+    {
+     "school": "Rosa Parks Elementary School",
+     "miles": 1.46
+    },
+    {
+     "school": "Albert Einstein Elementary School",
+     "miles": 2.13
+    },
+    {
+     "school": "Horace Mann Elementary School",
+     "miles": 2.32
+    },
+    {
+     "school": "Redmond Elementary School",
+     "miles": 2.4
+    },
+    {
+     "school": "Ella Baker Elementary School",
+     "miles": 2.53
+    },
+    {
+     "school": "Evergreen Junior High School",
+     "miles": 0.96
+    },
+    {
+     "school": "Timberline Middle School",
+     "miles": 1.65
+    }
+   ]
+  },
+  {
+   "name": "Bellevue Christian School",
+   "alias": "BCS",
+   "city": "Clyde Hill",
+   "zip": "98004",
+   "grades": "学前到 12 年级（小学在 Medina 的 Three Points 和 Woodinville 的 Mack 校区）",
+   "tuition": {
+    "K": 17030,
+    "1-6": 18600,
+    "7-12": 22720
+   },
+   "tuition_year": "2026-27（按续读价目表）",
+   "test": "不另考；交两年成绩单、老师推荐、已有的标准化成绩，家庭面谈",
+   "deadline": "没有公布截止日，1 月底起对新家庭开放，满员排候补",
+   "deadline_cycle": null,
+   "enrollment": 988,
+   "affiliation": "基督教（跨宗派）",
+   "focus": "基督信仰为中心的大学预科，1950 年建校；注册费 $1,050-1,600",
+   "website": "https://www.bellevuechristian.org",
+   "gs": "bellevue/2336-Bellevue-Christian-School",
+   "nearby": [
+    {
+     "school": "Clyde Hill Elementary School",
+     "miles": 0.35
+    },
+    {
+     "school": "Medina Elementary School",
+     "miles": 1.19
+    },
+    {
+     "school": "Jing Mei Elementary",
+     "miles": 1.9
+    },
+    {
+     "school": "Cherry Crest Elementary School",
+     "miles": 1.99
+    },
+    {
+     "school": "Chinook Middle School",
+     "miles": 0.19
+    }
+   ]
+  },
+  {
+   "name": "Eastside Catholic School",
+   "alias": "EC",
+   "city": "Sammamish",
+   "zip": "98074",
+   "grades": "6-12",
+   "tuition": {
+    "6-12": 33750
+   },
+   "tuition_year": "2026-27",
+   "test": "ISEE 或 SSAT（9 年级也可 HSPT）+ 学生面谈；校内 ISEE 2026/12/5",
+   "deadline": "高中 2027/1/5，初中 2027/2/1",
+   "deadline_cycle": "2027 秋入学",
+   "enrollment": 823,
+   "affiliation": "天主教（西雅图总教区）",
+   "focus": "天主教大学预科 6-12，体育项目大；6 和 9 年级有奖学金",
+   "website": "https://www.eastsidecatholic.org",
+   "gs": "sammamish/2429-Eastside-Catholic-School",
+   "nearby": [
+    {
+     "school": "Samantha Smith Elementary School",
+     "miles": 1.08
+    },
+    {
+     "school": "Rachel Carson Elementary School",
+     "miles": 1.26
+    },
+    {
+     "school": "Margaret Mead Elementary School",
+     "miles": 1.56
+    },
+    {
+     "school": "Christa Mcauliffe Elementary School",
+     "miles": 1.67
+    },
+    {
+     "school": "Inglewood Junior High School",
+     "miles": 1.13
+    },
+    {
+     "school": "Renaissance School Of Art And Reasoning",
+     "miles": 0.53
+    }
+   ]
+  },
+  {
+   "name": "Cedar Park Christian Schools",
+   "alias": "CPCS Bothell",
+   "city": "Bothell",
+   "zip": "98011",
+   "grades": "学前到 12 年级（Bothell 校区；另有 Lynnwood、Mill Creek 校区）",
+   "tuition": {
+    "K-5": 12130,
+    "6-8": 14600,
+    "9-12": 17170
+   },
+   "tuition_year": "2026-27（第一个孩子；第二个起有折扣）",
+   "test": "没有固定入学考试，可能有面谈或测试；6-11 年级要交标准化成绩",
+   "deadline": "没有公布截止日，随到随审",
+   "deadline_cycle": null,
+   "enrollment": 1000,
+   "affiliation": "基督教（Cedar Park 教会，神召会）",
+   "focus": "福音派基督教学校，学费最低，多校区；申请费 $100，新家庭费 $500",
+   "website": "https://www.cpcsschools.com",
+   "gs": "bothell/3832-Cedar-Park-Christian-School",
+   "nearby": [
+    {
+     "school": "Woodmoor Elementary School",
+     "miles": 0.66
+    },
+    {
+     "school": "Robert Frost Elementary School",
+     "miles": 1.46
+    },
+    {
+     "school": "Helen Keller Elementary School",
+     "miles": 1.52
+    },
+    {
+     "school": "Maywood Hills Elementary School",
+     "miles": 1.68
+    },
+    {
+     "school": "Woodin Elementary School",
+     "miles": 1.83
+    },
+    {
+     "school": "John Muir Elementary School",
+     "miles": 1.83
+    },
+    {
+     "school": "Northshore Jr High School",
+     "miles": 0.51
+    },
+    {
+     "school": "Kamiakin Middle School",
+     "miles": 1.68
+    }
+   ]
+  },
+  {
+   "name": "The Evergreen School",
+   "alias": "Evergreen",
+   "city": "Shoreline",
+   "zip": "98133",
+   "grades": "学前到 8 年级",
+   "tuition": {
+    "PreK-5": 42800,
+    "6-7": 45800,
+    "8": 48800
+   },
+   "tuition_year": "2026-27",
+   "test": "K-7 年级要智商测试（WPPSI/WISC/KABC，一般 95 百分位以上）；5-7 年级另交标准化成绩；不招 8 年级新生",
+   "deadline": "上一轮 2026/1/15；2027-28 日期还没公布",
+   "deadline_cycle": "2026 秋入学（最近一轮）",
+   "enrollment": 519,
+   "affiliation": "无宗教",
+   "focus": "天才教育学前到 8 年级，项目式，1963 年建校",
+   "website": "https://www.evergreenschool.org",
+   "gs": "shoreline/2364-The-Evergreen-School",
+   "nearby": [
+    {
+     "school": "Parkwood Elementary School",
+     "miles": 0.08
+    },
+    {
+     "school": "Meridian Park Elementary School",
+     "miles": 1.1
+    },
+    {
+     "school": "Ridgecrest Elementary School",
+     "miles": 1.12
+    },
+    {
+     "school": "Highland Terrace Elementary School",
+     "miles": 1.18
+    },
+    {
+     "school": "Kellogg Middle School",
+     "miles": 1.59
+    }
+   ]
+  },
+  {
+   "name": "Lakeside School",
+   "alias": "Lakeside",
+   "city": "Seattle",
+   "zip": "98125",
+   "grades": "5-12",
+   "tuition": {
+    "5-12": 52000
+   },
+   "tuition_year": "2026-27（含午餐）",
+   "test": "6-9 年级 SSAT 或 ISEE；10-11 年级也可 SAT/ACT/PSAT",
+   "deadline": "2027/1/14 初审材料，2027/1/28 全部材料；初中结果 2027/3/19，高中 2027/2/19",
+   "deadline_cycle": "2027 秋入学",
+   "enrollment": 899,
+   "affiliation": "无宗教",
+   "focus": "最难进的独立学校；新生主要 6 年级 60 人、9 年级 70-75 人，约 7-8 人争一个名额；可选校车 $3,750",
+   "website": "https://www.lakesideschool.org",
+   "gs": "seattle/2512-Lakeside-School",
+   "nearby": [
+    {
+     "school": "Parkwood Elementary School",
+     "miles": 0.69
+    },
+    {
+     "school": "James Baldwin Elementary School",
+     "miles": 1.14
+    },
+    {
+     "school": "Olympic Hills Elementary School",
+     "miles": 1.15
+    },
+    {
+     "school": "Ridgecrest Elementary School",
+     "miles": 1.35
+    },
+    {
+     "school": "Briarcrest Elementary School",
+     "miles": 1.62
+    },
+    {
+     "school": "Kellogg Middle School",
+     "miles": 1.59
+    }
+   ]
+  },
+  {
+   "name": "University Prep",
+   "alias": "UPrep",
+   "city": "Seattle",
+   "zip": "98115",
+   "grades": "6-12",
+   "tuition": {
+    "6-8": 49610,
+    "9-12": 51120
+   },
+   "tuition_year": "2026-27",
+   "test": "两年内任一标准化成绩都可，否则 ISEE/SSAT；加学校的到校测评",
+   "deadline": "2027/1/14；初中结果 2027/3/19，高中 2027/2/19",
+   "deadline_cycle": "2027 秋入学",
+   "enrollment": 780,
+   "affiliation": "无宗教",
+   "focus": "独立大学预科 6-12，1976 年建校；入口 6 和 9 年级",
+   "website": "https://www.universityprep.org",
+   "gs": "seattle/2353-University-Prep",
+   "nearby": [
+    {
+     "school": "Wedgwood Elementary School",
+     "miles": 0.3
+    },
+    {
+     "school": "Thornton Creek Elementary School",
+     "miles": 0.8
+    },
+    {
+     "school": "Stephen Decatur Elementary School",
+     "miles": 0.84
+    },
+    {
+     "school": "Sacajawea Elementary School",
+     "miles": 0.85
+    },
+    {
+     "school": "Bryant Elementary School",
+     "miles": 1.15
+    },
+    {
+     "school": "View Ridge Elementary School",
+     "miles": 1.23
+    },
+    {
+     "school": "Eckstein Middle School",
+     "miles": 0.44
+    }
+   ]
+  },
+  {
+   "name": "Seattle Country Day School",
+   "alias": "SCDS",
+   "city": "Seattle",
+   "zip": "98109",
+   "grades": "K-8",
+   "tuition": {
+    "K-3": 41756,
+    "4-5": 45811,
+    "6-8": 48854
+   },
+   "tuition_year": "2026-27",
+   "test": "全部要 Wechsler 智商测试（2 年级以上 WISC-V），一般 97 百分位；5-8 年级另交标准化成绩；家庭视频面谈",
+   "deadline": "2027/1/14",
+   "deadline_cycle": "2027 秋入学",
+   "enrollment": 412,
+   "affiliation": "无宗教",
+   "focus": "天才教育 K-8，探究和 STEM，1964 年建校",
+   "website": "https://www.seattlecountryday.org",
+   "gs": "seattle/2332-Seattle-Country-Day-School",
+   "nearby": [
+    {
+     "school": "Queen Anne Elementary School",
+     "miles": 0.4
+    },
+    {
+     "school": "McClure Middle School",
+     "miles": 0.62
+    }
+   ]
+  }
+ ],
+ "FEED": {
+  "NSD": {
+   "Canyon Creek": {
+    "m": [
+     "Skyview"
+    ],
+    "h": [
+     "North Creek"
+    ],
+    "note": ""
+   },
+   "Fernwood": {
+    "m": [
+     "Skyview"
+    ],
+    "h": [
+     "North Creek"
+    ],
+    "note": ""
+   },
+   "Ruby Bridges": {
+    "m": [
+     "Skyview"
+    ],
+    "h": [
+     "North Creek"
+    ],
+    "note": ""
+   },
+   "Shelton View": {
+    "m": [
+     "Canyon Park"
+    ],
+    "h": [
+     "Bothell"
+    ],
+    "note": "2028 年起 Shelton View 片区内几个小块（SV0N/SV0S/SV1/SV2/SV5）初中改去 Kenmore MS，高中不变"
+   },
+   "Westhill": {
+    "m": [
+     "Canyon Park"
+    ],
+    "h": [
+     "Bothell"
+    ],
+    "note": ""
+   },
+   "Maywood Hills": {
+    "m": [
+     "Canyon Park"
+    ],
+    "h": [
+     "Bothell"
+    ],
+    "note": ""
+   },
+   "Crystal Springs": {
+    "m": [
+     "Canyon Park",
+     "Skyview"
+    ],
+    "h": [
+     "Bothell",
+     "North Creek"
+    ],
+    "note": "北边 CS3 小块现在去 Skyview / North Creek，2028 年起改去 Canyon Park / Bothell"
+   },
+   "Kenmore": {
+    "m": [
+     "Kenmore"
+    ],
+    "h": [
+     "Inglemoor"
+    ],
+    "note": ""
+   },
+   "Lockwood": {
+    "m": [
+     "Kenmore"
+    ],
+    "h": [
+     "Bothell"
+    ],
+    "note": "西边 LW0-LW4 小块 2031 年起高中改去 Inglemoor"
+   },
+   "Frank Love": {
+    "m": [
+     "Kenmore"
+    ],
+    "h": [
+     "Bothell"
+    ],
+    "note": ""
+   },
+   "Arrowhead": {
+    "m": [
+     "Northshore"
+    ],
+    "h": [
+     "Inglemoor"
+    ],
+    "note": ""
+   },
+   "Moorlands": {
+    "m": [
+     "Northshore"
+    ],
+    "h": [
+     "Inglemoor"
+    ],
+    "note": "EDAC 建议 2028 年关闭 Moorlands，片区并入邻校"
+   },
+   "Woodmoor": {
+    "m": [
+     "Northshore"
+    ],
+    "h": [
+     "Inglemoor"
+    ],
+    "note": ""
+   },
+   "Kokanee": {
+    "m": [
+     "Leota"
+    ],
+    "h": [
+     "Woodinville",
+     "North Creek"
+    ],
+    "note": "KO0/KO3/KO4/KO6A 小块现在去 North Creek，2028 年起改去 Woodinville"
+   },
+   "Wellington": {
+    "m": [
+     "Leota"
+    ],
+    "h": [
+     "Woodinville"
+    ],
+    "note": ""
+   },
+   "Woodin": {
+    "m": [
+     "Leota"
+    ],
+    "h": [
+     "Woodinville"
+    ],
+    "note": ""
+   },
+   "Cottage Lake": {
+    "m": [
+     "Timbercrest"
+    ],
+    "h": [
+     "Woodinville"
+    ],
+    "note": ""
+   },
+   "East Ridge": {
+    "m": [
+     "Timbercrest"
+    ],
+    "h": [
+     "Woodinville"
+    ],
+    "note": ""
+   },
+   "Hollywood Hill": {
+    "m": [
+     "Timbercrest"
+    ],
+    "h": [
+     "Woodinville"
+    ],
+    "note": ""
+   },
+   "Sunrise": {
+    "m": [
+     "Timbercrest"
+    ],
+    "h": [
+     "Woodinville"
+    ],
+    "note": ""
+   }
+  },
+  "LWSD": {
+   "Alcott": {
+    "m": [
+     "Evergreen"
+    ],
+    "h": [
+     "Eastlake"
+    ],
+    "note": ""
+   },
+   "Audubon": {
+    "m": [
+     "Rose Hill"
+    ],
+    "h": [
+     "Lake Washington"
+    ],
+    "note": ""
+   },
+   "Bell": {
+    "m": [
+     "Finn Hill"
+    ],
+    "h": [
+     "Juanita"
+    ],
+    "note": ""
+   },
+   "Blackwell": {
+    "m": [
+     "Inglewood"
+    ],
+    "h": [
+     "Eastlake"
+    ],
+    "note": ""
+   },
+   "Rachel Carson": {
+    "m": [
+     "Inglewood"
+    ],
+    "h": [
+     "Eastlake"
+    ],
+    "note": ""
+   },
+   "Clara Barton": {
+    "m": [
+     "Redmond"
+    ],
+    "h": [
+     "Redmond"
+    ],
+    "note": ""
+   },
+   "Dickinson": {
+    "m": [
+     "Evergreen"
+    ],
+    "h": [
+     "Eastlake",
+     "Redmond"
+    ],
+    "note": "高中按片区分 Eastlake 或 Redmond"
+   },
+   "Einstein": {
+    "m": [
+     "Evergreen",
+     "Redmond"
+    ],
+    "h": [
+     "Redmond"
+    ],
+    "note": "初中按片区分 Evergreen 或 Redmond MS"
+   },
+   "Ella Baker": {
+    "m": [
+     "Timberline"
+    ],
+    "h": [
+     "Redmond"
+    ],
+    "note": ""
+   },
+   "Ben Franklin": {
+    "m": [
+     "Rose Hill"
+    ],
+    "h": [
+     "Lake Washington"
+    ],
+    "note": ""
+   },
+   "Robert Frost": {
+    "m": [
+     "Kamiakin"
+    ],
+    "h": [
+     "Juanita"
+    ],
+    "note": ""
+   },
+   "Juanita": {
+    "m": [
+     "Finn Hill"
+    ],
+    "h": [
+     "Juanita"
+    ],
+    "note": ""
+   },
+   "Helen Keller": {
+    "m": [
+     "Kamiakin"
+    ],
+    "h": [
+     "Juanita"
+    ],
+    "note": ""
+   },
+   "Peter Kirk": {
+    "m": [
+     "Kirkland"
+    ],
+    "h": [
+     "Lake Washington"
+    ],
+    "note": ""
+   },
+   "Lakeview": {
+    "m": [
+     "Kirkland"
+    ],
+    "h": [
+     "Lake Washington"
+    ],
+    "note": ""
+   },
+   "Horace Mann": {
+    "m": [
+     "Redmond"
+    ],
+    "h": [
+     "Redmond"
+    ],
+    "note": ""
+   },
+   "McAuliffe": {
+    "m": [
+     "Inglewood"
+    ],
+    "h": [
+     "Eastlake"
+    ],
+    "note": ""
+   },
+   "Margaret Mead": {
+    "m": [
+     "Inglewood"
+    ],
+    "h": [
+     "Eastlake"
+    ],
+    "note": ""
+   },
+   "John Muir": {
+    "m": [
+     "Kamiakin"
+    ],
+    "h": [
+     "Juanita"
+    ],
+    "note": ""
+   },
+   "Redmond": {
+    "m": [
+     "Redmond"
+    ],
+    "h": [
+     "Redmond"
+    ],
+    "note": ""
+   },
+   "Rockwell": {
+    "m": [
+     "Redmond"
+    ],
+    "h": [
+     "Redmond"
+    ],
+    "note": ""
+   },
+   "Rosa Parks": {
+    "m": [
+     "Timberline"
+    ],
+    "h": [
+     "Redmond"
+    ],
+    "note": ""
+   },
+   "Rose Hill": {
+    "m": [
+     "Rose Hill"
+    ],
+    "h": [
+     "Lake Washington"
+    ],
+    "note": ""
+   },
+   "Ben Rush": {
+    "m": [
+     "Rose Hill"
+    ],
+    "h": [
+     "Lake Washington"
+    ],
+    "note": ""
+   },
+   "Sandburg": {
+    "m": [
+     "Finn Hill"
+    ],
+    "h": [
+     "Juanita"
+    ],
+    "note": ""
+   },
+   "Samantha Smith": {
+    "m": [
+     "Inglewood"
+    ],
+    "h": [
+     "Eastlake"
+    ],
+    "note": ""
+   },
+   "Thoreau": {
+    "m": [
+     "Finn Hill"
+    ],
+    "h": [
+     "Juanita"
+    ],
+    "note": ""
+   },
+   "Mark Twain": {
+    "m": [
+     "Kirkland"
+    ],
+    "h": [
+     "Lake Washington"
+    ],
+    "note": ""
+   },
+   "Wilder": {
+    "m": [
+     "Timberline"
+    ],
+    "h": [
+     "Redmond"
+    ],
+    "note": ""
+   }
+  },
+  "BSD": {
+   "Ardmore": {
+    "m": [
+     "Highland"
+    ],
+    "h": [
+     "Interlake"
+    ],
+    "note": ""
+   },
+   "Bennett": {
+    "m": [
+     "Highland"
+    ],
+    "h": [
+     "Interlake"
+    ],
+    "note": ""
+   },
+   "Cherry Crest": {
+    "m": [
+     "Odle"
+    ],
+    "h": [
+     "Sammamish"
+    ],
+    "note": "天才班（AL）学生走 Odle → Interlake"
+   },
+   "Clyde Hill": {
+    "m": [
+     "Chinook",
+     "Odle"
+    ],
+    "h": [
+     "Bellevue",
+     "Sammamish"
+    ],
+    "note": "按片区分 Chinook → Bellevue 或 Odle → Sammamish"
+   },
+   "Enatai": {
+    "m": [
+     "Chinook"
+    ],
+    "h": [
+     "Bellevue"
+    ],
+    "note": ""
+   },
+   "Lake Hills": {
+    "m": [
+     "Odle"
+    ],
+    "h": [
+     "Sammamish"
+    ],
+    "note": ""
+   },
+   "Medina": {
+    "m": [
+     "Chinook"
+    ],
+    "h": [
+     "Bellevue"
+    ],
+    "note": "天才班（AL）学生走 Odle → Interlake"
+   },
+   "Newport Heights": {
+    "m": [
+     "Tyee"
+    ],
+    "h": [
+     "Newport"
+    ],
+    "note": ""
+   },
+   "Phantom Lake": {
+    "m": [
+     "Odle",
+     "Tillicum"
+    ],
+    "h": [
+     "Sammamish"
+    ],
+    "note": "初中按片区分 Odle 或 Tillicum"
+   },
+   "Sherwood Forest": {
+    "m": [
+     "Highland"
+    ],
+    "h": [
+     "Interlake"
+    ],
+    "note": ""
+   },
+   "Somerset": {
+    "m": [
+     "Tyee"
+    ],
+    "h": [
+     "Newport"
+    ],
+    "note": "天才班（AL）学生走 Tyee → Interlake"
+   },
+   "Spiritridge": {
+    "m": [
+     "Tillicum",
+     "Tyee"
+    ],
+    "h": [
+     "Newport",
+     "Sammamish"
+    ],
+    "note": "按片区分 Tillicum 或 Tyee，高中 Newport 或 Sammamish"
+   },
+   "Stevenson": {
+    "m": [
+     "Highland",
+     "Odle"
+    ],
+    "h": [
+     "Interlake",
+     "Sammamish"
+    ],
+    "note": "按片区分 Highland → Interlake 或 Odle → Sammamish"
+   },
+   "Woodridge": {
+    "m": [
+     "Chinook",
+     "Tyee"
+    ],
+    "h": [
+     "Bellevue",
+     "Newport"
+    ],
+    "note": "按片区分 Chinook → Bellevue 或 Tyee → Newport；天才班（AL）学生走 Odle/Tyee → Interlake"
+   }
+  }
+ },
  "denom": {
   "E": 1138,
   "M": 514,
@@ -2150,22 +4098,31 @@ const COLS = [
 const state = {
   on: { NSD: true, LWSD: true, BSD: true }, q: "",
   sort: { E: ["r", "asc"], M: ["r", "asc"], H: ["r", "asc"] },
-  cmp: { level: "E", a: "", b: "" }
+  mode: "school",
+  cmp: { level: "E", a: "", b: "" },
+  line: { a: "", b: "" }
 };
 try {
-  const saved = JSON.parse(localStorage.getItem("school-compare-v2") || "null");
+  const saved = JSON.parse(localStorage.getItem("school-compare-v3") || "null");
   if (saved && typeof saved === "object") {
     if (saved.on) Object.assign(state.on, saved.on);
     if (saved.cmp) Object.assign(state.cmp, saved.cmp);
+    if (saved.line) Object.assign(state.line, saved.line);
+    if (saved.mode) state.mode = saved.mode;
   }
 } catch (e) {}
-function persist() { try { localStorage.setItem("school-compare-v2", JSON.stringify({ on: state.on, cmp: state.cmp })); } catch (e) {} }
+function persist() { try { localStorage.setItem("school-compare-v3", JSON.stringify({ on: state.on, cmp: state.cmp, line: state.line, mode: state.mode })); } catch (e) {} }
 
 const fmtM = v => "$" + (v / 1e6).toFixed(2) + "M";
 const fmtShort = v => v >= 1e6 ? "$" + (v / 1e6).toFixed(v >= 1e7 ? 0 : 2).replace(/\.?0+$/, "") + "M" : "$" + Math.round(v / 1e3) + "K";
 const fmtPrice = r => (r.pa ? "≈" : "") + fmtM(r.p);
-const pct = (r, level) => r.r === null ? null : Math.max(1, Math.round(100 * r.r / DATA.denom[level]));
-const byId = (level, n) => DATA[level].find(x => x.n + "|" + x.d === n);
+const pct = (r, level) => r.r === null || r.r === undefined ? null : Math.max(1, Math.round(100 * r.r / DATA.denom[level]));
+const slug = s => s.toLowerCase().replace(/&/g, "and").replace(/[^a-z0-9]+/g, "-").replace(/^-|-$/g, "");
+const idOf = r => r.n + "|" + r.d;
+function pool(level) { return DATA[level].concat(DATA.CHOICE.filter(c => c.lv === level && (c.r !== null || c.e !== null || c.m !== null))); }
+const byId = (level, id) => pool(level).find(x => idOf(x) === id);
+const elemById = id => DATA.E.find(x => idOf(x) === id);
+const findByName = (level, d, name) => DATA[level].find(x => x.d === d && x.n === name);
 
 function cmp(level) {
   const [k, dir] = state.sort[level];
@@ -2186,6 +4143,13 @@ function cell(tag, text, cls) {
   if (cls) el.className = cls;
   if (text !== undefined && text !== null) el.textContent = text;
   return el;
+}
+function linkIcons(r) {
+  const box = cell("span", undefined, "links");
+  if (r.sd) { const a = cell("a", "SD"); a.href = "https://www.schooldigger.com/go/WA/schools/" + r.sd + "/school.aspx"; a.target = "_blank"; a.rel = "noopener"; a.title = "SchoolDigger"; box.append(a); }
+  if (r.gs) { const a = cell("a", "GS"); a.href = "https://www.greatschools.org/washington/" + r.gs + "/"; a.target = "_blank"; a.rel = "noopener"; a.title = "GreatSchools"; box.append(a); }
+  if (r.url) { const a = cell("a", "官网"); a.href = r.url; a.target = "_blank"; a.rel = "noopener"; box.append(a); }
+  return box;
 }
 function render(level) {
   const table = document.querySelector('table[data-level="' + level + '"]');
@@ -2227,12 +4191,15 @@ function render(level) {
   }
   const top = level === "E" ? 50 : level === "M" ? 20 : 15;
   list.forEach((r, i) => {
-    const id = r.n + "|" + r.d;
-    const picked = state.cmp.level === level && (state.cmp.a === id || state.cmp.b === id);
+    const id = idOf(r);
+    const pickedSchool = state.mode === "school" && state.cmp.level === level && (state.cmp.a === id || state.cmp.b === id);
+    const pickedLine = state.mode === "line" && level === "E" && (state.line.a === id || state.line.b === id);
+    const picked = pickedSchool || pickedLine;
     const tr = cell("tr", undefined, r.d + (picked ? " picked" : ""));
     tr.append(cell("td", String(i + 1), "idx"));
     const nm = cell("td", r.n, "name");
     nm.append(cell("span", r.d, "dist"));
+    nm.append(linkIcons(r));
     nm.append(cell("span", r.z, "zi"));
     tr.append(nm);
     tr.append(cell("td", r.z, "zip"));
@@ -2245,12 +4212,15 @@ function render(level) {
     tr.append(ptd);
     tr.append(cell("td", r.note || "", "note"));
     const ptk = cell("td");
-    const pb = cell("button", picked ? "已选" : "对比", "pick");
-    pb.type = "button";
-    pb.setAttribute("aria-pressed", String(picked));
-    pb.setAttribute("aria-label", (picked ? "取消对比 " : "加入对比 ") + r.n);
-    pb.addEventListener("click", () => togglePick(level, id));
-    ptk.append(pb);
+    const lineMode = state.mode === "line";
+    if (!lineMode || level === "E") {
+      const pb = cell("button", picked ? "已选" : (lineMode ? "比这条线" : "对比"), "pick");
+      pb.type = "button";
+      pb.setAttribute("aria-pressed", String(picked));
+      pb.setAttribute("aria-label", (picked ? "取消 " : "加入对比 ") + r.n);
+      pb.addEventListener("click", () => lineMode ? toggleLine(id) : togglePick(level, id));
+      ptk.append(pb);
+    }
     tr.append(ptk);
     tbody.append(tr);
   });
@@ -2271,11 +4241,18 @@ function togglePick(level, id) {
   else if (!c.a) c.a = id;
   else if (!c.b) c.b = id;
   else { c.a = c.b; c.b = id; }
-  persist();
-  fillSelects();
-  renderCompare();
-  renderAll();
+  persist(); fillSelects(); renderCompare(); renderAll();
   if (c.a && c.b) document.getElementById("compare").scrollIntoView({ block: "start" });
+}
+function toggleLine(id) {
+  const l = state.line;
+  if (l.a === id) l.a = "";
+  else if (l.b === id) l.b = "";
+  else if (!l.a) l.a = id;
+  else if (!l.b) l.b = id;
+  else { l.a = l.b; l.b = id; }
+  persist(); fillSelects(); renderCompare(); renderAll();
+  if (l.a) document.getElementById("compare").scrollIntoView({ block: "start" });
 }
 
 function fillSelects() {
@@ -2288,12 +4265,32 @@ function fillSelects() {
     ["NSD", "LWSD", "BSD"].forEach(d => {
       const grp = document.createElement("optgroup");
       grp.label = d;
-      DATA[lv].filter(r => r.d === d).slice().sort(cmp(lv) && ((x, y) => (x.r ?? 9999) - (y.r ?? 9999) || x.n.localeCompare(y.n)))
-        .forEach(r => grp.append(new Option(r.n + (r.r !== null ? "（#" + r.r + "）" : ""), r.n + "|" + r.d)));
+      pool(lv).filter(r => r.d === d).slice().sort((x, y) => ((x.r ?? 9999) - (y.r ?? 9999)) || x.n.localeCompare(y.n))
+        .forEach(r => grp.append(new Option(r.n + (r.r !== null ? "（#" + r.r + "）" : "") + (r.choice ? "（选择校）" : ""), idOf(r))));
       sel.append(grp);
     });
     sel.value = state.cmp[slot] || "";
   });
+  ["a", "b"].forEach(slot => {
+    const sel = document.getElementById("l-" + slot);
+    sel.textContent = "";
+    sel.append(new Option("选小学…", ""));
+    ["NSD", "LWSD", "BSD"].forEach(d => {
+      const grp = document.createElement("optgroup");
+      grp.label = d;
+      DATA.E.filter(r => r.d === d).slice().sort((x, y) => ((x.r ?? 9999) - (y.r ?? 9999)) || x.n.localeCompare(y.n))
+        .forEach(r => grp.append(new Option(r.n + (r.r !== null ? "（#" + r.r + "）" : ""), idOf(r))));
+      sel.append(grp);
+    });
+    sel.value = state.line[slot] || "";
+  });
+  document.getElementById("mode-school").setAttribute("aria-pressed", String(state.mode === "school"));
+  document.getElementById("mode-line").setAttribute("aria-pressed", String(state.mode === "line"));
+  document.getElementById("ctrl-school").hidden = state.mode !== "school";
+  document.getElementById("ctrl-line").hidden = state.mode !== "line";
+  document.getElementById("cmp-hint").textContent = state.mode === "school"
+    ? "也可以直接点表格里的「对比」按钮。房价是学校所在 zip 近期成交的 4 房以上住宅中位数，不是学校学区内的房价。"
+    : "选一所小学，自动带出它片区对应的初中和高中。也可以点小学表里的「比这条线」。房价用小学所在 zip。";
 }
 
 function trend(r) {
@@ -2306,14 +4303,8 @@ function facts(r, o, level) {
   if (p !== null) out.push("全州第 " + r.r + "，前 " + p + "%");
   const t = trend(r);
   if (t !== null) out.push(t > 0 ? "比 2025 年上升 " + t + " 名" : t < 0 ? "比 2025 年下降 " + (-t) + " 名" : "排名与 2025 年持平");
-  if (r.e !== null && o.e !== null) {
-    const d = Math.round(r.e - o.e);
-    if (d >= 3) out.push("阅读达标率高 " + d + " 个百分点");
-  }
-  if (r.m !== null && o.m !== null) {
-    const d = Math.round(r.m - o.m);
-    if (d >= 3) out.push("数学达标率高 " + d + " 个百分点");
-  }
+  if (r.e !== null && o.e !== null) { const d = Math.round(r.e - o.e); if (d >= 3) out.push("阅读达标率高 " + d + " 个百分点"); }
+  if (r.m !== null && o.m !== null) { const d = Math.round(r.m - o.m); if (d >= 3) out.push("数学达标率高 " + d + " 个百分点"); }
   if (r.e !== null && r.m !== null) {
     const gap = Math.round(r.m - r.e);
     if (gap >= 5) out.push("数学强于阅读（+" + gap + "）");
@@ -2337,6 +4328,7 @@ function bar(width, cls) {
 function renderCompare() {
   const out = document.getElementById("c-out");
   out.textContent = "";
+  if (state.mode === "line") { renderLines(out); return; }
   const lv = state.cmp.level;
   const A = byId(lv, state.cmp.a), B = byId(lv, state.cmp.b);
   if (!A || !B) {
@@ -2349,17 +4341,15 @@ function renderCompare() {
     if (side === "l") h.style.textAlign = "right";
     h.append(cell("span", r.n, "nm"));
     h.append(cell("span", r.d, "tag " + r.d));
-    h.append(cell("div", LEVEL_NAME[lv] + " · zip " + r.z, "zp"));
+    h.append(cell("div", LEVEL_NAME[lv] + " · zip " + r.z + (r.choice ? " · 选择校" : ""), "zp"));
     return h;
   };
   grid.append(head(A, "l"), cell("div", "", "lbl"), head(B, "r"));
-
   const row = (label, va, vb, opts = {}) => {
     const l = cell("div", undefined, "v l"), r = cell("div", undefined, "v r");
     const put = (box, v, lead) => {
       if (v === null || v === undefined) { box.append(cell("span", "—", "na")); return; }
-      const big = cell("span", v.big, (v.plain ? "plain" : "big") + (lead ? " lead" : ""));
-      box.append(big);
+      box.append(cell("span", v.big, (v.plain ? "plain" : "big") + (lead ? " lead" : "")));
       if (v.sm) box.append(cell("span", v.sm, "sm"));
     };
     const leadA = opts.better && va && vb && va.raw !== null && vb.raw !== null && va.raw !== vb.raw ? opts.better(va.raw, vb.raw) : null;
@@ -2368,7 +4358,7 @@ function renderCompare() {
   };
   const rankV = r => r.r === null ? null : { raw: r.r, big: "#" + r.r, sm: "前 " + pct(r, lv) + "%" };
   const trendV = r => { const t = trend(r); return t === null ? null : { raw: t, big: (t > 0 ? "▲ " : t < 0 ? "▼ " : "") + Math.abs(t), sm: "2025 #" + r.r25 }; };
-  const numV = (v, unit) => v === null ? null : { raw: v, big: String(Math.round(v)) + (unit || "") };
+  const numV = (v, unit) => v === null || v === undefined ? null : { raw: v, big: String(Math.round(v)) + (unit || "") };
   const priceV = r => ({ raw: r.p, big: fmtPrice(r), sm: "中间一半 " + fmtShort(r.pq1) + "–" + fmtShort(r.pq3) + " · n=" + r.pn });
   row("州排名 2026", rankV(A), rankV(B), { better: (a, b) => a < b });
   row("较 2025 变化", trendV(A), trendV(B), { better: (a, b) => a > b });
@@ -2420,33 +4410,238 @@ function renderCompare() {
   out.append(cell("p", "差值都是 B 减 A。房价是两校所在 zip 的近期成交，不是学区内的房价；同一个 zip 里不同片区差别很大。这里只列数据，不下结论。", "cmp-foot"));
 }
 
+/* ---------- lines ---------- */
+function lineOf(e) {
+  const f = (DATA.FEED[e.d] || {})[e.n];
+  if (!f) return null;
+  const mids = (f.m || []).map(n => findByName("M", e.d, n)).filter(Boolean);
+  const highs = (f.h || []).map(n => findByName("H", e.d, n)).filter(Boolean);
+  return { e, m: mids[0] || null, h: highs[0] || null, mAlt: mids.slice(1), hAlt: highs.slice(1), note: f.note || "" };
+}
+function normName(s) { return s.toLowerCase().replace(/elementary school|elementary|school/g, "").replace(/[^a-z0-9]+/g, " ").trim(); }
+function nearbyPrivate(e) {
+  const target = normName(e.n);
+  const out = [];
+  DATA.PRIVATE.forEach(p => {
+    (p.nearby || []).forEach(nb => {
+      if (!/elementary/i.test(nb.school)) return;
+      const nn = normName(nb.school);
+      if (nn === target || nn.endsWith(" " + target) || nn.startsWith(target + " ") || nn.includes(target)) out.push({ p, miles: nb.miles });
+    });
+  });
+  const seen = new Set();
+  return out.filter(x => { if (seen.has(x.p.name)) return false; seen.add(x.p.name); return true; }).sort((a, b) => a.miles - b.miles);
+}
+function lineCard(L, other) {
+  const box = cell("div", undefined, "line " + L.e.d);
+  const h = cell("h3");
+  h.append(cell("span", L.e.n + " 这条线"));
+  h.append(cell("span", L.e.d, "tag " + L.e.d));
+  h.append(cell("span", "zip " + L.e.z, "zp"));
+  box.append(h);
+  const stages = [["小学", L.e, "E"], ["初中", L.m, "M"], ["高中", L.h, "H"]];
+  let sum = 0, cnt = 0;
+  stages.forEach(([lab, r, lv], i) => {
+    const st = cell("div", undefined, "stage");
+    st.append(cell("span", lab, "lv"));
+    if (!r) { st.append(cell("span", "未确认", "na")); box.append(st); return; }
+    const nm = cell("div");
+    nm.append(cell("span", r.n, "nm"));
+    nm.append(linkIcons(r));
+    st.append(nm);
+    const p = pct(r, lv);
+    if (p !== null) { sum += p; cnt++; }
+    const s = cell("div", undefined, "st");
+    s.style.gridColumn = "2";
+    const add = (label, v) => { const sp = cell("span"); sp.append(label + " "); sp.append(cell("b", v)); s.append(sp); };
+    add("州排名", r.r === null ? "—" : "#" + r.r + "（前 " + p + "%）");
+    add("阅读", r.e === null ? "—" : Math.round(r.e) + "%");
+    add("数学", r.m === null ? "—" : Math.round(r.m) + "%");
+    add("GS", r.g === null ? "—" : String(r.g));
+    add("人数", r.enr ? String(r.enr) : "—");
+    st.append(s);
+    if (r.note) st.append(cell("div", r.note, "split"));
+    const alts = i === 1 ? L.mAlt : i === 2 ? L.hAlt : [];
+    if (alts.length) st.append(cell("div", "部分片区去 " + alts.map(a => a.n).join(" / "), "split"));
+    box.append(st);
+  });
+  const sumBox = cell("div", undefined, "sum");
+  const avg = cnt ? (sum / cnt) : null;
+  const s1 = cell("span"); s1.append("三段平均百分位 "); s1.append(cell("b", avg === null ? "—" : "前 " + avg.toFixed(1) + "%")); sumBox.append(s1);
+  const s2 = cell("span"); s2.append("小学 zip 4 房房价 "); s2.append(cell("b", fmtPrice(L.e))); s2.append(cell("span", " 中间一半 " + fmtShort(L.e.pq1) + "–" + fmtShort(L.e.pq3) + " · n=" + L.e.pn, "sm")); sumBox.append(s2);
+  box.append(sumBox);
+  if (L.note) box.append(cell("div", "划片说明：" + L.note, "near"));
+  const np = nearbyPrivate(L.e);
+  const near = cell("div", undefined, "near");
+  if (np.length) {
+    near.append("3 英里内的私立：");
+    np.forEach((x, i) => { near.append(i ? " · " : ""); near.append(cell("b", x.p.name)); near.append(" " + (x.p.nearby_note ? "≈" : "") + x.miles + " mi（" + x.p.grades.split("（")[0] + "）"); });
+  } else {
+    near.append("3 英里内没有表里的私立学校。");
+  }
+  box.append(near);
+  L.avg = avg;
+  return box;
+}
+function renderLines(out) {
+  const A = elemById(state.line.a), B = elemById(state.line.b);
+  const share = document.getElementById("l-share");
+  if (!A && !B) { out.append(cell("p", "选一所小学，或者点小学表里的「比这条线」。", "hint")); share.hidden = true; location.hash && history.replaceState(null, "", location.pathname + location.search); return; }
+  const LA = A ? lineOf(A) : null, LB = B ? lineOf(B) : null;
+  const grid = cell("div", undefined, "line-grid" + ((LA && LB) ? "" : " single"));
+  if (LA) grid.append(lineCard(LA, LB));
+  else if (A) grid.append(cell("p", A.n + " 的升学线还没有录入。", "hint"));
+  if (LB) grid.append(lineCard(LB, LA));
+  else if (B) grid.append(cell("p", B.n + " 的升学线还没有录入。", "hint"));
+  out.append(grid);
+  if (LA && LB) {
+    const chips = cell("div", undefined, "diff");
+    const chip = t => chips.append(cell("span", t));
+    if (LA.avg !== null && LB.avg !== null) chip("三段平均百分位：B 比 A " + (LB.avg < LA.avg ? "靠前 " : LB.avg > LA.avg ? "靠后 " : "相同 ") + Math.abs(LB.avg - LA.avg).toFixed(1) + " 个百分点");
+    const stagesA = [LA.e, LA.m, LA.h], stagesB = [LB.e, LB.m, LB.h];
+    ["小学", "初中", "高中"].forEach((lab, i) => {
+      const a = stagesA[i], b = stagesB[i];
+      if (a && b && a.r !== null && b.r !== null) chip(lab + "排名 " + (b.r < a.r ? "B 靠前 " : b.r > a.r ? "B 靠后 " : "相同 ") + (b.r === a.r ? "" : Math.abs(a.r - b.r) + " 名"));
+    });
+    const dp = LB.e.p - LA.e.p, dpp = Math.round(100 * dp / LA.e.p);
+    chip("房价 " + (dpp >= 0 ? "+" : "") + dpp + "%（" + (dp >= 0 ? "+" : "−") + fmtShort(Math.abs(dp)) + "）");
+    out.append(chips);
+  }
+  out.append(cell("p", "升学线按学区公布的 feeder pattern。片区边缘有拆分，具体地址以学区的地址查询工具为准。差值都是 B 减 A。这里只列数据，不下结论。", "cmp-foot"));
+  share.hidden = false;
+  const tag = "line-" + slug(A ? A.n : "") + (B ? "--vs--" + slug(B.n) : "");
+  history.replaceState(null, "", location.pathname + location.search + "#" + tag);
+}
+function readHash() {
+  const h = decodeURIComponent(location.hash || "").replace(/^#/, "");
+  if (!h.startsWith("line-")) return false;
+  const parts = h.slice(5).split("--vs--");
+  const find = s => DATA.E.find(r => slug(r.n) === s);
+  const a = find(parts[0]), b = parts[1] ? find(parts[1]) : null;
+  if (!a) return false;
+  state.mode = "line"; state.line.a = idOf(a); state.line.b = b ? idOf(b) : "";
+  return true;
+}
+
+/* ---------- choice & private tables ---------- */
+function subRow(d, span, items) {
+  const tr = cell("tr", undefined, (d ? d + " " : "") + "sub");
+  const td = cell("td"); td.colSpan = span;
+  items.forEach(([k, v, long]) => {
+    if (!v) return;
+    const s = cell("span", undefined, "kv" + (long ? " long" : ""));
+    s.append(cell("b", k)); s.append(v);
+    td.append(s);
+  });
+  tr.append(td);
+  return tr;
+}
+function renderChoice() {
+  const t = document.getElementById("choice-table");
+  t.textContent = "";
+  const cols = [["学校 / 项目", 0], ["学区", 0], ["年级", 80], ["怎么进", 240], ["申请窗口", 240], ["之后去哪", 210], ["成绩", 150]];
+  t.className = "detail";
+  const thead = document.createElement("thead"); const hr = document.createElement("tr");
+  cols.forEach(([c, w]) => { const th = cell("th", c); if (w) th.style.minWidth = w + "px"; hr.append(th); }); thead.append(hr); t.append(thead);
+  const tb = document.createElement("tbody");
+  const list = DATA.CHOICE.filter(r => state.on[r.d]);
+  list.forEach(r => {
+    const tr = cell("tr", undefined, r.d + " main");
+    const nm = cell("td", r.n, "name"); nm.append(linkIcons(r)); tr.append(nm);
+    tr.append(cell("td", r.d));
+    tr.append(cell("td", r.grades || "—"));
+    tr.append(cell("td", r.entry || "—"));
+    tr.append(cell("td", r.window || "—"));
+    tr.append(cell("td", r.after || "—"));
+    const sc = [];
+    if (r.r !== null) sc.push("#" + r.r);
+    if (r.e !== null) sc.push("阅读 " + Math.round(r.e));
+    if (r.m !== null) sc.push("数学 " + Math.round(r.m));
+    if (r.g !== null) sc.push("GS " + r.g);
+    tr.append(cell("td", sc.length ? sc.join(" · ") : "—"));
+    tb.append(tr);
+    tb.append(subRow(r.d, cols.length, [["外区能申请", r.who], ["兄弟姐妹优先", r.sibling], ["校车", r.transport], ["备注", r.odds, true]]));
+  });
+  if (!list.length) { const tr = cell("tr", undefined, "empty"); const td = cell("td", "没有符合条件的学校"); td.colSpan = cols.length; tr.append(td); tb.append(tr); }
+  t.append(tb);
+  document.getElementById("choice-count").textContent = "共 " + DATA.CHOICE.length + " 项";
+}
+function renderPrivate() {
+  const t = document.getElementById("private-table");
+  t.textContent = "";
+  const cols = [["学校", 0], ["年级", 130], ["城市 / Zip", 96], ["学费", 200], ["入学考试", 250], ["申请截止", 200], ["学生数", 0], ["类型", 150]];
+  t.className = "detail";
+  const thead = document.createElement("thead"); const hr = document.createElement("tr");
+  cols.forEach(([c, w]) => { const th = cell("th", c); if (w) th.style.minWidth = w + "px"; hr.append(th); }); thead.append(hr); t.append(thead);
+  const tb = document.createElement("tbody");
+  const q = state.q.trim().toLowerCase();
+  const list = DATA.PRIVATE.filter(p => !q || p.name.toLowerCase().includes(q) || (p.alias || "").toLowerCase().includes(q));
+  list.forEach(p => {
+    const tr = cell("tr", undefined, "main");
+    const nm = cell("td", p.name, "name");
+    if (p.alias) nm.append(cell("span", p.alias, "dist"));
+    nm.append(linkIcons({ url: p.website, gs: p.gs }));
+    tr.append(nm);
+    tr.append(cell("td", p.grades || "—"));
+    tr.append(cell("td", (p.city || "") + " " + (p.zip || "")));
+    const tu = cell("td", undefined, "tuition");
+    if (p.tuition && Object.keys(p.tuition).length) {
+      Object.entries(p.tuition).forEach(([band, amt], i) => { tu.append((i ? " · " : "") + band + " "); tu.append(cell("b", typeof amt === "number" ? "$" + amt.toLocaleString("en-US") : String(amt))); });
+      if (p.tuition_year && p.tuition_year !== "2026-27") tu.append(cell("div", p.tuition_year + " 学年", "na"));
+    } else tu.textContent = "—";
+    tr.append(tu);
+    tr.append(cell("td", p.test || "—"));
+    tr.append(cell("td", (p.deadline || "—") + (p.deadline_cycle ? "（" + p.deadline_cycle + "）" : "")));
+    tr.append(cell("td", p.enrollment ? String(p.enrollment) : "—", "num"));
+    tr.append(cell("td", p.affiliation || "—"));
+    tb.append(tr);
+    const pubs = (p.nearby || []).filter(x => /elementary/i.test(x.school)).slice().sort((a, b) => a.miles - b.miles);
+    let near = pubs.length ? pubs.map(x => x.school.replace(/ Elementary School| Elementary/, "") + " " + (p.nearby_note ? "≈" : "") + x.miles + " mi").join(" · ") : "—";
+    if (p.nearby_note) near += "（" + p.nearby_note + "）";
+    tb.append(subRow("", cols.length, [["特点", p.focus, true], ["3 英里内的公立小学", near, true]]));
+  });
+  if (!list.length) { const tr = cell("tr", undefined, "empty"); const td = cell("td", "没有符合条件的学校"); td.colSpan = cols.length; tr.append(td); tb.append(tr); }
+  t.append(tb);
+  document.getElementById("private-count").textContent = "共 " + DATA.PRIVATE.length + " 所";
+}
+
+/* ---------- wiring ---------- */
 document.querySelectorAll(".chip").forEach(b => {
   b.setAttribute("aria-pressed", String(state.on[b.dataset.d]));
   b.addEventListener("click", () => {
     state.on[b.dataset.d] = !state.on[b.dataset.d];
     b.setAttribute("aria-pressed", String(state.on[b.dataset.d]));
-    persist();
-    renderAll();
+    persist(); renderAll(); renderChoice();
   });
 });
-document.getElementById("q").addEventListener("input", e => { state.q = e.target.value; renderAll(); });
+document.getElementById("q").addEventListener("input", e => { state.q = e.target.value; renderAll(); renderPrivate(); });
+document.getElementById("mode-school").addEventListener("click", () => { state.mode = "school"; persist(); fillSelects(); renderCompare(); renderAll(); });
+document.getElementById("mode-line").addEventListener("click", () => { state.mode = "line"; persist(); fillSelects(); renderCompare(); renderAll(); });
 document.getElementById("c-level").addEventListener("change", e => {
   state.cmp.level = e.target.value; state.cmp.a = ""; state.cmp.b = "";
   persist(); fillSelects(); renderCompare(); renderAll();
 });
-["a", "b"].forEach(slot => document.getElementById("c-" + slot).addEventListener("change", e => {
-  state.cmp[slot] = e.target.value; persist(); renderCompare(); renderAll();
-}));
-document.getElementById("c-swap").addEventListener("click", () => {
-  const t = state.cmp.a; state.cmp.a = state.cmp.b; state.cmp.b = t;
-  persist(); fillSelects(); renderCompare(); renderAll();
+["a", "b"].forEach(slot => {
+  document.getElementById("c-" + slot).addEventListener("change", e => { state.cmp[slot] = e.target.value; persist(); renderCompare(); renderAll(); });
+  document.getElementById("l-" + slot).addEventListener("change", e => { state.line[slot] = e.target.value; persist(); renderCompare(); renderAll(); });
 });
-document.getElementById("c-clear").addEventListener("click", () => {
-  state.cmp.a = ""; state.cmp.b = ""; persist(); fillSelects(); renderCompare(); renderAll();
+document.getElementById("c-swap").addEventListener("click", () => { const t = state.cmp.a; state.cmp.a = state.cmp.b; state.cmp.b = t; persist(); fillSelects(); renderCompare(); renderAll(); });
+document.getElementById("c-clear").addEventListener("click", () => { state.cmp.a = ""; state.cmp.b = ""; persist(); fillSelects(); renderCompare(); renderAll(); });
+document.getElementById("l-swap").addEventListener("click", () => { const t = state.line.a; state.line.a = state.line.b; state.line.b = t; persist(); fillSelects(); renderCompare(); renderAll(); });
+document.getElementById("l-clear").addEventListener("click", () => { state.line.a = ""; state.line.b = ""; persist(); fillSelects(); renderCompare(); renderAll(); });
+document.getElementById("l-copy").addEventListener("click", () => {
+  const url = location.href;
+  const done = () => { document.getElementById("l-copied").textContent = "已复制"; setTimeout(() => { document.getElementById("l-copied").textContent = ""; }, 2000); };
+  if (navigator.clipboard && navigator.clipboard.writeText) navigator.clipboard.writeText(url).then(done).catch(() => { document.getElementById("l-copied").textContent = url; });
+  else document.getElementById("l-copied").textContent = url;
 });
+window.addEventListener("hashchange", () => { if (readHash()) { persist(); fillSelects(); renderCompare(); renderAll(); } });
+readHash();
 fillSelects();
 renderCompare();
 renderAll();
+renderChoice();
+renderPrivate();
 </script>
 </body>
 </html>
