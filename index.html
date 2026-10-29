@@ -320,8 +320,9 @@ td.tuition { white-space: normal; min-width: 170px; font-variant-numeric: tabula
 .map-detail li span { color: var(--muted); }
 
 /* notes */
-.notes { display: grid; gap: 14px; max-width: 980px; font-size: 15.5px; line-height: 1.75; }
-.notes section { gap: 4px; }
+.notes { columns: 2 520px; column-gap: 56px; font-size: 15.5px; line-height: 1.75; }
+.notes section { gap: 4px; break-inside: avoid; margin: 0 0 18px; }
+.notes section:first-child { column-span: all; margin-bottom: 22px; }
 .notes h3 { font-size: 15.5px; }
 .notes p { margin: 0; color: var(--fg); }
 .notes .m { color: var(--muted); }
