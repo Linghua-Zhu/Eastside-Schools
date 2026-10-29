@@ -230,6 +230,7 @@ td.tuition { white-space: normal; min-width: 170px; font-variant-numeric: tabula
 .fig text { fill: var(--fg); font-size: 12px; }
 .fig text.mut { fill: var(--muted); font-size: 11px; }
 .fig text.lab { font-weight: 600; font-size: 12px; paint-order: stroke; stroke: var(--surface); stroke-width: 3px; stroke-linejoin: round; }
+.fig text.lab tspan.lab2 { font-weight: 500; fill: var(--muted); }
 .fig text.sm { fill: var(--muted); font-size: 10.5px; }
 .fig text.ttl { fill: var(--muted); font-size: 11.5px; font-weight: 600; letter-spacing: 0.02em; }
 .fig .pbar { fill: var(--dc); opacity: 0.88; }
@@ -280,7 +281,7 @@ td.tuition { white-space: normal; min-width: 170px; font-variant-numeric: tabula
 .map .road { fill: none; stroke: var(--map-road); stroke-width: 2.2; stroke-linejoin: round; stroke-linecap: round; }
 .map .road.minor { stroke: var(--map-road2); stroke-width: 1.6; }
 .map text { fill: var(--map-text); font-size: 11px; pointer-events: none; }
-.map text.city { font-size: 11px; font-weight: 600; letter-spacing: 0.06em; text-transform: uppercase; }
+.map text.city { font-size: 11px; font-weight: 600; letter-spacing: 0.06em; text-transform: uppercase; paint-order: stroke; stroke: var(--map-land); stroke-width: 3px; stroke-linejoin: round; }
 .map text.zip { font-size: 9.5px; opacity: 0.8; font-variant-numeric: tabular-nums; }
 .map text.water-lab { font-style: italic; font-size: 11px; fill: var(--map-water-text); }
 .map text.roadlab { font-size: 9px; }
@@ -358,7 +359,7 @@ td.tuition { white-space: normal; min-width: 170px; font-variant-numeric: tabula
 .addseg:disabled { text-decoration: none; opacity: 0.5; cursor: default; }
 .warn { margin: 0; font-size: 13.5px; color: var(--warn); }
 .cost-right { display: grid; gap: 14px; }
-.cost-sum table { border-collapse: collapse; width: 100%; }
+.cost-sum table { border-collapse: collapse; width: 100%; min-width: 0; }
 .cost-sum th, .cost-sum td { padding: 6px 10px; border-bottom: 1px solid var(--line); text-align: left; }
 .cost-sum th { font-size: 13px; color: var(--muted); font-weight: 500; background: none; position: static; }
 .cost-sum .num { text-align: right; font-variant-numeric: tabular-nums; white-space: nowrap; }
@@ -375,7 +376,7 @@ td.tuition { white-space: normal; min-width: 170px; font-variant-numeric: tabula
 .cost-schools li b { display: inline-flex; align-items: center; gap: 6px; }
 .cost-schools .m { color: var(--muted); }
 .cost-detail summary { cursor: pointer; font-size: 14.5px; color: var(--muted); }
-.cost-detail .detail-table { margin-top: 8px; font-size: 13.5px; }
+.cost-detail .detail-table { margin-top: 8px; font-size: 13.5px; min-width: 0; }
 .cost-detail .detail-table td, .cost-detail .detail-table th { white-space: nowrap; }
 .cost-detail .detail-table thead th { position: static; }
 .cost-assume { margin: 0; padding-left: 18px; color: var(--muted); font-size: 13.5px; display: grid; gap: 3px; }
@@ -405,7 +406,6 @@ td.tuition { white-space: normal; min-width: 170px; font-variant-numeric: tabula
   th, td { padding: 6px 7px; }
   td.idx { padding-left: 10px; width: 28px; }
   table { min-width: 640px; }
-  .cost-sum table { min-width: 0; }
   .cost-sum th, .cost-sum td { padding: 6px 6px; }
   .facts { grid-template-columns: 1fr; }
   .cmp-grid .lbl { font-size: 12px; }
@@ -1082,7 +1082,7 @@ function sv(tag, attrs, text) {
 function niceStep(max) { return max <= 20 ? 5 : max <= 50 ? 10 : 20; }
 function lineFigure(LA, LB) {
   const lines = [LA && { L: LA, k: "A" }, LB && { L: LB, k: "B" }].filter(Boolean);
-  const W = 860, H = 320, top = 46, bottom = 44, left = 58;
+  const W = 860, H = 350, top = 72, bottom = 44, left = 58;
   const cw = 500, gap = 60, bw = W - left - cw - gap - 20;
   const ph = H - top - bottom;
   const stages = [["小学", "E", "e"], ["初中", "M", "m"], ["高中", "H", "h"]];
@@ -1110,6 +1110,22 @@ function lineFigure(LA, LB) {
   });
   const ptsOf = L => stages.map(([, lv, key], i) => { const r = L[key]; const p = r ? pct(r, lv) : null; return p === null ? null : { x: xs[i], y: y(p), r, p, lv }; });
   const allPts = lines.map(({ L }) => ptsOf(L));
+  const place = allPts.map(() => [null, null, null]);
+  for (let i = 0; i < 3; i++) {
+    const here = allPts.map((pts, li) => pts[i] ? { li, pt: pts[i], pts } : null).filter(Boolean);
+    const put = (h, y) => { place[h.li][i] = y; };
+    here.forEach(h => {
+      const ds = [h.pts[i - 1], h.pts[i + 1]].filter(Boolean).map(q => q.y - h.pt.y);
+      h.pref = !ds.length ? 0 : ds.every(d => d > 2) ? -1 : ds.every(d => d < -2) ? 1 : 0;
+    });
+    if (here.length === 2 && here[0].pt.r === here[1].pt.r) { put(here[0], here[0].pt.y - 25); put(here[1], null); }
+    else if (here.length === 2 && Math.abs(here[0].pt.y - here[1].pt.y) < 34) {
+      const [u, l] = here.slice().sort((a, b) => (a.pt.y - b.pt.y) || (b.pref - a.pref));
+      if (l.pref === -1 && u.pref !== 1) { put(u, u.pt.y - 25); put(l, u.pt.y - 57); }
+      else if (u.pref === 1 && l.pref !== -1) { put(l, l.pt.y + 20); put(u, l.pt.y + 52); }
+      else { put(u, u.pt.y - 25); put(l, l.pt.y + 20); }
+    } else here.forEach(h => put(h, h.pref === 1 ? h.pt.y + 20 : h.pt.y - 25));
+  }
   lines.forEach(({ L, k }, li) => {
     const g = sv("g", { class: k + " " + L.e.d });
     const pts = allPts[li];
@@ -1121,11 +1137,11 @@ function lineFigure(LA, LB) {
       const tx = i === 0 ? (pt ? pt.x - 6 : xs[i] - 6) : i === 2 ? (pt ? pt.x + 6 : xs[i] + 6) : xs[i];
       if (!pt) { g.append(sv("text", { x: tx, y: top + ph - 8 - (li * 14), "text-anchor": anchor, class: "sm" }, k + " " + (L[stages[i][2]] ? L[stages[i][2]].n + " 无排名" : (i === 2 && L.hnote ? "高中按住址另划" : "未确认")))); return; }
       g.append(sv("circle", { cx: pt.x, cy: pt.y, r: 5.5, class: "mk" }));
-      const otherPt = lines.length === 2 ? allPts[1 - li][i] : null;
-      let above = true;
-      if (otherPt) above = pt.y < otherPt.y || (pt.y === otherPt.y && li === 0);
-      const dy = above ? -11 : 20;
-      g.append(sv("text", { x: tx, y: pt.y + dy, "text-anchor": anchor, class: "lab" }, pt.r.n + " #" + pt.r.r + " · 前 " + pt.p + "%"));
+      if (place[li][i] === null) return;
+      const t = sv("text", { x: tx, y: place[li][i], "text-anchor": anchor, class: "lab" });
+      t.append(sv("tspan", { x: tx }, pt.r.n));
+      t.append(sv("tspan", { x: tx, dy: 14, class: "lab2" }, "#" + pt.r.r + " · 前 " + pt.p + "%"));
+      g.append(t);
     });
     svg.append(g);
   });
@@ -1190,7 +1206,8 @@ function renderLines(out) {
     if (common.length) {
       const av = L => common.reduce((s, [k, lv]) => s + pct(L[k], lv), 0) / common.length;
       const a = av(LA), b = av(LB);
-      chip((common.length === 3 ? "三段" : "共同的 " + common.map(([, lv]) => LEVEL_NAME[lv]).join("、") + " ") + "平均百分位：B 比 A " + (b < a ? "靠前 " : b > a ? "靠后 " : "相同 ") + Math.abs(b - a).toFixed(1) + " 个百分点");
+      const lead = (common.length === 3 ? "三段" : "共同的 " + common.map(([, lv]) => LEVEL_NAME[lv]).join("、") + " ") + "平均百分位：";
+      chip(lead + (Math.abs(b - a) < 0.05 ? "两条线一样" : "B 比 A " + (b < a ? "靠前 " : "靠后 ") + Math.abs(b - a).toFixed(1) + " 个百分点"));
     }
     const stagesA = [LA.e, LA.m, LA.h], stagesB = [LB.e, LB.m, LB.h];
     ["小学", "初中", "高中"].forEach((lab, i) => {
@@ -1322,7 +1339,9 @@ function baseMap(label, zips) {
   GEO.islands.forEach(w => svg.append(sv("path", { d: poly(w), class: "land" })));
   GEO.waterLabels.forEach(([n, lo, la, rot]) => { const [x, y] = px(la, lo); svg.append(sv("text", { x, y, class: "water-lab", "text-anchor": "middle", transform: rot ? `rotate(${rot} ${x} ${y})` : null }, n)); });
   GEO.roads.forEach(r => { svg.append(sv("path", { d: pline(r.pts), class: "road" + (r.major ? "" : " minor") })); const [x, y] = px(r.lab[1], r.lab[0]); svg.append(sv("text", { x, y, class: "roadlab" }, r.n)); });
-  GEO.cities.forEach(([n, lo, la]) => { const [x, y] = px(la, lo); svg.append(sv("text", { x, y, class: "city", "text-anchor": "middle" }, n)); });
+  const cl = sv("g", { class: "citylabs" });
+  GEO.cities.forEach(([n, lo, la]) => { const [x, y] = px(la, lo); cl.append(sv("text", { x, y, class: "city", "text-anchor": "middle" }, n)); });
+  svg.append(cl); svg._cities = cl;
   if (zips) Object.entries(DATA.ZIPS).forEach(([z, [la, lo]]) => { const [x, y] = px(la, lo); svg.append(sv("text", { x, y: y + 12, class: "zip", "text-anchor": "middle" }, z)); });
   const sb = sv("g", { class: "scale" }); const [sx, sy] = [16, GH - 18];
   sb.append(sv("line", { x1: sx, x2: sx + 5 * GEO.s, y1: sy, y2: sy })); sb.append(sv("line", { x1: sx, x2: sx, y1: sy - 4, y2: sy + 4 })); sb.append(sv("line", { x1: sx + 5 * GEO.s, x2: sx + 5 * GEO.s, y1: sy - 4, y2: sy + 4 }));
@@ -1352,7 +1371,7 @@ function drawOverviewMap() {
   if (!OV.svg) {
     OV.svg = baseMap("各学区公立学校的位置，点的大小表示全州排名", true);
     OV.layer = sv("g"); OV.labels = sv("g");
-    OV.svg.append(OV.layer, OV.labels);
+    OV.svg.append(OV.layer, OV.labels, OV.svg._cities);
     box.append(OV.svg);
     const key = cell("div", undefined, "map-key");
     DIST.forEach(d => {
@@ -1391,14 +1410,14 @@ function ticks(list, fmt) {
   return t;
 }
 const PCT_TICKS = [[0, "#1"], [25, "前 25%"], [50, "前 50%"], [100, "最后"]];
-const PRICE_TICKS = [[PMIN, "$0.6M"], [1e6, "$1M"], [2e6, "$2M"], [PMAX, "$4.5M"]];
+const PRICE_TICKS = [[1e6, "$1M"], [2e6, "$2M"], [PMAX, "$4.5M"]];
 function renderDistrictRows() {
   const lv = state.ovLevel;
   const box = document.getElementById("drows");
   box.textContent = "";
   const ax = cell("div", undefined, "drow axisrow");
   ax.append(cell("div", "学区", "dn"));
-  const a1 = cell("div"); a1.append(cell("span", "每所" + LEVEL_NAME[lv] + "的全州排名位置（越靠左越好）", "axis-title")); a1.append(ticks(PCT_TICKS, v => v));
+  const a1 = cell("div"); a1.append(cell("span", "全州排名位置（越靠左越好）", "axis-title")); a1.append(ticks(PCT_TICKS, v => v));
   const a2 = cell("div"); a2.append(cell("span", "4 房房价，每个点一个 zip", "axis-title")); a2.append(ticks(PRICE_TICKS, priceX));
   ax.append(a1, a2); box.append(ax);
   DIST.forEach(d => {
