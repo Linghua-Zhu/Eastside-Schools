@@ -563,6 +563,7 @@ td.tuition { white-space: normal; min-width: 170px; font-variant-numeric: tabula
       <section>
         <h2>备注</h2>
         <p class="m">数据整理日期 2026-10-28。下面是每一列的来源和算法。代码和原始样本在 <a href="https://github.com/seattle-school-compare/seattle-school-compare.github.io" target="_blank" rel="noopener">GitHub</a>。发现错误或有建议，请<a href="https://forms.gle/vysXU5ZcqoahpYMJ6" target="_blank" rel="noopener">填这个表</a>，改过的地方会记在下面的更新记录里。</p>
+        <p class="m" id="visits" hidden></p>
       </section>
       <section>
         <h3>州排名、阅读、数学</h3>
@@ -1547,6 +1548,18 @@ function renderDetail() {
   const links = linkIcons({ url: p.website, gs: p.gs }); links.style.marginLeft = "0"; d.append(links);
 }
 
+function loadVisits() {
+  const el = document.getElementById("visits"), gc = document.querySelector("script[data-goatcounter]");
+  if (!el || !gc || loadVisits.done) return;
+  loadVisits.done = true;
+  const url = gc.getAttribute("data-goatcounter").replace(/\/count$/, "/counter/" + encodeURIComponent("/") + ".json");
+  fetch(url).then(r => r.ok ? r.json() : null).then(d => {
+    if (!d || !d.count) return;
+    el.textContent = "累计访问 " + d.count + " 次。数字来自 GoatCounter，最多晚 4 小时更新。";
+    el.hidden = false;
+  }).catch(() => {});
+}
+
 /* ---------- tabs ---------- */
 function showTab(t, opts = {}) {
   if (!TABS.includes(t)) t = "overview";
@@ -1567,6 +1580,7 @@ function showTab(t, opts = {}) {
     if (!keepLine && !keepCost && location.hash !== want) history.pushState(null, "", want);
   }
   if (t === "cost") { renderCost(); history.replaceState(null, "", costHash()); }
+  if (t === "notes") loadVisits();
   if (opts.push !== false && window.goatcounter && window.goatcounter.count) {
     try { window.goatcounter.count({ path: "tab-" + t, title: "标签 " + t, event: true }); } catch (e) {}
   }
