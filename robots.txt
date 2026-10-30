@@ -1,0 +1,3 @@
+User-agent: *
+Allow: /
+Sitemap: https://seattle-school-compare.github.io/sitemap.xml
