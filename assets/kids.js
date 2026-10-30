@@ -52,15 +52,15 @@
   const CC = window.CC;
   if (CC && $("#cc-list")) {
     const [W, H, S] = CC.geo;
-    const C = CC.C.map(r => ({ id: r[0], n: r[1], a: r[2], c: r[3], z: r[4], x: r[5], y: r[6], ap: r[7], cap: r[8], s: r[9], e: r[10], ea: r[11], zh: r[12], lat: r[13], lon: r[14] }));
+    const C = CC.C.map(r => ({ id: r[0], n: r[1], a: r[2], c: r[3], z: r[4], x: r[5], y: r[6], ap: r[7], cap: r[8], s: r[9], e: r[10], ea: r[11], zh: r[12], lat: r[13], lon: r[14], pv: r[15], mo: r[16] }));
     const byId = {}; C.forEach(p => { byId[p.id] = p; });
     const order = {}; CC.cities.forEach((c, i) => { order[c] = i; });
     const box = $("#cc-map"), svg = box.querySelector("svg"), dots = svg.querySelector(".ccdots"), me = svg.querySelector(".ccme");
     const wrap = document.querySelector(".cc-wrap");
-    const st = { loc: null, age: "", ea: false, zh: false, n: 20, sel: null };
+    const st = { loc: null, age: "", ea: false, zh: false, mo: false, pv: false, n: 20, sel: null };
     const ageOK = p => !st.age || (st.age === "i" ? p.s <= 11 : st.age === "t" ? p.s <= 29 && p.e >= 12 : p.s <= 59 && p.e >= 30);
     const eaOK = p => !st.ea || ["3", "3+", "4", "5"].includes(p.ea);
-    const list = () => C.filter(p => ageOK(p) && eaOK(p) && (!st.zh || p.zh));
+    const list = () => C.filter(p => ageOK(p) && eaOK(p) && (!st.zh || p.zh) && (!st.mo || p.mo) && (!st.pv || p.pv));
     const dist = p => st.loc && p.lat ? mi(st.loc, [p.lat, p.lon]) : null;
     const item = (p, sel) => {
       const d = dist(p);
@@ -72,7 +72,8 @@
         '<div class="m">' + esc(p.a) + ", " + esc(p.c) + "</div>" +
         '<div class="m">' + ageTxt(p.s) + "到" + ageTxt(p.e) + (p.cap ? " · 执照上限 " + p.cap + " 个孩子" : "") + (p.ap ? " · 位置按 zip 估算" : "") + "</div>" +
         (tags.length ? '<ul class="feat">' + tags.map(t => "<li>" + esc(t) + "</li>").join("") + "</ul>" : "") +
-        '<div class="links">' + out(CCC + p.id, "执照和检查记录") + out(gmap(p.n, p.a, p.c), "Google 地图") + "</div></div>";
+        '<div class="links">' + out(CCC + p.id, "执照和检查记录") + out(gmap(p.n, p.a, p.c), "Google 地图") +
+        (p.pv ? '<a href="' + window.siteURL("private/" + p.pv) + '">私校页（' + esc(CC.PV[p.pv] || "") + "）</a>" : "") + "</div></div>";
     };
     const setView = () => {
       let vb = [0, 0, W, H];
@@ -123,6 +124,8 @@
     }));
     const ea = $("#cc-ea"); if (ea) ea.addEventListener("change", () => { st.ea = ea.checked; st.n = 20; render(); });
     const zh = $("#cc-zh"); if (zh) zh.addEventListener("change", () => { st.zh = zh.checked; st.n = 20; render(); });
+    const mo = $("#cc-mo"); if (mo) mo.addEventListener("change", () => { st.mo = mo.checked; $("#cc-monote").hidden = !mo.checked; st.n = 20; render(); });
+    const pv = $("#cc-pv"); if (pv) pv.addEventListener("change", () => { st.pv = pv.checked; st.n = 20; render(); });
     $("#cc-more").addEventListener("click", () => { st.n += 20; render(); });
     dots.addEventListener("click", e => {
       const c = e.target.closest("circle[data-id]");
