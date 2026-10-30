@@ -114,7 +114,7 @@
     sel.append(new Option("公立（划片校）", "pub"));
     Object.entries(regions).forEach(([reg, list]) => {
       const og = document.createElement("optgroup"); og.label = reg;
-      list.forEach(p => { const [lo, hi] = span(p); og.append(new Option(p.name + (lo == null ? "（学费未公布）" : "（" + GR(lo) + "-" + GR(hi) + "）"), p.key)); });
+      list.forEach(p => { const [lo, hi] = span(p); og.append(new Option(p.name + (lo == null ? "（没有学费数字）" : "（" + GR(lo) + "-" + GR(hi) + "）"), p.key)); });
       sel.append(og);
     });
     sel.value = seg.s;
