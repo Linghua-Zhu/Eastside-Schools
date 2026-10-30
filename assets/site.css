@@ -701,3 +701,4 @@ h2.sub { font-size: 1.1875rem; margin-top: 0.5rem; }
 .sa-list .h .d { flex: none; }
 .card > a.go { font-size: 0.875rem; font-weight: 600; align-self: flex-start; }
 .plain { margin: 0.25rem 0; padding-left: 1.25rem; display: grid; gap: 0.125rem; font-size: 0.875rem; }
+.foot .disc { flex-basis: 100%; }
