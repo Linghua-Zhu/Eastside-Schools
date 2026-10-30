@@ -477,6 +477,7 @@ a.stage3:hover { border-color: var(--muted); }
 .foot { border-top: 1px solid var(--line); }
 .foot .in { max-width: 1360px; margin: 0 auto; padding: 16px 40px 28px; display: flex; flex-wrap: wrap; gap: 6px 22px; font-size: 13px; color: var(--muted); }
 .foot a { color: var(--muted); }
+.foot .visits { margin-left: auto; font-variant-numeric: tabular-nums; }
 .tabbar { display: none; }
 .tipbox { position: fixed; z-index: 60; pointer-events: none; background: var(--surface); color: var(--fg); border: 1px solid var(--line); border-radius: 8px; padding: 6px 10px; font-size: 13.5px; line-height: 1.45; box-shadow: 0 4px 14px rgba(0,0,0,0.16); max-width: 280px; display: none; }
 .tipbox b { font-weight: 600; }

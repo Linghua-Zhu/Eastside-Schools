@@ -131,3 +131,17 @@
     month.querySelector(".dates").innerHTML = list.slice(0, 4).map(e => '<span class="dt">' + fmt(e.start) + (e.end ? "–" + fmt(e.end) : "") + '</span><span class="w">' + tag(e) + esc(e.what) + "</span>").join("") || '<span class="dt"></span><span class="w">这段时间没有收录的日期</span>';
   }
 })();
+
+// visit count in the footer: old one-page site ("/") plus every page of the new site since launch
+(() => {
+  const el = document.getElementById("visits"), gc = document.querySelector("script[data-goatcounter]");
+  if (!el || !gc) return;
+  const base = gc.getAttribute("data-goatcounter").replace(/\/count$/, "/counter/");
+  const get = p => fetch(base + p).then(r => r.ok ? r.json() : null).then(d => d ? Number(String(d.count).replace(/[^0-9]/g, "")) || 0 : 0).catch(() => 0);
+  Promise.all([get(encodeURIComponent("/") + ".json"), get("TOTAL.json?start=2026-10-30")]).then(([a, b]) => {
+    if (!(a + b)) return;
+    el.textContent = "累计访问 " + (a + b).toLocaleString("en-US") + " 次";
+    el.title = "GoatCounter 统计，最多晚 4 小时更新";
+    el.hidden = false;
+  });
+})();
