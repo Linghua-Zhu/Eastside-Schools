@@ -134,8 +134,15 @@
       render();
       if (st.sel) { const it = $("#cc-list .cc-item.sel"); if (it && it.getBoundingClientRect().top > window.innerHeight) it.scrollIntoView({ block: "nearest" }); }
     });
+    // the browser may restore checkboxes on reload, so start from what they show
+    if (ea) st.ea = ea.checked;
+    if (zh) st.zh = zh.checked;
+    if (mo) { st.mo = mo.checked; $("#cc-monote").hidden = !mo.checked; }
+    if (pv) st.pv = pv.checked;
     const saved = store.get("gssc-ccloc");
-    if (saved && CC.LOC[saved]) { inp.value = saved; setLoc(saved, false); } else render();
+    if (saved && CC.LOC[saved]) { inp.value = saved; setLoc(saved, false); }
+    else if (findLoc(inp.value)) setLoc(inp.value, false);
+    else render();
   }
 
   /* ---------- 课外: before and after school care by school ---------- */
