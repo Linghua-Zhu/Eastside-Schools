@@ -1,6 +1,6 @@
 (() => {
   const SITE = window.SITE || { base: "", ext: "" };
-  const url = (path, q) => SITE.base + "zh/" + path + "/" + SITE.ext + (q ? "?" + q : "");
+  const url = (path, q) => { const [p, h] = String(path).split("#"); return SITE.base + "zh/" + p + "/" + SITE.ext + (q ? "?" + q : "") + (h ? "#" + h : ""); };
   window.siteURL = url;
   const esc = s => String(s == null ? "" : s).replace(/[&<>"]/g, c => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" }[c]));
   window.esc = esc;

@@ -58,7 +58,7 @@
     if (tnote === "2026-27") tnote = "";
     else if (tnote.startsWith("2026-27（") && tnote.endsWith("）")) tnote = tnote.slice(8, -1);
     const tu = p.tuition ? p.tuition + (tnote ? "；" + tnote : "") : tnote;
-    h += row("学费", tu) + row("入学考试", p.test) + row("申请截止", p.deadline) + row("类型", p.type) + row("特点", p.focus);
+    h += row("学费", tu) + row("入学考试", p.test) + row("申请截止", p.deadline) + row("类型", p.type) + row("外语", p.langs) + row("特点", p.focus);
     h += '<div class="pmini-slot"></div>';
     h += "<div>" + st.r + " 英里内的公立小学" + (list.length ? "（" + list.length + " 所）" : "：没有") + "</div>";
     const shown = st.all ? list : list.slice(0, SHOW);
@@ -99,6 +99,19 @@
   const pub = document.getElementById("pm-pub");
   const syncPub = () => { box.classList.toggle("nopub", !pub.checked); detail.classList.toggle("nopub", !pub.checked); };
   pub.addEventListener("change", syncPub);
+  const zh = document.getElementById("pm-zh");
+  const syncZh = () => {
+    const on = zh.checked;
+    box.querySelectorAll(".pv").forEach(g => g.classList.toggle("off", on && !P[Number(g.dataset.i)].zh));
+    document.querySelectorAll("#pm-legend button").forEach(b => { b.parentElement.hidden = on && !P[Number(b.dataset.i)].zh; });
+    document.querySelectorAll("#pm-legend .grp").forEach(g => {
+      let n = g.nextElementSibling, any = false;
+      while (n && !n.classList.contains("grp")) { if (!n.hidden) any = true; n = n.nextElementSibling; }
+      g.hidden = !any;
+    });
+    fade();
+  };
+  zh.addEventListener("change", syncZh);
   let rt;
   window.addEventListener("resize", () => { clearTimeout(rt); rt = setTimeout(() => { fitMini(); fade(); }, 150); });
   applyRadius();
